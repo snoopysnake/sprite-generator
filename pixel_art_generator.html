@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+    <head>
+        <title>Sprite Generator</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script>
+            var layer_selected;
+            var layers_menu;
+            var buttons_menu;
+            function setup() {
+                layers_menu = document.getElementById('generator-layers');
+                buttons_menu = document.getElementById('generator-options');
+                var background = document.getElementById('background-layer');
+                var ctx = background.getContext('2d');
+                for (var i = 0; i < 32; i++) {
+                  for (var j = 0; j < 32; j++) {
+                    ctx.fillStyle = 'rgb(' + Math.floor(255 - 10 * i) + ', ' +
+                                     Math.floor(255 - 10 * j) + ', 0)';
+                    ctx.fillRect(j * 25, i * 25, 25, 25);
+                  }
+                }
+            }
+            function choose_layer(button) {
+                layer_selected = button.value.toLowerCase();
+                layers_menu.style.display = 'none';
+                buttons_menu.style.display = 'block';
+            }
+            function go_back() {
+                layers_menu.style.display = 'block';
+                buttons_menu.style.display = 'none';
+            }
+            function draw() {
+                var layer = document.getElementById(layer_selected+'-layer');
+                var ctx = layer.getContext('2d');
+                //Why isn't this updating? Stupid host
+                ctx.clearRect(0, 0, 32, 32);
+                var img = new Image();
+                img.onload = function() {
+                    ctx.drawImage(img, 0, 0);
+                }
+                img.src = layer_selected+'-1.png'
+            }
+            function erase() {
+                var layer = document.getElementById(layer_selected+'-layer');
+                var ctx = layer.getContext('2d');
+                ctx.clearRect(0, 0, 32, 32);
+            }
+            function export_img() {
+                var layers = document.getElementsByClassName('layer');
+                var export_layer = document.getElementById('export-layer');
+                var ctx = export_layer.getContext('2d');
+                ctx.webkitImageSmoothingEnabled = false;
+                ctx.mozImageSmoothingEnabled = false;
+                ctx.imageSmoothingEnabled = false;
+                ctx.save();
+                ctx.drawImage(layers[0],0,0); //Background does not need rescale
+                ctx.scale(16,16);
+                for(var i = 1; i < layers.length; i++)
+                {
+                    ctx.drawImage(layers[i],0,0);
+                }
+                //Export dialog needs work
+                var exported_img = export_layer.toDataURL("image/png").replace("image/png", "image/octet-stream"); //Convert image to 'octet-stream' (Just a download, really)
+                window.location.href = exported_img;
+                ctx.clearRect(0, 0, 512, 512);
+                ctx.restore();
+            }
+        </script>
+    <style type="text/css">
+        canvas { 
+            /*border: 1px solid black;*/
+            position: absolute;
+            image-rendering: optimizeSpeed;
+            image-rendering: -moz-crisp-edges;
+            image-rendering: -webkit-optimize-contrast;
+            image-rendering: optimize-contrast;
+            image-rendering: pixelated;
+            -ms-interpolation-mode: nearest-neighbor;
+            width: 512px; 
+            height: 512px;  
+        }
+        #header-div {
+            background-color: white;
+            width: 832px;
+            height: 32px;
+        }
+        #tool-div {
+            width: 64px;
+            display: inline-block;
+            text-align: center;
+            float: right;
+        }
+        #edit-div {
+            width: 256px;
+            display: inline-block;
+            text-align: center;
+            float: right;
+        }
+        #generator-div-1 {
+            width: 512px; 
+            height: 512px;
+            display: inline-block;
+            float:left;
+        } 
+        #generator-div-2 {
+            /*border: 1px solid black;*/
+            height: 512px;
+            width: 64px;
+            display: inline-block;
+            float:left;
+        }
+        #generator-tools input {
+            border: none;
+            background-color: red;
+            height: 64px;
+            width: 64px;
+            float: left;
+            white-space: normal;
+        }
+        #generator-div-3 {
+            /*border: 1px solid black;*/
+            width: 256px; 
+            height: 512px;
+            display: inline-block;
+            float:left;
+        }
+        #generator-layers {
+            display: block;
+        }
+        #generator-layers input {
+            height: 32px;
+            width: 256px;
+        }
+        #generator-options {
+            display: none;
+        }
+        #go-back input {
+            height: 32px;
+            width: 256px;
+        }
+        #generator-btns { height: 448px; }
+        #generator-btns input {
+            border: none;
+            background-color: red;
+            height: 64px;
+            width: 64px;
+            float: left;
+        }
+        #forward-btn {
+            height: 32px;
+            width: 32px;
+            float: right;
+        } 
+        #back-btn {
+            height: 32px;
+            width: 32px;
+            float: left;
+        } 
+        #background-layer { z-index: 1 }
+        #face-layer { z-index: 2 }
+        #hair-layer { z-index: 3 }
+        #accessories-layer { z-index: 4 }
+    </style>
+    </head>
+    <body onload='setup()'>
+        <div id='header-div'>
+            <div id='edit-div'>Edit Features</div>
+            <div id='tool-div'>Tools</div>
+        </div>
+        <div id='generator-div-1'>
+            <canvas id="background-layer" class='layer' width="512" height="512"></canvas>
+            <canvas id="face-layer" class='layer' width="32" height="32"></canvas>
+            <canvas id="hair-layer" class='layer' width="32" height="32"></canvas>
+            <canvas id="accessories-layer" class='layer' width="32" height="32"></canvas>
+            <canvas id="export-layer" width="512" height="512"></canvas>
+        </div>
+        <div id="generator-div-2">
+            <div id='generator-tools'>
+                <input type='button' value='Change Color'>
+                <input type='button' value='Erase Layer'>
+                <input type='button' value='Erase All'>
+                <input id='export-btn' type='button' value='Export!' onclick='export_img()'>
+            </div>
+        </div>
+        <div id='generator-div-3'>
+            <div id='generator-layers'>
+                <input type='button' value='Face' onclick='choose_layer(this)'>
+                <input type='button' value='Hair' onclick='choose_layer(this)'>
+                <input type='button' value='Accessories' onclick='choose_layer(this)'>
+<!--                <input type='button' value='Background' onclick='choose_layer(this)'>
+                <input type='button' value='Skin'>
+                <input type='button' value='Eyes'>
+                <input type='button' value='Nose'>
+                <input type='button' value='Mouth'>-->
+            </div>
+            <div id='generator-options'>
+                <div id='go-back'>
+                    <input type='button' value='go back' onclick='go_back()'>
+                </div>
+                <!-- dynamically load buttons -->
+                <div id='generator-btns'>
+                    <input type='button' value='draw' onclick='draw()'>
+                    <input type='button' value='erase' onclick='erase()'>
+                    <input type='button' value='go back' onclick='go_back()'>
+                    <input type='button' value='test'/>
+                    <input type='button' value='test'/>
+                </div>
+                <div>
+                    <input id='forward-btn' type='button' value='->'/>
+                    <input id='back-btn' type='button' value='<-'/>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
