@@ -14,26 +14,33 @@ and open the template in the editor.
             var layers_menu;
             var buttons_menu;
             function setup() {
+                //Set up global vars
                 layers_menu = document.getElementById('generator-layers');
-                buttons_menu = document.getElementById('generator-options');
+                buttons_menu = document.getElementById('generator-div-4');
+                //Set up layer button colors
+                var layer_btns = document.getElementsByClassName('layer-btn');
+                for (var i = 0; i < layer_btns.length; i++) {
+                    layer_btns[i].style.backgroundColor = 'rgb(' + Math.floor(255 - 10 * i) + ', ' +
+                        Math.floor(255 - 10 * i) + ', 0)';
+                    layer_btns[i].onclick = function(){
+                        choose_layer(this);
+                    }
+                }
+                //Set up canvas background
                 var background = document.getElementById('background-layer');
                 var ctx = background.getContext('2d');
                 for (var i = 0; i < 32; i++) {
                   for (var j = 0; j < 32; j++) {
                     ctx.fillStyle = 'rgb(' + Math.floor(255 - 10 * i) + ', ' +
-                                     Math.floor(255 - 10 * j) + ', 0)';
+                        Math.floor(255 - 10 * j) + ', 0)';
                     ctx.fillRect(j * 25, i * 25, 25, 25);
                   }
                 }
             }
             function choose_layer(button) {
                 layer_selected = button.value.toLowerCase();
-                layers_menu.style.display = 'none';
                 buttons_menu.style.display = 'block';
-            }
-            function go_back() {
-                layers_menu.style.display = 'block';
-                buttons_menu.style.display = 'none';
+                buttons_menu.style.backgroundColor = button.style.backgroundColor;
             }
             function draw() {
                 var layer = document.getElementById(layer_selected+'-layer');
@@ -44,12 +51,20 @@ and open the template in the editor.
                 img.onload = function() {
                     ctx.drawImage(img, 0, 0);
                 }
-                img.src = layer_selected+'-1.png'
+                img.src = layer_selected+'-2.png'
             }
             function erase() {
                 var layer = document.getElementById(layer_selected+'-layer');
                 var ctx = layer.getContext('2d');
                 ctx.clearRect(0, 0, 32, 32);
+            }
+            function erase_all() {
+                var layers = document.getElementsByClassName('layer');
+                for(var i = 1; i < layers.length; i++)
+                {
+                    var ctx = layers[i].getContext('2d');
+                    ctx.clearRect(0, 0, 32, 32);
+                }
             }
             function export_img() {
                 var layers = document.getElementsByClassName('layer');
@@ -103,15 +118,15 @@ and open the template in the editor.
             float: right;
         }
         #generator-div-1 {
-            width: 512px; 
+            /*border: 1px solid black;*/
             height: 512px;
+            width: 64px;
             display: inline-block;
             float:left;
         } 
         #generator-div-2 {
-            /*border: 1px solid black;*/
+            width: 512px; 
             height: 512px;
-            width: 64px;
             display: inline-block;
             float:left;
         }
@@ -125,7 +140,7 @@ and open the template in the editor.
         }
         #generator-div-3 {
             /*border: 1px solid black;*/
-            width: 256px; 
+            width: 128px; 
             height: 512px;
             display: inline-block;
             float:left;
@@ -134,15 +149,16 @@ and open the template in the editor.
             display: block;
         }
         #generator-layers input {
+            border: none;
             height: 32px;
-            width: 256px;
+            width: 128px;
         }
-        #generator-options {
+        #generator-div-4 {
+            background-color: red;
+            width: 256px; 
+            height: 512px;
             display: none;
-        }
-        #go-back input {
-            height: 32px;
-            width: 256px;
+            float: left;
         }
         #generator-btns { height: 448px; }
         #generator-btns input {
@@ -156,6 +172,8 @@ and open the template in the editor.
             height: 32px;
             width: 32px;
             float: right;
+  vertical-align: middle;
+    display: inline-block;/* or table-cell */
         } 
         #back-btn {
             height: 32px;
@@ -174,47 +192,42 @@ and open the template in the editor.
             <div id='tool-div'>Tools</div>
         </div>
         <div id='generator-div-1'>
+            <div id='generator-tools'>
+                <input type='button' value='Change Color'>
+                <input type='button' value='Erase Layer' onclick='erase()'>
+                <input type='button' value='Erase All' onclick='erase_all()'>
+                <input id='export-btn' type='button' value='Export!' onclick='export_img()'>
+            </div>
+        </div>
+        <div id="generator-div-2">
             <canvas id="background-layer" class='layer' width="512" height="512"></canvas>
             <canvas id="face-layer" class='layer' width="32" height="32"></canvas>
             <canvas id="hair-layer" class='layer' width="32" height="32"></canvas>
             <canvas id="accessories-layer" class='layer' width="32" height="32"></canvas>
             <canvas id="export-layer" width="512" height="512"></canvas>
         </div>
-        <div id="generator-div-2">
-            <div id='generator-tools'>
-                <input type='button' value='Change Color'>
-                <input type='button' value='Erase Layer'>
-                <input type='button' value='Erase All'>
-                <input id='export-btn' type='button' value='Export!' onclick='export_img()'>
-            </div>
-        </div>
         <div id='generator-div-3'>
             <div id='generator-layers'>
-                <input type='button' value='Face' onclick='choose_layer(this)'>
-                <input type='button' value='Hair' onclick='choose_layer(this)'>
-                <input type='button' value='Accessories' onclick='choose_layer(this)'>
-<!--                <input type='button' value='Background' onclick='choose_layer(this)'>
-                <input type='button' value='Skin'>
+                <input type='button' value='Face' class='layer-btn'>
+                <input type='button' value='Hair' class='layer-btn'>
+                <input type='button' value='Accessories' class='layer-btn'>
                 <input type='button' value='Eyes'>
                 <input type='button' value='Nose'>
-                <input type='button' value='Mouth'>-->
+                <input type='button' value='Mouth'>
+                <!--<input type='button' value='Background' onclick='choose_layer(this)'>-->
             </div>
+        </div>
+        <div id='generator-div-4'>
             <div id='generator-options'>
-                <div id='go-back'>
-                    <input type='button' value='go back' onclick='go_back()'>
-                </div>
                 <!-- dynamically load buttons -->
                 <div id='generator-btns'>
-                    <input type='button' value='draw' onclick='draw()'>
-                    <input type='button' value='erase' onclick='erase()'>
-                    <input type='button' value='go back' onclick='go_back()'>
-                    <input type='button' value='test'/>
-                    <input type='button' value='test'/>
+                    <input type='button' value='test' onclick='draw()'>
                 </div>
-                <div>
-                    <input id='forward-btn' type='button' value='->'/>
-                    <input id='back-btn' type='button' value='<-'/>
-                </div>
+            </div>
+            <div>
+                <input id='forward-btn' type='button' value='->'/>
+                <a>Page 1</a>
+                <input id='back-btn' type='button' value='<-'/>
             </div>
         </div>
     </body>
