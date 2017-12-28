@@ -10,18 +10,21 @@ and open the template in the editor.
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <script>
-            var layer_selected;
             var layers_menu;
             var buttons_menu;
+            var buttons_menu_top;
+            var layer_selected;
+            var last_clicked;
             function setup() {
                 //Set up global vars
                 layers_menu = document.getElementById('generator-layers');
                 buttons_menu = document.getElementById('generator-div-4');
+                buttons_menu_text = document.getElementById('layer-name');
                 //Set up layer button colors
                 var layer_btns = document.getElementsByClassName('layer-btn');
                 for (var i = 0; i < layer_btns.length; i++) {
-                    layer_btns[i].style.backgroundColor = 'rgb(' + Math.floor(255 - 10 * i) + ', ' +
-                        Math.floor(255 - 10 * i) + ', 0)';
+                    // layer_btns[i].style.backgroundColor = 'rgb(' + Math.floor(255 - 10 * i) + ', ' +
+                    //     Math.floor(255 - 10 * i) + ', 0)';
                     layer_btns[i].onclick = function(){
                         choose_layer(this);
                     }
@@ -38,9 +41,17 @@ and open the template in the editor.
                 }
             }
             function choose_layer(button) {
+                if (last_clicked != null)
+                    last_clicked.style.backgroundColor = '#FFAF3F';
+                last_clicked = button;
+                button.style.backgroundColor = 'white';
                 layer_selected = button.value.toLowerCase();
+                buttons_menu_text.text = 'Choose your '+layer_selected+'!';
                 buttons_menu.style.display = 'flex';
-                buttons_menu.style.backgroundColor = button.style.backgroundColor;
+            }
+            function go_back() {
+                last_clicked.style.backgroundColor = '#FFAF3F';
+                buttons_menu.style.display = 'none';
             }
             function draw() {
                 var layer = document.getElementById(layer_selected+'-layer');
@@ -88,6 +99,32 @@ and open the template in the editor.
             }
         </script>
     <style type="text/css">
+        @font-face {
+            font-family: "Aleo Regular";
+            src: url("css/fonts/aleo-regular-webfont.eot");
+            src: 
+            url("css/fonts/aleo-regular-webfont.woff") format("woff"),
+            url("css/fonts/aleo-regular-webfont.otf") format("opentype"),
+            url('css/fonts/aleo-regular-webfont.ttf') format('truetype'),
+            url("css/fonts/aleo-regular-webfont.svg#filename") format("svg");
+            font-weight: normal;
+            font-style: normal;
+        }
+        @font-face {
+            font-family: "Aleo Bold";
+            src: url("css/fonts/aleo-bold-webfont.eot");
+            src: 
+            url("css/fonts/aleo-bold-webfont.woff") format("woff"),
+            url("css/fonts/aleo-bold-webfont.otf") format("opentype"),
+            url('css/fonts/aleo-bold-webfont.ttf') format('truetype'),
+            url("css/fonts/aleo-bold-webfont.svg#filename") format("svg");
+            font-weight: normal;
+            font-style: normal;
+        }
+        body {
+            background-color: #CBF2FF;
+            display: flex;
+        }
         canvas { 
             /*border: 1px solid black;*/
             position: absolute;
@@ -102,39 +139,25 @@ and open the template in the editor.
         }
         #container {
             display: inline-flex;
-            border: 4px solid black;
-
-        }
-        #header-div {
+            border: 16px solid white;
             background-color: white;
-            width: 832px;
-            height: 32px;
-        }
-        #tool-div {
-            width: 64px;
-            display: inline-block;
-            text-align: center;
-            float: right;
-        }
-        #edit-div {
-            width: 256px;
-            display: inline-block;
-            text-align: center;
-            float: right;
+
         }
         #generator-div-1 {
             height: 512px;
             width: 64px;
-            /*float:left;*/
         } 
         #generator-div-2 {
             width: 512px; 
             height: 512px;
-            /*float:left;*/
         }
         #generator-tools input {
+            font-family: 'Aleo Regular', arial, sans-serif;
+            font-weight: normal;
+            font-style: normal;
+            color: white;
             border: none;
-            background-color: red;
+            background-color: #FF6F3F;
             height: 56px;
             width: 56px;
             white-space: normal;
@@ -143,27 +166,48 @@ and open the template in the editor.
             outline-style: none;
         }
         #generator-div-3 {
-            /*border: 1px solid black;*/
             width: 128px; 
             height: 512px;
-            /*display: inline-flex;*/
-            /*float:left;
-        }
-        #generator-layers {
-            /*display: block;*/
         }
         #generator-layers input {
+            font-family: 'Aleo Regular', arial, sans-serif;
+            font-weight: normal;
+            font-style: normal;
+            color: white;
             border: none;
+            background-color: #FFAF3F;
             height: 32px;
+            margin-right: 4px;
+            margin-left: 4px;
+            margin-bottom: 4px;
             border-radius: 8px;
-            width: 128px;
+            width: 120px;
+            outline-style: none;
         }
         #generator-div-4 {
-            background-color: red;
             width: 256px; 
             height: 512px;
+            background-color: #CBF2FF;
             display: none;
             flex-direction: column;
+        }
+        #generator-btns-top {
+            height: 32px;
+            align-items: center;
+            display: flex;
+        }
+        #layer-name {
+            margin-left: 8px;
+            font-family: 'Aleo Bold', arial, sans-serif;
+            font-weight: normal;
+            font-style: normal;
+            color: white;
+            flex: 3;
+        }
+        #close-btn {
+            flex: 1;
+            text-align: right;
+            margin-right: 8px;
         }
         #generator-btns { 
             height: 448px; 
@@ -176,21 +220,11 @@ and open the template in the editor.
         #generator-btns div {
             height: 64px;
             width: 64px;
-            background-color: blue;
             display: flex;
             flex-flow: column wrap;
         }
-        #generator-btns input {
-            border: none;
-            background-color: red;
-            height: 64px;
-            width: 64px;
-            margin: 4px;
-
-            /*float: left;*/
-        }
         #generator-btns-bottom {
-            height: 64px;
+            height: 32px;
             width: 256px;
             display: flex;
             align-items: center;
@@ -200,11 +234,42 @@ and open the template in the editor.
             flex: 1;
         }
         #page {
-            flex: 3;
+            font-family: 'Aleo Bold', arial, sans-serif;
+            font-weight: normal;
+            font-style: normal;
+            color: white;
+            flex: 2;
         }
         #back-btn {
             flex: 1;
-        } 
+        }
+        #right-container {
+            background-color: white;
+            width: 128px;
+            height: 544px;
+            display: flex;
+            flex-direction: row-reverse;
+        }
+        #right-1 {
+            height: 448px;
+            background-color: #CBF2FF;
+            flex: 1;
+        }
+        #right-2 {
+            height: 384px;
+            background-color: #CBF2FF;
+            flex: 1;
+        }
+        #right-3 {
+            height: 128px;
+            background-color: #CBF2FF;
+            flex: 1;
+        }
+        #right-4 {
+            height: 64px;
+            background-color: #CBF2FF;
+            flex: 1;
+        }
         #background-layer { z-index: 1 }
         #face-layer { z-index: 2 }
         #hair-layer { z-index: 3 }
@@ -212,6 +277,12 @@ and open the template in the editor.
     </style>
     </head>
     <body onload='setup()'>
+        <div id='right-container'>
+            <div id='right-4'></div>
+            <div id='right-3'></div>
+            <div id='right-2'></div>
+            <div id='right-1'></div>
+        </div>
         <div id='container'>
 <!--             <div id='header-div'>
                 <div id='edit-div'>Edit Features</div>
@@ -245,6 +316,12 @@ and open the template in the editor.
             </div>
             <div id='generator-div-4'>
                 <div id='generator-options'>
+                    <div id='generator-btns-top'>
+                        <a id='layer-name'></a>
+                        <div id='close-btn'>
+                            <input  type='button' value='X' onclick='go_back()'/>
+                        </div>
+                    </div>
                     <!-- dynamically load buttons -->
                     <div id='generator-btns'>
                         <div class='row'>
@@ -280,6 +357,12 @@ and open the template in the editor.
                     </div>
                 </div>
             </div>
+        </div>
+        <div id='right-container'>
+            <div id='right-1'></div>
+            <div id='right-2'></div>
+            <div id='right-3'></div>
+            <div id='right-4'></div>
         </div>
     </body>
 </html>
