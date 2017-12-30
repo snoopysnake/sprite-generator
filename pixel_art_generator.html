@@ -41,17 +41,23 @@ and open the template in the editor.
                 }
             }
             function choose_layer(button) {
-                if (last_clicked != null)
-                    last_clicked.style.backgroundColor = '#FFAF3F';
-                last_clicked = button;
-                button.style.backgroundColor = 'white';
-                layer_selected = button.value.toLowerCase();
-                buttons_menu_text.text = 'Choose your '+layer_selected+'!';
-                buttons_menu.style.display = 'flex';
-            }
-            function go_back() {
-                last_clicked.style.backgroundColor = '#FFAF3F';
-                buttons_menu.style.display = 'none';
+                if (last_clicked == button) {
+                    //Click the same button twice
+                    button.style.backgroundColor = 'white';
+                    button.style.color = '#FFAF3F';
+                    buttons_menu.style.display = 'none';
+                    last_clicked = null;
+                } else {
+                    if (last_clicked == null) {
+                        last_clicked = button;
+                    }
+                    last_clicked.style.backgroundColor = 'white';
+                    last_clicked.style.color = '#FFAF3F';
+                    button.style.backgroundColor = '#FFAF3F';
+                    button.style.color = 'white';
+                    buttons_menu.style.display = 'flex';
+                    last_clicked = button;
+                }
             }
             function draw() {
                 var layer = document.getElementById(layer_selected+'-layer');
@@ -63,6 +69,34 @@ and open the template in the editor.
                     ctx.drawImage(img, 0, 0);
                 }
                 img.src = layer_selected+'-1.png'
+            }
+            function change_color(button) {
+                var color_palette = document.getElementById('color-palette');
+                if (color_palette.style.display == 'flex') {
+                    button.style.backgroundColor = 'white';
+                    button.style.color = '#FF6F3F';
+                    color_palette.style.display = 'none';
+                    color_palette.style.borderRight = '0px';
+                } else {
+                    button.style.backgroundColor = '#FF6F3F';
+                    button.style.color = 'white';
+                    color_palette.style.display = 'flex';
+                    color_palette.style.borderRight = '16px solid white';
+                }
+            }
+            function change_position(button) {
+                var change_position = document.getElementById('change-position');
+                if (change_position.style.display == 'flex') {
+                    button.style.backgroundColor = 'white';
+                    button.style.color = '#FF6F3F';
+                    change_position.style.display = 'none';
+                    change_position.style.borderRight = '0px';
+                } else {
+                    button.style.backgroundColor = '#FF6F3F';
+                    button.style.color = 'white';
+                    change_position.style.display = 'flex';
+                    change_position.style.borderRight = '16px solid white';
+                }
             }
             function erase() {
                 var layer = document.getElementById(layer_selected+'-layer');
@@ -126,7 +160,6 @@ and open the template in the editor.
             display: flex;
         }
         canvas { 
-            /*border: 1px solid black;*/
             position: absolute;
             image-rendering: optimizeSpeed;
             image-rendering: -moz-crisp-edges;
@@ -139,15 +172,105 @@ and open the template in the editor.
         }
         #container {
             display: inline-flex;
-            border: 16px solid white;
             background-color: white;
-
+        }
+        #generator-div-0 {
+            border: 16px solid white;
+            border-right: 0px;
+            height: 512px;
+            background-color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+        }
+        #color-palette {
+            display: none;
+            flex-direction: column;
+        }
+        #color-palette div {
+            width: 64px;
+            height: 32px;
+        }
+        #dark-brown {
+            background-color: #7F6C5F
+        }
+        #medium-brown {
+            background-color: #A58D7C
+        }
+        #light-brown {
+            background-color: #E5D8CE
+        }
+        #cloud-white {
+            background-color: #FFFFFF
+        }
+        #flame-red {
+            background-color: #FF3F46
+        }
+        #bitcamp-orange {
+            background-color: #7F6C5F
+        }
+        #yellow-orange {
+            background-color: #FF6F3F
+        }
+        #yellow {
+            background-color: #FFEF3F
+        }
+        #midnight-blue {
+            background-color: #1A2E33
+        }
+        #medium-blue {
+            background-color: #528CA5
+        }
+        #sky-blue {
+            background-color: #CBF2FF
+        }
+        #change-position {
+            width: 128px;
+            height: 128px;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+        }
+        #change-position div {
+            width: 128px;
+            height: 42px;
+            display: flex;
+        }
+        #change-position input {
+            font-family: 'Aleo Regular', arial, sans-serif;
+            font-weight: normal;
+            font-style: normal;
+            font-size: 12px;
+            color: white;
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            border: 2px solid #FF3F46;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #FF3F46;
+            outline-style: none;
+        }
+        #up {
+            justify-content: center;
+        }
+        #left-right {
+            justify-content: space-between;
+        }
+        #down {
+            justify-content: center;
         }
         #generator-div-1 {
+            border: 16px solid white;
+            border-left: 0px;
             height: 512px;
             width: 64px;
         } 
         #generator-div-2 {
+            border-top: 16px solid white;
+            border-bottom: 16px solid white;
             width: 512px; 
             height: 512px;
         }
@@ -155,17 +278,21 @@ and open the template in the editor.
             font-family: 'Aleo Regular', arial, sans-serif;
             font-weight: normal;
             font-style: normal;
-            color: white;
-            border: none;
-            background-color: #FF6F3F;
-            height: 56px;
-            width: 56px;
+            color: #FF6F3F;
+            border: 2px solid #FF6F3F;
+            background-color: white;
+            height: 60px;
+            width: 60px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
             white-space: normal;
             border-radius: 50%;
-            margin: 4px;
+            margin: 2px;
             outline-style: none;
         }
         #generator-div-3 {
+            border: 16px solid white;
             width: 128px; 
             height: 512px;
         }
@@ -173,28 +300,26 @@ and open the template in the editor.
             font-family: 'Aleo Regular', arial, sans-serif;
             font-weight: normal;
             font-style: normal;
-            color: white;
-            border: none;
-            background-color: #FFAF3F;
+            color: #FFAF3F;
+            border: 2px solid #FFAF3F;
+            background-color: white;
             height: 32px;
-            margin-right: 4px;
+            margin-top: 2px;
+            margin-bottom: 2px;
             margin-left: 4px;
-            margin-bottom: 4px;
+            margin-right: 4px;
             border-radius: 8px;
             width: 120px;
             outline-style: none;
         }
         #generator-div-4 {
+            border: 16px solid white;
+            border-left: 0px;
             width: 256px; 
             height: 512px;
             background-color: #CBF2FF;
             display: none;
             flex-direction: column;
-        }
-        #generator-btns-top {
-            height: 32px;
-            align-items: center;
-            display: flex;
         }
         #layer-name {
             margin-left: 8px;
@@ -224,11 +349,27 @@ and open the template in the editor.
             flex-flow: column wrap;
         }
         #generator-btns-bottom {
-            height: 32px;
+            height: 64px;
             width: 256px;
             display: flex;
             align-items: center;
             text-align: center;
+        }
+        #generator-btns-bottom input {
+            font-family: 'Aleo Regular', arial, sans-serif;
+            font-weight: normal;
+            font-style: normal;
+            font-size: 12px;
+            color: white;
+            margin: 8px;
+            width: 64px;
+            height: 32px;
+            border-radius: 8px;
+            border: 2px solid white;
+            display: flex;
+            justify-content: center;
+            background-color: #FF3F46;
+            outline-style: none;
         }
         #forward-btn {
             flex: 1;
@@ -277,20 +418,46 @@ and open the template in the editor.
     </style>
     </head>
     <body onload='setup()'>
-        <div id='right-container'>
+<!--         <div id='right-container'>
             <div id='right-4'></div>
             <div id='right-3'></div>
             <div id='right-2'></div>
             <div id='right-1'></div>
-        </div>
+        </div>-->        
         <div id='container'>
-<!--             <div id='header-div'>
-                <div id='edit-div'>Edit Features</div>
-                <div id='tool-div'>Tools</div>
-            </div> -->
+            <div id='generator-div-0'>
+                <div id='color-palette'>
+                    <div id='dark-brown'></div>
+                    <div id='medium-brown'></div>
+                    <div id='light-brown'></div>
+                    <div id='cloud-white'></div>
+                    <div id='flame-red'></div>
+                    <div id='bitcamp-orange'></div>
+                    <div id='yellow-orange'></div>
+                    <div id='yellow'></div>
+                    <div id='midnight-blue'></div>
+                    <div id='medium-blue'></div>
+                    <div id='sky-blue'></div>
+                </div>
+                <div id='change-position'>
+                    <div id='up'>
+                        <input type="button" value='Up'>
+                    </div>
+                    <div id='left-right'>
+                        <input type="button" value='Left'>
+                        <input type="button" value='Right'>
+                    </div>
+                    <div id='down'>
+                        <input type="button" value='Down'>
+                    </div>
+                </div>
+            </div>
             <div id='generator-div-1'>
                 <div id='generator-tools'>
-                    <input type='button' value='Change Color'>
+                    <input type='button' value='Change Color' onclick='change_color(this)'>
+                    <input type='button' value='Reset Color'>
+                    <input type='button' value='Change Position' onclick='change_position(this)'>
+                    <input type='button' value='Reset Position'>
                     <input type='button' value='Erase Layer' onclick='erase()'>
                     <input type='button' value='Erase All' onclick='erase_all()'>
                     <input id='export-btn' type='button' value='Export!' onclick='export_img()'>
@@ -316,12 +483,6 @@ and open the template in the editor.
             </div>
             <div id='generator-div-4'>
                 <div id='generator-options'>
-                    <div id='generator-btns-top'>
-                        <a id='layer-name'></a>
-                        <div id='close-btn'>
-                            <input  type='button' value='X' onclick='go_back()'/>
-                        </div>
-                    </div>
                     <!-- dynamically load buttons -->
                     <div id='generator-btns'>
                         <div class='row'>
@@ -348,21 +509,21 @@ and open the template in the editor.
                     </div>
                 </div>
                 <div id='generator-btns-bottom'>
-                    <div id='forward-btn'>
-                        <input  type='button' value='<-'/>
+                    <div id='back-btn'>
+                        <input  type='button' value='Previous'/>
                     </div>
                     <a id='page'>Page 1</a>
-                    <div id='back-btn'>
-                        <input type='button' value='->'/>
+                    <div id='fwd-btn'>
+                        <input type='button' value='Next'/>
                     </div>
                 </div>
             </div>
         </div>
-        <div id='right-container'>
+        <!-- <div id='right-container'>
             <div id='right-1'></div>
             <div id='right-2'></div>
             <div id='right-3'></div>
             <div id='right-4'></div>
-        </div>
+        </div> -->
     </body>
 </html>
