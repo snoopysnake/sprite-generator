@@ -9,521 +9,186 @@ and open the template in the editor.
         <title>Sprite Generator</title>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <script>
-            var layers_menu;
-            var buttons_menu;
-            var buttons_menu_top;
-            var layer_selected;
-            var last_clicked;
-            function setup() {
-                //Set up global vars
-                layers_menu = document.getElementById('generator-layers');
-                buttons_menu = document.getElementById('generator-div-4');
-                buttons_menu_text = document.getElementById('layer-name');
-                //Set up layer button colors
-                var layer_btns = document.getElementsByClassName('layer-btn');
-                for (var i = 0; i < layer_btns.length; i++) {
-                    // layer_btns[i].style.backgroundColor = 'rgb(' + Math.floor(255 - 10 * i) + ', ' +
-                    //     Math.floor(255 - 10 * i) + ', 0)';
-                    layer_btns[i].onclick = function(){
-                        choose_layer(this);
-                    }
-                }
-                //Set up canvas background
-                var background = document.getElementById('background-layer');
-                var ctx = background.getContext('2d');
-                for (var i = 0; i < 32; i++) {
-                  for (var j = 0; j < 32; j++) {
-                    ctx.fillStyle = 'rgb(' + Math.floor(255 - 10 * i) + ', ' +
-                        Math.floor(255 - 10 * j) + ', 0)';
-                    ctx.fillRect(j * 25, i * 25, 25, 25);
-                  }
-                }
-            }
-            function choose_layer(button) {
-                if (last_clicked == button) {
-                    //Click the same button twice
-                    button.style.backgroundColor = 'white';
-                    button.style.color = '#FFAF3F';
-                    buttons_menu.style.display = 'none';
-                    last_clicked = null;
-                } else {
-                    if (last_clicked == null) {
-                        last_clicked = button;
-                    }
-                    last_clicked.style.backgroundColor = 'white';
-                    last_clicked.style.color = '#FFAF3F';
-                    button.style.backgroundColor = '#FFAF3F';
-                    button.style.color = 'white';
-                    buttons_menu.style.display = 'flex';
-                    last_clicked = button;
-                }
-            }
-            function draw() {
-                var layer = document.getElementById(layer_selected+'-layer');
-                var ctx = layer.getContext('2d');
-                //Why isn't this updating? Stupid host
-                ctx.clearRect(0, 0, 32, 32);
-                var img = new Image();
-                img.onload = function() {
-                    ctx.drawImage(img, 0, 0);
-                }
-                img.src = layer_selected+'-1.png'
-            }
-            function change_color(button) {
-                var color_palette = document.getElementById('color-palette');
-                if (color_palette.style.display == 'flex') {
-                    button.style.backgroundColor = 'white';
-                    button.style.color = '#FF6F3F';
-                    color_palette.style.display = 'none';
-                    color_palette.style.borderRight = '0px';
-                } else {
-                    button.style.backgroundColor = '#FF6F3F';
-                    button.style.color = 'white';
-                    color_palette.style.display = 'flex';
-                    color_palette.style.borderRight = '16px solid white';
-                }
-            }
-            function change_position(button) {
-                var change_position = document.getElementById('change-position');
-                if (change_position.style.display == 'flex') {
-                    button.style.backgroundColor = 'white';
-                    button.style.color = '#FF6F3F';
-                    change_position.style.display = 'none';
-                    change_position.style.borderRight = '0px';
-                } else {
-                    button.style.backgroundColor = '#FF6F3F';
-                    button.style.color = 'white';
-                    change_position.style.display = 'flex';
-                    change_position.style.borderRight = '16px solid white';
-                }
-            }
-            function erase() {
-                var layer = document.getElementById(layer_selected+'-layer');
-                var ctx = layer.getContext('2d');
-                ctx.clearRect(0, 0, 32, 32);
-            }
-            function erase_all() {
-                var layers = document.getElementsByClassName('layer');
-                for(var i = 1; i < layers.length; i++)
-                {
-                    var ctx = layers[i].getContext('2d');
-                    ctx.clearRect(0, 0, 32, 32);
-                }
-            }
-            function export_img() {
-                var layers = document.getElementsByClassName('layer');
-                var export_layer = document.getElementById('export-layer');
-                var ctx = export_layer.getContext('2d');
-                ctx.webkitImageSmoothingEnabled = false;
-                ctx.mozImageSmoothingEnabled = false;
-                ctx.imageSmoothingEnabled = false;
-                ctx.save();
-                ctx.drawImage(layers[0],0,0); //Background does not need rescale
-                ctx.scale(16,16);
-                for(var i = 1; i < layers.length; i++)
-                {
-                    ctx.drawImage(layers[i],0,0);
-                }
-                //Export dialog needs work
-                var exported_img = export_layer.toDataURL("image/png").replace("image/png", "image/octet-stream"); //Convert image to 'octet-stream' (Just a download, really)
-                window.location.href = exported_img;
-                ctx.clearRect(0, 0, 512, 512);
-                ctx.restore();
-            }
-        </script>
-    <style type="text/css">
-        @font-face {
-            font-family: "Aleo Regular";
-            src: url("css/fonts/aleo-regular-webfont.eot");
-            src: 
-            url("css/fonts/aleo-regular-webfont.woff") format("woff"),
-            url("css/fonts/aleo-regular-webfont.otf") format("opentype"),
-            url('css/fonts/aleo-regular-webfont.ttf') format('truetype'),
-            url("css/fonts/aleo-regular-webfont.svg#filename") format("svg");
-            font-weight: normal;
-            font-style: normal;
-        }
-        @font-face {
-            font-family: "Aleo Bold";
-            src: url("css/fonts/aleo-bold-webfont.eot");
-            src: 
-            url("css/fonts/aleo-bold-webfont.woff") format("woff"),
-            url("css/fonts/aleo-bold-webfont.otf") format("opentype"),
-            url('css/fonts/aleo-bold-webfont.ttf') format('truetype'),
-            url("css/fonts/aleo-bold-webfont.svg#filename") format("svg");
-            font-weight: normal;
-            font-style: normal;
-        }
-        body {
-            background-color: #CBF2FF;
-            display: flex;
-        }
-        canvas { 
-            position: absolute;
-            image-rendering: optimizeSpeed;
-            image-rendering: -moz-crisp-edges;
-            image-rendering: -webkit-optimize-contrast;
-            image-rendering: optimize-contrast;
-            image-rendering: pixelated;
-            -ms-interpolation-mode: nearest-neighbor;
-            width: 512px; 
-            height: 512px;  
-        }
-        #container {
-            display: inline-flex;
-            background-color: white;
-        }
-        #generator-div-0 {
-            border: 16px solid white;
-            border-right: 0px;
-            height: 512px;
-            background-color: white;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: space-between;
-        }
-        #color-palette {
-            display: none;
-            flex-direction: column;
-        }
-        #color-palette div {
-            width: 64px;
-            height: 32px;
-        }
-        #dark-brown {
-            background-color: #7F6C5F
-        }
-        #medium-brown {
-            background-color: #A58D7C
-        }
-        #light-brown {
-            background-color: #E5D8CE
-        }
-        #cloud-white {
-            background-color: #FFFFFF
-        }
-        #flame-red {
-            background-color: #FF3F46
-        }
-        #bitcamp-orange {
-            background-color: #7F6C5F
-        }
-        #yellow-orange {
-            background-color: #FF6F3F
-        }
-        #yellow {
-            background-color: #FFEF3F
-        }
-        #midnight-blue {
-            background-color: #1A2E33
-        }
-        #medium-blue {
-            background-color: #528CA5
-        }
-        #sky-blue {
-            background-color: #CBF2FF
-        }
-        #change-position {
-            width: 128px;
-            height: 128px;
-            display: none;
-            flex-direction: column;
-            justify-content: center;
-        }
-        #change-position div {
-            width: 128px;
-            height: 42px;
-            display: flex;
-        }
-        #change-position input {
-            font-family: 'Aleo Regular', arial, sans-serif;
-            font-weight: normal;
-            font-style: normal;
-            font-size: 12px;
-            color: white;
-            width: 42px;
-            height: 42px;
-            border-radius: 50%;
-            border: 2px solid #FF3F46;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background-color: #FF3F46;
-            outline-style: none;
-        }
-        #up {
-            justify-content: center;
-        }
-        #left-right {
-            justify-content: space-between;
-        }
-        #down {
-            justify-content: center;
-        }
-        #generator-div-1 {
-            border: 16px solid white;
-            border-left: 0px;
-            height: 512px;
-            width: 64px;
-        } 
-        #generator-div-2 {
-            border-top: 16px solid white;
-            border-bottom: 16px solid white;
-            width: 512px; 
-            height: 512px;
-        }
-        #generator-tools input {
-            font-family: 'Aleo Regular', arial, sans-serif;
-            font-weight: normal;
-            font-style: normal;
-            color: #FF6F3F;
-            border: 2px solid #FF6F3F;
-            background-color: white;
-            height: 60px;
-            width: 60px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            white-space: normal;
-            border-radius: 50%;
-            margin: 2px;
-            outline-style: none;
-        }
-        #generator-div-3 {
-            border: 16px solid white;
-            width: 128px; 
-            height: 512px;
-        }
-        #generator-layers input {
-            font-family: 'Aleo Regular', arial, sans-serif;
-            font-weight: normal;
-            font-style: normal;
-            color: #FFAF3F;
-            border: 2px solid #FFAF3F;
-            background-color: white;
-            height: 32px;
-            margin-top: 2px;
-            margin-bottom: 2px;
-            margin-left: 4px;
-            margin-right: 4px;
-            border-radius: 8px;
-            width: 120px;
-            outline-style: none;
-        }
-        #generator-div-4 {
-            border: 16px solid white;
-            border-left: 0px;
-            width: 256px; 
-            height: 512px;
-            background-color: #CBF2FF;
-            display: none;
-            flex-direction: column;
-        }
-        #layer-name {
-            margin-left: 8px;
-            font-family: 'Aleo Bold', arial, sans-serif;
-            font-weight: normal;
-            font-style: normal;
-            color: white;
-            flex: 3;
-        }
-        #close-btn {
-            flex: 1;
-            text-align: right;
-            margin-right: 8px;
-        }
-        #generator-btns { 
-            height: 448px; 
-        }
-        #generator-btns.row {
-            display: flex;
-            flex-direction: row;
-
-        }
-        #generator-btns div {
-            height: 64px;
-            width: 64px;
-            display: flex;
-            flex-flow: column wrap;
-        }
-        #generator-btns-bottom {
-            height: 64px;
-            width: 256px;
-            display: flex;
-            align-items: center;
-            text-align: center;
-        }
-        #generator-btns-bottom input {
-            font-family: 'Aleo Regular', arial, sans-serif;
-            font-weight: normal;
-            font-style: normal;
-            font-size: 12px;
-            color: white;
-            margin: 8px;
-            width: 64px;
-            height: 32px;
-            border-radius: 8px;
-            border: 2px solid white;
-            display: flex;
-            justify-content: center;
-            background-color: #FF3F46;
-            outline-style: none;
-        }
-        #forward-btn {
-            flex: 1;
-        }
-        #page {
-            font-family: 'Aleo Bold', arial, sans-serif;
-            font-weight: normal;
-            font-style: normal;
-            color: white;
-            flex: 2;
-        }
-        #back-btn {
-            flex: 1;
-        }
-        #right-container {
-            background-color: white;
-            width: 128px;
-            height: 544px;
-            display: flex;
-            flex-direction: row-reverse;
-        }
-        #right-1 {
-            height: 448px;
-            background-color: #CBF2FF;
-            flex: 1;
-        }
-        #right-2 {
-            height: 384px;
-            background-color: #CBF2FF;
-            flex: 1;
-        }
-        #right-3 {
-            height: 128px;
-            background-color: #CBF2FF;
-            flex: 1;
-        }
-        #right-4 {
-            height: 64px;
-            background-color: #CBF2FF;
-            flex: 1;
-        }
-        #background-layer { z-index: 1 }
-        #face-layer { z-index: 2 }
-        #hair-layer { z-index: 3 }
-        #accessories-layer { z-index: 4 }
-    </style>
+        <!-- <script src='js/zepto.min.js'></script> -->
+        <script src='js/pixel.js'></script>
+        <link rel="stylesheet" type="text/css" href="css/style.css">
     </head>
-    <body onload='setup()'>
-<!--         <div id='right-container'>
-            <div id='right-4'></div>
-            <div id='right-3'></div>
-            <div id='right-2'></div>
-            <div id='right-1'></div>
-        </div>-->        
-        <div id='container'>
-            <div id='generator-div-0'>
-                <div id='color-palette'>
-                    <div id='dark-brown'></div>
-                    <div id='medium-brown'></div>
-                    <div id='light-brown'></div>
-                    <div id='cloud-white'></div>
-                    <div id='flame-red'></div>
-                    <div id='bitcamp-orange'></div>
-                    <div id='yellow-orange'></div>
-                    <div id='yellow'></div>
-                    <div id='midnight-blue'></div>
-                    <div id='medium-blue'></div>
-                    <div id='sky-blue'></div>
+    <body">
+        <div class="container">
+            <div class="left-sidebar-popup">
+                <div class="palette">
+                    <div class="palette__color palette__color--dark-brown"></div>
+                    <div class="palette__color palette__color--medium-brown"></div>
+                    <div class="palette__color palette__color--light-brown"></div>
+                    <div class="palette__color palette__color--cloud-white"></div>
+                    <div class="palette__color palette__color--flame-red"></div>
+                    <div class="palette__color palette__color--bitcamp-orange"></div>
+                    <div class="palette__color palette__color--yellow-orange"></div>
+                    <div class="palette__color palette__color--yellow"></div>
+                    <div class="palette__color palette__color--midnight-blue"></div>
+                    <div class="palette__color palette__color--medium-blue"></div>
+                    <div class="palette__color palette__color--sky-blue"></div>
                 </div>
-                <div id='change-position'>
-                    <div id='up'>
-                        <input type="button" value='Up'>
+                <div class="d-pad-container">
+                    <div class="d-pad d-pad--up">
+                        <input type="button" class="d-pad__btn d-pad__btn--up" value="Up">
                     </div>
-                    <div id='left-right'>
-                        <input type="button" value='Left'>
-                        <input type="button" value='Right'>
+                    <div class="d-pad d-pad--mid">
+                        <input type="button" class="d-pad__btn d-pad__btn--left" value="Left">
+                        <input type="button" class="d-pad__btn d-pad__btn--right" value="Right">
                     </div>
-                    <div id='down'>
-                        <input type="button" value='Down'>
+                    <div class="d-pad d-pad--down">
+                        <input type="button" class="d-pad__btn d-pad__btn--down" value="Down">
                     </div>
                 </div>
             </div>
-            <div id='generator-div-1'>
-                <div id='generator-tools'>
-                    <input type='button' value='Change Color' onclick='change_color(this)'>
-                    <input type='button' value='Reset Color'>
-                    <input type='button' value='Change Position' onclick='change_position(this)'>
-                    <input type='button' value='Reset Position'>
-                    <input type='button' value='Erase Layer' onclick='erase()'>
-                    <input type='button' value='Erase All' onclick='erase_all()'>
-                    <input id='export-btn' type='button' value='Export!' onclick='export_img()'>
+            <div class="left-sidebar">
+                <div class="tools">
+                    <input type="button" class="tools__btn tools__btn--change-color tools__btn--unselected" value="Change Color">
+                    <input type="button" class="tools__btn tools__btn--reset-color" value="Reset Color">
+                    <input type="button" class="tools__btn tools__btn--erase-layer" value="Erase Layer">
+                    <input type="button" class="tools__btn tools__btn--erase-all" value="Erase All">
+                    <input type="button" class="tools__btn tools__btn--change-position tools__btn--unselected" value="Change Position">
+                    <input type="button" class="tools__btn tools__btn--reset-position" value="Reset Position">
+                    <input type="button" class="tools__btn tools__btn--export" value="Export!">
                 </div>
             </div>
-            <div id="generator-div-2">
-                <canvas id="background-layer" class='layer' width="512" height="512"></canvas>
-                <canvas id="face-layer" class='layer' width="32" height="32"></canvas>
-                <canvas id="hair-layer" class='layer' width="32" height="32"></canvas>
-                <canvas id="accessories-layer" class='layer' width="32" height="32"></canvas>
-                <canvas id="export-layer" width="512" height="512"></canvas>
+            <div class="center">
+                <canvas class="layer layer--background layer--exportable" width="512" height="512"></canvas>
+                <canvas class="layer layer--face layer--exportable" width="64" height="64"></canvas>
+                <canvas class="layer layer--hair layer--exportable" width="64" height="64"></canvas>
+                <canvas class="layer layer--eyes layer--exportable" width="64" height="64"></canvas>
+                <canvas class="layer layer--nose layer--exportable" width="64" height="64"></canvas>
+                <canvas class="layer layer--mouth layer--exportable" width="64" height="64"></canvas>
+                <canvas class="layer layer--accessories layer--exportable" width="64" height="64"></canvas>
+                <canvas class="layer layer--background layer--exportable" width="64" height="64"></canvas>
+                <canvas class="layer layer--export" width="512" height="512"></canvas>
             </div>
-            <div id='generator-div-3'>
-                <div id='generator-layers'>
-                    <input type='button' value='Face' class='layer-btn'>
-                    <input type='button' value='Hair' class='layer-btn'>
-                    <input type='button' value='Accessories' class='layer-btn'>
-                    <input type='button' value='Eyes'>
-                    <input type='button' value='Nose'>
-                    <input type='button' value='Mouth'>
-                    <!--<input type='button' value='Background' onclick='choose_layer(this)'>-->
+            <div class="right-sidebar">
+                <div class="layers">
+                    <input type="button" class="layers__btn layers__btn--unselected" value="Face">
+                    <input type="button" class="layers__btn layers__btn--unselected" value="Hair">
+                    <input type="button" class="layers__btn layers__btn--unselected" value="Eyes">
+                    <input type="button" class="layers__btn layers__btn--unselected" value="Nose">
+                    <input type="button" class="layers__btn layers__btn--unselected" value="Mouth">
+                    <input type="button" class="layers__btn layers__btn--unselected" value="Accessories">
+                    <input type="button" class="layers__btn layers__btn--unselected" value="Background">
                 </div>
             </div>
-            <div id='generator-div-4'>
-                <div id='generator-options'>
+            <div class="right-sidebar-popup">
+                <div class="layer-options-container">
                     <!-- dynamically load buttons -->
-                    <div id='generator-btns'>
-                        <div class='row'>
-                            <div></div><div></div><div></div><div></div>
+                    <div class="layer-options">
+                        <div class="layer-options__row">
+                            <div class="layer-options__row__cell">
+                                <img class="layer-options__row__cell__img" src="">
+                            </div>
+                            <div class="layer-options__row__cell">
+                                <img class="layer-options__row__cell__img" src="">
+                            </div>
+                            <div class="layer-options__row__cell">
+                                <img class="layer-options__row__cell__img" src="">
+                            </div>
+                            <div class="layer-options__row__cell">
+                                <img class="layer-options__row__cell__img" src="">
+                            </div>
                         </div>
-                        <div class='row'>
-                            <div></div><div></div><div></div><div></div>
+                        <div class="layer-options__row">
+                            <div class="layer-options__row__cell">
+                                <img class="layer-options__row__cell__img" src="">
+                            </div>
+                            <div class="layer-options__row__cell">
+                                <img class="layer-options__row__cell__img" src="">
+                            </div>
+                            <div class="layer-options__row__cell">
+                                <img class="layer-options__row__cell__img" src="">
+                            </div>
+                            <div class="layer-options__row__cell">
+                                <img class="layer-options__row__cell__img" src="">
+                            </div>
                         </div>
-                        <div class='row'>
-                            <div></div><div></div><div></div><div></div>
+                        <div class="layer-options__row">
+                            <div class="layer-options__row__cell">
+                                <img class="layer-options__row__cell__img" src="">
+                            </div>
+                            <div class="layer-options__row__cell">
+                                <img class="layer-options__row__cell__img" src="">
+                            </div>
+                            <div class="layer-options__row__cell">
+                                <img class="layer-options__row__cell__img" src="">
+                            </div>
+                            <div class="layer-options__row__cell">
+                                <img class="layer-options__row__cell__img" src="">
+                            </div>
                         </div>
-                        <div class='row'>
-                            <div></div><div></div><div></div><div></div>
+                        <div class="layer-options__row">
+                            <div class="layer-options__row__cell">
+                                <img class="layer-options__row__cell__img" src="">
+                            </div>
+                            <div class="layer-options__row__cell">
+                                <img class="layer-options__row__cell__img" src="">
+                            </div>
+                            <div class="layer-options__row__cell">
+                                <img class="layer-options__row__cell__img" src="">
+                            </div>
+                            <div class="layer-options__row__cell">
+                                <img class="layer-options__row__cell__img" src="">
+                            </div>
                         </div>
-                        <div class='row'>
-                            <div></div><div></div><div></div><div></div>
+                        <div class="layer-options__row">
+                            <div class="layer-options__row__cell">
+                                <img class="layer-options__row__cell__img" src="">
+                            </div>
+                            <div class="layer-options__row__cell">
+                                <img class="layer-options__row__cell__img" src="">
+                            </div>
+                            <div class="layer-options__row__cell">
+                                <img class="layer-options__row__cell__img" src="">
+                            </div>
+                            <div class="layer-options__row__cell">
+                                <img class="layer-options__row__cell__img" src="">
+                            </div>
                         </div>
-                        <div class='row'>
-                            <div></div><div></div><div></div><div></div>
+                        <div class="layer-options__row">
+                            <div class="layer-options__row__cell">
+                                <img class="layer-options__row__cell__img" src="">
+                            </div>
+                            <div class="layer-options__row__cell">
+                                <img class="layer-options__row__cell__img" src="">
+                            </div>
+                            <div class="layer-options__row__cell">
+                                <img class="layer-options__row__cell__img" src="">
+                            </div>
+                            <div class="layer-options__row__cell">
+                                <img class="layer-options__row__cell__img" src="">
+                            </div>
                         </div>
-                        <div class='row'>
-                            <div></div><div></div><div></div><div></div>
+                        <div class="layer-options__row">
+                            <div class="layer-options__row__cell">
+                                <img class="layer-options__row__cell__img" src="">
+                            </div>
+                            <div class="layer-options__row__cell">
+                                <img class="layer-options__row__cell__img" src="">
+                            </div>
+                            <div class="layer-options__row__cell">
+                                <img class="layer-options__row__cell__img" src="">
+                            </div>
+                            <div class="layer-options__row__cell">
+                                <img class="layer-options__row__cell__img" src="">
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div id='generator-btns-bottom'>
-                    <div id='back-btn'>
-                        <input  type='button' value='Previous'/>
+                <div class="layer-options-nav-container">
+                    <div class="layer-options-nav layer-options-nav--prev">
+                        <input  type="button" class="layer-options-nav__btn layer-options-nav__btn--prev" value="Previous"/>
                     </div>
-                    <a id='page'>Page 1</a>
-                    <div id='fwd-btn'>
-                        <input type='button' value='Next'/>
+                    <a class="layer-options-nav-page"></a>
+                    <div class="layer-options-nav layer-options-nav--next">
+                        <input type="button" class="layer-options-nav__btn layer-options-nav__btn--next" value="Next"/>
                     </div>
                 </div>
             </div>
         </div>
-        <!-- <div id='right-container'>
-            <div id='right-1'></div>
-            <div id='right-2'></div>
-            <div id='right-3'></div>
-            <div id='right-4'></div>
-        </div> -->
     </body>
 </html>
