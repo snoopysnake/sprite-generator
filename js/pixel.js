@@ -211,18 +211,18 @@ function changeColor(colorSelected) {
             var ctx = layer.getContext('2d');
             ctx.globalCompositeOperation = "source-over"; // I don't know why this works
             ctx.clearRect(0, 0, 64, 64);
+            var imgOutline = new Image();
             var imgColor = new Image();
             imgColor.onload = function() {
                 ctx.drawImage(imgColor, 0, 0);
                 ctx.globalCompositeOperation = "source-atop";
                 ctx.fillStyle = colorSelected;
                 ctx.fillRect(0, 0, 64, 64);
+                imgOutline.onload = function() {
+                    ctx.drawImage(imgOutline, 0, 0);
+                }
             }
             imgColor.src = 'png/' + layerSelected + '/' + layerSelected + '-color-' + selectedIndex[layerSelected] + '.png';
-            var imgOutline = new Image();
-            imgOutline.onload = function() {
-                ctx.drawImage(imgOutline, 0, 0);
-            }
             imgOutline.src = 'png/' + layerSelected + '/' + layerSelected + '-outline-' + selectedIndex[layerSelected] + '.png';
             layerColor[layerSelected] = colorSelected;
         }
@@ -237,14 +237,14 @@ function drawDefaultImg() {
         ctx.clearRect(0, 0, 64, 64);
         if (layerColor[layerSelected] != 'fixed') {
             var imgColor = new Image();
+            var imgOutline = new Image();
             imgColor.onload = function() {
                 ctx.drawImage(imgColor, 0, 0);
+                imgOutline.onload = function() {
+                    ctx.drawImage(imgOutline, 0, 0);
+                }
             }
             imgColor.src = 'png/' + layerSelected + '/' + layerSelected + '-color-' + selectedIndex[layerSelected] + '.png';
-            var imgOutline = new Image();
-            imgOutline.onload = function() {
-                ctx.drawImage(imgOutline, 0, 0);
-            }
             imgOutline.src = 'png/' + layerSelected + '/' + layerSelected + '-outline-' + selectedIndex[layerSelected] + '.png';
             layerColor[layerSelected] = 'default';
         } else {
