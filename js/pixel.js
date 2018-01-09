@@ -128,8 +128,7 @@ function loadLayerThumbnails(pageNum) {
         layerThumbnails[i].textContent = 'Alex\'s ' + layerSelected;
         // layerThumbnailsImgs[i].src = 'png/thumbnail/' + layerSelected + '/' + layerSelected + '-' + i + '.png';
         layerThumbnails[i].onclick = function() {
-            setIndex(layerThumbnails[i], i + start);
-            drawDefaultImg();
+            setIndexAndDraw(layerThumbnails[i], i + start);
         }
     })(i);
 
@@ -172,7 +171,7 @@ function chooseLayer(button) {
     }
 }
 
-function setIndex(currentSelected, index) {
+function setIndexAndDraw(currentSelected, index) {
     // currentSelected == layer thumbnail div clicked
     // index finds the correct image
 
@@ -185,6 +184,7 @@ function setIndex(currentSelected, index) {
         // Highlight selected layer thumbnail
         currentSelected.classList.add('layer-thumbnails__row__cell--selected');
         selectedIndex[layerSelected] = index;
+        drawDefaultImg();
     }
 }
 
