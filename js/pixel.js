@@ -1,9 +1,9 @@
 var buttons_menu_top;
 var layerSelected;
 var lastClicked;
-var totalLayerOptions = {'face': 0, 'hair': 0, 'eyes': 0, 'nose': 0, 'mouth': 0, 'accessories': 0, 'background': 0};
-var selectedIndex = {'face': -1, 'hair': -1, 'eyes': -1, 'nose': -1, 'mouth': -1, 'accessories': -1, 'background': -1}; // Indeces start at 0! -1 == nothing selected
-var layerColor = {'face': 'default', 'hair': 'default', 'eyes': 'default', 'nose': 'default', 'mouth': 'default','accessories': 'default', 'background': 'default'};
+var totalLayerThumbnails = {'face': 1, 'hair': 1, 'eyebrows': 1, 'eyes': 1, 'nose': 1, 'mouth': 1, 'accessories': 1, 'background': 0};
+var selectedIndex = {'face': -1, 'hair': -1, 'eyebrows': -1, 'eyes': -1, 'nose': -1, 'mouth': -1, 'accessories': -1, 'background': -1}; // Indices start at 0! -1 == nothing selected
+var layerColor = {'face': 'default', 'hair': 'default', 'eyebrows': 'default', 'eyes': 'fixed', 'nose': 'fixed', 'mouth': 'fixed','accessories': 'fixed', 'background': 'default'};
 
 window.onload = function setup() {
     //Set up tool buttons
@@ -27,7 +27,7 @@ window.onload = function setup() {
     }
     var resetColorBtn = document.querySelector('.tools__btn--reset-color');
     resetColorBtn.onclick = function() {
-        resetColor();
+        drawDefaultImg();
     }
     var changePositionBtn = document.querySelector('.tools__btn--change-position');
     changePositionBtn.onclick = function() {
@@ -77,11 +77,11 @@ window.onload = function setup() {
     }
 }
 
-function loadLayerOptions(pageNum) {
-    var prevBtn = document.querySelector('.layer-options-nav__btn--prev');
-    var nextBtn = document.querySelector('.layer-options-nav__btn--next');
+function loadLayerThumbnails(pageNum) {
+    var prevBtn = document.querySelector('.layer-thumbnails-nav__btn--prev');
+    var nextBtn = document.querySelector('.layer-thumbnails-nav__btn--next');
 
-    var total = totalLayerOptions[layerSelected];
+    var total = totalLayerThumbnails[layerSelected];
     var start = (pageNum - 1) * 28; // Absolute index (0 to total)
     var end; // Relative index to div (0 to 28)
 
@@ -92,7 +92,7 @@ function loadLayerOptions(pageNum) {
     } else {
         prevBtn.style.display = 'inline';
         prevBtn.onclick = function() {
-            loadLayerOptions(pageNum - 1);
+            loadLayerThumbnails(pageNum - 1);
         }
     }
     // Find ending index & hide/show next btn
@@ -104,39 +104,44 @@ function loadLayerOptions(pageNum) {
         end = 28;
         nextBtn.style.display = 'inline';
         nextBtn.onclick = function() {
-            loadLayerOptions(pageNum + 1);
+            loadLayerThumbnails(pageNum + 1);
         }
     }
     // Change page num
-    var pageNumDisplay = document.querySelector('.layer-options-nav-page');
+    var pageNumDisplay = document.querySelector('.layer-thumbnails-nav-page');
     pageNumDisplay.innerHTML = 'Page ' + pageNum;
 
     // Clear cells
-    var layerOptions = document.querySelectorAll('.layer-options__row__cell');
-    var layerOptionsImgs = document.querySelectorAll('.layer-options__row__cell__img');
+    var layerThumbnails = document.querySelectorAll('.layer-thumbnails__row__cell');
+    var layerThumbnailsImgs = document.querySelectorAll('.layer-thumbnails__row__cell__img');
     for (i = 0; i < 28; i++) {
-        layerOptions[i].classList.remove('layer-options__row__cell--unselected');
-        layerOptionsImgs[i].src = '';
-        layerOptions[i].onclick = '';
+        layerThumbnails[i].classList.remove('layer-thumbnails__row__cell--unselected');
+        // TEMPORARY
+        layerThumbnails[i].textContent = '';
+        // layerThumbnailsImgs[i].src = '';
+        layerThumbnails[i].onclick = '';
     }
     // Populate cells
     for (i = 0; i < end; i++) (function(i){
-        layerOptions[i].classList.add('layer-options__row__cell--unselected');
-        layerOptionsImgs[i].src = layerSelected + '-' + i + '.png';
-        layerOptions[i].onclick = function() {
-            draw(layerOptions[i], i + start);
+        layerThumbnails[i].classList.add('layer-thumbnails__row__cell--unselected');
+        // TEMPORARY
+        layerThumbnails[i].textContent = 'Alex\'s ' + layerSelected;
+        // layerThumbnailsImgs[i].src = 'png/thumbnail/' + layerSelected + '/' + layerSelected + '-' + i + '.png';
+        layerThumbnails[i].onclick = function() {
+            setIndex(layerThumbnails[i], i + start);
+            drawDefaultImg();
         }
     })(i);
 
-    // Remove previously selected layer option if present
-    var prevSelected = document.querySelector('.layer-options__row__cell--selected');
+    // Remove previously selected layer thumbnail if present
+    var prevSelected = document.querySelector('.layer-thumbnails__row__cell--selected');
     if (prevSelected != null) {
-        prevSelected.classList.remove('layer-options__row__cell--selected');
+        prevSelected.classList.remove('layer-thumbnails__row__cell--selected');
     }
-    // Highlight selected layer option if present
+    // Highlight selected layer thumbnail if present
     if (selectedIndex[layerSelected] >= start && selectedIndex[layerSelected] < start + end) {
-        var currentSelected = layerOptions[selectedIndex[layerSelected] % 28];
-        currentSelected.classList.add('layer-options__row__cell--selected');
+        var currentSelected = layerThumbnails[selectedIndex[layerSelected] % 28];
+        currentSelected.classList.add('layer-thumbnails__row__cell--selected');
     }
 }
 
@@ -154,7 +159,7 @@ function chooseLayer(button) {
             lastClicked = button;
         }
         layerSelected = button.value.toLowerCase();
-        loadLayerOptions(Math.round(selectedIndex[layerSelected]/28) + 1); // Page of selected layer option
+        loadLayerThumbnails(Math.round(selectedIndex[layerSelected]/28) + 1); // Page of selected layer thumbnail
         lastClicked.classList.remove('layers__btn--selected');
         lastClicked.classList.add('layers__btn--unselected');
         button.classList.remove('layers__btn--unselected');
@@ -165,36 +170,20 @@ function chooseLayer(button) {
     if (layerSelected == 'face') {
         // Change color palette
     }
-    else if (layerSelected == 'eyes') {
-        // Change color palette
-    }
-    else if (layerSelected == 'mouth') {
-        // Change color palette
-    }
 }
 
-function draw(currentSelected, index) {
-    // currentSelected == layer option div clicked
+function setIndex(currentSelected, index) {
+    // currentSelected == layer thumbnail div clicked
     // index finds the correct image
 
     if (selectedIndex[layerSelected] != index) {
-        var layer = document.querySelector('.layer--' + layerSelected);
-        var ctx = layer.getContext('2d');
-        ctx.clearRect(0, 0, 32, 32);
-        var img = new Image();
-        img.onload = function() {
-            ctx.drawImage(img, 0, 0);
-        }
-        img.src = layerSelected + '-' + index + '.png'
-        layerColor[layerSelected] = 'default';
-
-        // Remove previously selected layer option if present
-        var prevSelected = document.querySelector('.layer-options__row__cell--selected');
+        // Remove previously selected layer thumbnail if present
+        var prevSelected = document.querySelector('.layer-thumbnails__row__cell--selected');
         if (prevSelected != null) {
-            prevSelected.classList.remove('layer-options__row__cell--selected');
+            prevSelected.classList.remove('layer-thumbnails__row__cell--selected');
         }
-        // Highlight selected layer option
-        currentSelected.classList.add('layer-options__row__cell--selected');
+        // Highlight selected layer thumbnail
+        currentSelected.classList.add('layer-thumbnails__row__cell--selected');
         selectedIndex[layerSelected] = index;
     }
 }
@@ -215,42 +204,61 @@ function openPalette(button) {
 }
 
 function changeColor(colorSelected) {
+    // TODO: Make unique for background?...
     if (selectedIndex[layerSelected] != -1 && layerSelected != null) {
-        var layer = document.querySelector('.layer--' + layerSelected);
-        var ctx = layer.getContext('2d');
-        ctx.clearRect(0, 0, 32, 32);
-        var imgColor = new Image();
-        imgColor.onload = function() {
-            ctx.drawImage(imgColor, 0, 0);
-            ctx.globalCompositeOperation = "source-over";
-            ctx.fillStyle = colorSelected;
-            ctx.fillRect(0, 0, 32, 32);
+        if (layerColor[layerSelected] != 'fixed') {
+            var layer = document.querySelector('.layer--' + layerSelected);
+            var ctx = layer.getContext('2d');
+            ctx.globalCompositeOperation = "source-over"; // I don't know why this works
+            ctx.clearRect(0, 0, 64, 64);
+            var imgColor = new Image();
+            imgColor.onload = function() {
+                ctx.drawImage(imgColor, 0, 0);
+                ctx.globalCompositeOperation = "source-atop";
+                ctx.fillStyle = colorSelected;
+                ctx.fillRect(0, 0, 64, 64);
+            }
+            imgColor.src = 'png/' + layerSelected + '/' + layerSelected + '-color-' + selectedIndex[layerSelected] + '.png';
+            var imgOutline = new Image();
+            imgOutline.onload = function() {
+                ctx.drawImage(imgOutline, 0, 0);
+            }
+            imgOutline.src = 'png/' + layerSelected + '/' + layerSelected + '-outline-' + selectedIndex[layerSelected] + '.png';
+            layerColor[layerSelected] = colorSelected;
         }
-        imgColor.src = layerSelected + '-color-' + selectedIndex[layerSelected] + '.png';
-        var imgOutline = new Image();
-        imgOutline.onload = function() {
-            ctx.drawImage(imgOutline, 0, 0);
-        }
-        imgOutline.src = layerSelected + '-outline-' + selectedIndex[layerSelected] + '.png';
-        layerColor[layerSelected] = colorSelected;
     }
 }
 
-function resetColor() {
+function drawDefaultImg() {
+    // TODO: Disable for background and some layers
     if (selectedIndex[layerSelected] != -1 && layerSelected != null) {
         var layer = document.querySelector('.layer--' + layerSelected);
         var ctx = layer.getContext('2d');
-        ctx.clearRect(0, 0, 32, 32);
-        var img = new Image();
-        img.onload = function() {
-            ctx.drawImage(img, 0, 0);
+        ctx.clearRect(0, 0, 64, 64);
+        if (layerColor[layerSelected] != 'fixed') {
+            var imgColor = new Image();
+            imgColor.onload = function() {
+                ctx.drawImage(imgColor, 0, 0);
+            }
+            imgColor.src = 'png/' + layerSelected + '/' + layerSelected + '-color-' + selectedIndex[layerSelected] + '.png';
+            var imgOutline = new Image();
+            imgOutline.onload = function() {
+                ctx.drawImage(imgOutline, 0, 0);
+            }
+            imgOutline.src = 'png/' + layerSelected + '/' + layerSelected + '-outline-' + selectedIndex[layerSelected] + '.png';
+            layerColor[layerSelected] = 'default';
+        } else {
+            var img = new Image();
+            img.onload = function() {
+                ctx.drawImage(img, 0, 0);
+            }
+            img.src = 'png/' + layerSelected + '/' + layerSelected + '-' + selectedIndex[layerSelected] + '.png';
         }
-        img.src = layerSelected + '-' + selectedIndex[layerSelected] + '.png'
-        layerColor[layerSelected] = 'default';
     }
 }
 
 function changePosition(button) {
+    // TODO: Disable for background
     var dPad = document.querySelector('.d-pad-container');
     if (dPad.style.display == 'flex') {
         button.classList.remove('layers__btn--selected');
@@ -266,13 +274,14 @@ function changePosition(button) {
 }
 
 function resetPosition(button) {
+    // TODO: Disable for background
     if (selectedIndex[layerSelected] != -1 && layerSelected != null) {
         var layer = document.querySelector('.layer--' + layerSelected);
         var ctx = layer.getContext('2d');
         ctx.setTransform(1, 0, 0, 1, 0, 0);
-        ctx.clearRect(0, 0, 32, 32);
-        if (layerColor[layerSelected] == 'default') {
-            resetColor();
+        ctx.clearRect(0, 0, 64, 64);
+        if (layerColor[layerSelected] == 'default' || layerColor[layerSelected] == 'fixed') {
+            drawDefaultImg();
         } else {
             changeColor(layerColor[layerSelected]);
         }
@@ -280,14 +289,15 @@ function resetPosition(button) {
 }
 
 function translateLayer(x,y) {
+    // TODO: Disable for background
     if (selectedIndex[layerSelected] != -1 && layerSelected != null) {
         var layer = document.querySelector('.layer--' + layerSelected);
         var ctx = layer.getContext('2d');
         // Erase + copy to current layer
-        ctx.clearRect(0, 0, 32, 32);
+        ctx.clearRect(0, 0, 64, 64);
         ctx.translate(x,y);
-        if (layerColor[layerSelected] == 'default') {
-            resetColor();
+        if (layerColor[layerSelected] == 'default' || layerColor[layerSelected] == 'fixed') {
+            drawDefaultImg();
         } else {
             changeColor(layerColor[layerSelected]);
         }
@@ -295,35 +305,38 @@ function translateLayer(x,y) {
 }
 
 function eraseLayer() {
+    // TODO: Reset to default background layer if erased.
     if (layerSelected != null) {
-        var layer = document.querySelector('.layer--' + layerSelected);
-        var ctx = layer.getContext('2d');
-        ctx.setTransform(1, 0, 0, 1, 0, 0);
-        ctx.clearRect(0, 0, 32, 32);
+        if (layerSelected != 'background') {
+            var layer = document.querySelector('.layer--' + layerSelected);
+            var ctx = layer.getContext('2d');
+            ctx.setTransform(1, 0, 0, 1, 0, 0);
+            ctx.clearRect(0, 0, 64, 64);
+        }
     }
 
-    // Remove previously selected layer option if present
-    var prevSelected = document.querySelector('.layer-options__row__cell--selected');
+    // Remove previously selected layer thumbnail if present
+    var prevSelected = document.querySelector('.layer-thumbnails__row__cell--selected');
     if (prevSelected != null) {
-        prevSelected.classList.remove('layer-options__row__cell--selected');
+        prevSelected.classList.remove('layer-thumbnails__row__cell--selected');
     }
     selectedIndex[layerSelected] = -1;
 }
 
 function eraseAll() {
     var layers = document.querySelectorAll('.layer--exportable');
-    for (i = 1; i < layers.length; i++) // Do not delete first layer (background) 
+    for (i = 1; i < layers.length; i++) // Do not delete first layer (background) yet... 
     {
         var ctx = layers[i].getContext('2d');
         ctx.setTransform(1, 0, 0, 1, 0, 0);
-        ctx.clearRect(0, 0, 32, 32);
+        ctx.clearRect(0, 0, 64, 64);
     }
 
-    var prevSelected = document.querySelector('.layer-options__row__cell--selected');
+    var prevSelected = document.querySelector('.layer-thumbnails__row__cell--selected');
     if (prevSelected != null) {
-        prevSelected.classList.remove('layer-options__row__cell--selected');
+        prevSelected.classList.remove('layer-thumbnails__row__cell--selected');
     }
-    selectedIndex = {'face': -1, 'hair': -1, 'accessories': -1, 'eyes': -1, 'nose': -1, 'mouth': -1};
+    selectedIndex = {'face': -1, 'hair': -1, 'eyebrows': -1, 'eyes': -1, 'nose': -1, 'mouth': -1, 'accessories': -1, 'background': -1};
 }
 
 function exportImg() {

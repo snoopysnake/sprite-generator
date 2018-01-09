@@ -226,30 +226,38 @@ canvas {
     display: none;
     flex-direction: column;
 }
-.layer-options { 
+.layer-thumbnails { 
     height: 448px; 
 }
-.layer-options__row {
+.layer-thumbnails__row {
     display: flex;
     flex-direction: row;
 }
-.layer-options__row__cell {
+.layer-thumbnails__row__cell {
+    font-family: "Aleo Regular", arial, sans-serif;
+    font-weight: normal;
+    font-style: normal;
+    font-size: 12px;
+    color: white;
     height: 64px;
     width: 64px;
     display: flex;
     align-items: center;
     justify-content: center;
+    text-align: center;
     flex-flow: column wrap;
 }
-.layer-options__row__cell--unselected:active {
+.layer-thumbnails__row__cell--unselected:active {
+    color: white;
     background-color: white;
 }
-.layer-options__row__cell--selected {
+.layer-thumbnails__row__cell--selected {
+    color: #FFAF3F;
     background-color: white;
 }
-.layer-options__row__cell--selected:active {
+.layer-thumbnails__row__cell--selected:active {
 }
-.layer-options__row__cell__img {
+.layer-thumbnails__row__cell__img {
     image-rendering: optimizeSpeed;
     image-rendering: -moz-crisp-edges;
     image-rendering: -webkit-optimize-contrast;
@@ -259,14 +267,14 @@ canvas {
     align-items: center;
     justify-content: center;
 }
-.layer-options-nav-container {
+.layer-thumbnails-nav-container {
     height: 64px;
     width: 256px;
     display: flex;
     align-items: center;
     text-align: center;
 }
-.layer-options-nav__btn {
+.layer-thumbnails-nav__btn {
     font-family: "Aleo Regular", arial, sans-serif;
     font-weight: normal;
     font-style: normal;
@@ -282,14 +290,14 @@ canvas {
     background-color: #FF6F3F;
     outline-style: none;
 }
-.layer-options-nav__btn:active {
+.layer-thumbnails-nav__btn:active {
     background-color: #FF3F46;
 }
-.layer-options-nav {
+.layer-thumbnails-nav {
     width: 80px;
     /*flex: 1;*/
 }
-.layer-options-nav-page {
+.layer-thumbnails-nav-page {
     font-family: "Aleo Bold", arial, sans-serif;
     font-weight: normal;
     font-style: normal;
@@ -297,20 +305,26 @@ canvas {
     flex: 2;
 }
 .layer--background { 
-    z-index: 1 
+    z-index: 1;
 }
 .layer--face { 
-    z-index: 2 
+    z-index: 2;
+}
+.layer--hair { 
+    z-index: 3;
+}
+.layer--eyebrows { 
+    z-index: 4;
 }
 .layer--eyes { 
-    z-index: 3 
+    z-index: 5;
 }
 .layer--nose { 
-    z-index: 4 
+    z-index: 6;
 }
 .layer--mouth { 
-    z-index: 5
+    z-index: 7;
 }
 .layer--accessories { 
-    z-index: 6
+    z-index: 8;
 }
