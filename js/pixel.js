@@ -211,9 +211,9 @@ function changeColor(colorSelected) {
             var ctx = layer.getContext('2d');
             ctx.globalCompositeOperation = "source-over"; // I don't know why this works
             ctx.clearRect(0, 0, 64, 64);
-            var imgOutline = new Image();
             var imgColor = new Image();
             imgColor.onload = function() {
+                var imgOutline = new Image();
                 ctx.drawImage(imgColor, 0, 0);
                 ctx.globalCompositeOperation = "source-atop";
                 ctx.fillStyle = colorSelected;
@@ -221,9 +221,15 @@ function changeColor(colorSelected) {
                 imgOutline.onload = function() {
                     ctx.drawImage(imgOutline, 0, 0);
                 }
+                imgOutline.onerror = function() {
+                    changeColor(colorSelected);
+                }
+                imgOutline.src = 'png/' + layerSelected + '/' + layerSelected + '-outline-' + selectedIndex[layerSelected] + '.png';
+            }
+            imgColor.onerror = function() {
+                changeColor(colorSelected);
             }
             imgColor.src = 'png/' + layerSelected + '/' + layerSelected + '-color-' + selectedIndex[layerSelected] + '.png';
-            imgOutline.src = 'png/' + layerSelected + '/' + layerSelected + '-outline-' + selectedIndex[layerSelected] + '.png';
             layerColor[layerSelected] = colorSelected;
         }
     }
@@ -235,22 +241,32 @@ function drawDefaultImg() {
         var layer = document.querySelector('.layer--' + layerSelected);
         var ctx = layer.getContext('2d');
         ctx.clearRect(0, 0, 64, 64);
+        ctx.globalCompositeOperation = "source-over"; // I don't know why this works
         if (layerColor[layerSelected] != 'fixed') {
             var imgColor = new Image();
-            var imgOutline = new Image();
             imgColor.onload = function() {
                 ctx.drawImage(imgColor, 0, 0);
+                var imgOutline = new Image();
                 imgOutline.onload = function() {
                     ctx.drawImage(imgOutline, 0, 0);
                 }
+                imgOutline.onerror = function() {
+                    drawDefaultImg();
+                }
+                imgOutline.src = 'png/' + layerSelected + '/' + layerSelected + '-outline-' + selectedIndex[layerSelected] + '.png';
+            }
+            imgColor.onerror = function() {
+                drawDefaultImg();
             }
             imgColor.src = 'png/' + layerSelected + '/' + layerSelected + '-color-' + selectedIndex[layerSelected] + '.png';
-            imgOutline.src = 'png/' + layerSelected + '/' + layerSelected + '-outline-' + selectedIndex[layerSelected] + '.png';
             layerColor[layerSelected] = 'default';
         } else {
             var img = new Image();
             img.onload = function() {
                 ctx.drawImage(img, 0, 0);
+            }
+            img.onerror = function() {
+                drawDefaultImg();
             }
             img.src = 'png/' + layerSelected + '/' + layerSelected + '-' + selectedIndex[layerSelected] + '.png';
         }
