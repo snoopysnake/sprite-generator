@@ -6,7 +6,7 @@ var selectedIndex = {'face': -1, 'hair': -1, 'eyebrows': -1, 'eyes': -1, 'nose':
 var layerColor = {'face': 'default', 'hair': 'default', 'eyebrows': 'default', 'eyes': 'fixed', 'nose': 'fixed', 'mouth': 'fixed','accessories': 'fixed', 'background': 'default'};
 
 window.onload = function setup() {
-    //Set up tool buttons
+    // Set up tool buttons
     var eraseLayerBtn = document.querySelector('.tools__btn--erase-layer');
     eraseLayerBtn.onclick = function() {
         eraseLayer();
@@ -58,13 +58,24 @@ window.onload = function setup() {
         exportImg();
     }
 
-    //Set up layer buttons
+    // Set up layer buttons
     var layersBtns = document.querySelectorAll('.layers__btn');
     for (i = 0; i < layersBtns.length; i++) {
         layersBtns[i].onclick = function(){
             chooseLayer(this);
         }
     }
+
+    //Set up canvases
+    var layers = document.querySelectorAll('.layer');
+    for (i = 0; i < layers.length; i++) {
+        var ctx = layers[i].getContext('2d');
+        ctx.mozImageSmoothingEnabled = false;
+        ctx.webkitImageSmoothingEnabled = false;
+        ctx.msImageSmoothingEnabled = false;
+        ctx.imageSmoothingEnabled = false;
+    }
+
     //Set up canvas background
     var backgroundLayer = document.querySelector('.layer--background');
     var ctx = backgroundLayer.getContext('2d');
@@ -147,7 +158,7 @@ function loadLayerThumbnails(pageNum) {
 function chooseLayer(button) {
     var rightSidebarPopup = document.querySelector('.right-sidebar-popup');
     if (lastClicked == button) {
-        //Click the same button twice
+        // Click the same button twice
         layerSelected = null;
         button.classList.remove('layers__btn--selected');
         button.classList.add('layers__btn--unselected');
@@ -359,9 +370,6 @@ function exportImg() {
     var layers = document.querySelectorAll('.layer--exportable');
     var exportLayer = document.querySelector('.layer--export');
     var ctx = exportLayer.getContext('2d');
-    ctx.webkitImageSmoothingEnabled = false;
-    ctx.mozImageSmoothingEnabled = false;
-    ctx.imageSmoothingEnabled = false;
     ctx.save();
     ctx.drawImage(layers[0],0,0); //Background does not need rescale
     ctx.scale(16,16);
@@ -369,7 +377,7 @@ function exportImg() {
     {
         ctx.drawImage(layers[i],0,0);
     }
-    //Export dialog needs work
+    // Export dialog needs work
     var exportedImg = exportLayer.toDataURL('image/png').replace('image/png', 'image/octet-stream'); //Convert image to 'octet-stream' (Just a download, really)
     // window.location.href = exportedImg;
     ctx.clearRect(0, 0, 512, 512);
