@@ -1,9 +1,11 @@
 var buttons_menu_top;
 var layerSelected;
 var lastClicked;
-var totalLayerThumbnails = {'face': 1, 'hair': 1, 'eyebrows': 1, 'eyes': 1, 'nose': 1, 'mouth': 1, 'accessories': 1, 'background': 0};
+var totalLayerThumbnails = {'face': 2, 'hair': 2, 'eyebrows': 1, 'eyes': 1, 'nose': 2, 'mouth': 2, 'accessories': 2, 'background': 0};
 var selectedIndex = {'face': -1, 'hair': -1, 'eyebrows': -1, 'eyes': -1, 'nose': -1, 'mouth': -1, 'accessories': -1, 'background': -1}; // Indices start at 0! -1 == nothing selected
 var layerColor = {'face': 'default', 'hair': 'default', 'eyebrows': 'default', 'eyes': 'fixed', 'nose': 'fixed', 'mouth': 'fixed','accessories': 'fixed', 'background': 'default'};
+var canvasX = 32;
+var canvasY = 32;
 
 window.onload = function setup() {
     // Set up tool buttons
@@ -51,7 +53,7 @@ window.onload = function setup() {
     }
     var resetPositionBtn = document.querySelector('.tools__btn--reset-position');
     resetPositionBtn.onclick = function() {
-        resetPosition(resetPositionBtn);
+        resetPosition();
     }
     var exportBtn = document.querySelector('.tools__btn--export');
     exportBtn.onclick = function() {
@@ -136,7 +138,7 @@ function loadLayerThumbnails(pageNum) {
     for (i = 0; i < end; i++) (function(i){
         layerThumbnails[i].classList.add('layer-thumbnails__row__cell--unselected');
         // TEMPORARY
-        layerThumbnails[i].textContent = 'Alex\'s ' + layerSelected;
+        layerThumbnails[i].textContent = layerSelected + ' ' + (i+1);
         // layerThumbnailsImgs[i].src = 'png/thumbnail/' + layerSelected + '/' + layerSelected + '-' + i + '.png';
         layerThumbnails[i].onclick = function() {
             setIndexAndDraw(layerThumbnails[i], i + start);
@@ -186,12 +188,12 @@ function setIndexAndDraw(currentSelected, index) {
     // currentSelected == layer thumbnail div clicked
     // index finds the correct image
 
-    if (selectedIndex[layerSelected] != index) {
+    if (selectedIndex[layerSelected] == index) {
+        eraseLayer();
+    }
+    else if (selectedIndex[layerSelected] != index) {
         // Remove previously selected layer thumbnail if present
-        var prevSelected = document.querySelector('.layer-thumbnails__row__cell--selected');
-        if (prevSelected != null) {
-            prevSelected.classList.remove('layer-thumbnails__row__cell--selected');
-        }
+        eraseLayer();
         // Highlight selected layer thumbnail
         currentSelected.classList.add('layer-thumbnails__row__cell--selected');
         selectedIndex[layerSelected] = index;
@@ -221,14 +223,14 @@ function changeColor(colorSelected) {
             var layer = document.querySelector('.layer--' + layerSelected);
             var ctx = layer.getContext('2d');
             ctx.globalCompositeOperation = "source-over"; // I don't know why this works
-            ctx.clearRect(0, 0, 64, 64);
+            ctx.clearRect(0, 0, canvasX, canvasY);
             var imgColor = new Image();
             imgColor.onload = function() {
                 var imgOutline = new Image();
                 ctx.drawImage(imgColor, 0, 0);
                 ctx.globalCompositeOperation = "source-atop";
                 ctx.fillStyle = colorSelected;
-                ctx.fillRect(0, 0, 64, 64);
+                ctx.fillRect(0, 0, canvasX, canvasY);
                 imgOutline.onload = function() {
                     ctx.drawImage(imgOutline, 0, 0);
                 }
@@ -251,7 +253,7 @@ function drawDefaultImg() {
     if (selectedIndex[layerSelected] != -1 && layerSelected != null) {
         var layer = document.querySelector('.layer--' + layerSelected);
         var ctx = layer.getContext('2d');
-        ctx.clearRect(0, 0, 64, 64);
+        ctx.clearRect(0, 0, canvasX, canvasY);
         ctx.globalCompositeOperation = "source-over"; // I don't know why this works
         if (layerColor[layerSelected] != 'fixed') {
             var imgColor = new Image();
@@ -300,13 +302,13 @@ function changePosition(button) {
     }
 }
 
-function resetPosition(button) {
+function resetPosition() {
     // TODO: Disable for background
     if (selectedIndex[layerSelected] != -1 && layerSelected != null) {
         var layer = document.querySelector('.layer--' + layerSelected);
         var ctx = layer.getContext('2d');
         ctx.setTransform(1, 0, 0, 1, 0, 0);
-        ctx.clearRect(0, 0, 64, 64);
+        ctx.clearRect(0, 0, canvasX, canvasY);
         if (layerColor[layerSelected] == 'default' || layerColor[layerSelected] == 'fixed') {
             drawDefaultImg();
         } else {
@@ -321,7 +323,7 @@ function translateLayer(x,y) {
         var layer = document.querySelector('.layer--' + layerSelected);
         var ctx = layer.getContext('2d');
         // Erase + copy to current layer
-        ctx.clearRect(0, 0, 64, 64);
+        ctx.clearRect(0, 0, canvasX, canvasY);
         ctx.translate(x,y);
         if (layerColor[layerSelected] == 'default' || layerColor[layerSelected] == 'fixed') {
             drawDefaultImg();
@@ -338,7 +340,7 @@ function eraseLayer() {
             var layer = document.querySelector('.layer--' + layerSelected);
             var ctx = layer.getContext('2d');
             ctx.setTransform(1, 0, 0, 1, 0, 0);
-            ctx.clearRect(0, 0, 64, 64);
+            ctx.clearRect(0, 0, canvasX, canvasY);
         }
     }
 
@@ -348,6 +350,9 @@ function eraseLayer() {
         prevSelected.classList.remove('layer-thumbnails__row__cell--selected');
     }
     selectedIndex[layerSelected] = -1;
+    if (layerColor[layerSelected] != 'fixed') {
+        layerColor[layerSelected] = 'default';
+    }
 }
 
 function eraseAll() {
@@ -356,7 +361,7 @@ function eraseAll() {
     {
         var ctx = layers[i].getContext('2d');
         ctx.setTransform(1, 0, 0, 1, 0, 0);
-        ctx.clearRect(0, 0, 64, 64);
+        ctx.clearRect(0, 0, canvasX, canvasY);
     }
 
     var prevSelected = document.querySelector('.layer-thumbnails__row__cell--selected');
