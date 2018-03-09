@@ -50,7 +50,7 @@ canvas {
     justify-content: space-between;
 }
 .palette {
-    display: none;
+    display: flex;
     flex-direction: column;
 }
 .palette__color {
@@ -93,7 +93,7 @@ canvas {
 .d-pad-container {
     width: 128px;
     height: 128px;
-    display: none;
+    display: flex;
     flex-direction: column;
     justify-content: center;
 }
@@ -223,7 +223,7 @@ canvas {
     width: 256px; 
     height: 512px;
     background-color: #CBF2FF;
-    display: none;
+    display: flex;
     flex-direction: column;
 }
 .layer-thumbnails { 
@@ -270,7 +270,7 @@ canvas {
 .layer-thumbnails-nav-container {
     height: 64px;
     width: 256px;
-    display: flex;
+    display: none;
     align-items: center;
     text-align: center;
 }
@@ -287,7 +287,7 @@ canvas {
     border: 2px solid white;
     display: flex;
     justify-content: center;
-    background-color: #FF6F3F;
+    background-color: #FFAF3F;
     outline-style: none;
 }
 .layer-thumbnails-nav__btn:active {
