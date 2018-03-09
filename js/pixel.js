@@ -1,7 +1,7 @@
 var buttons_menu_top;
 var layerSelected;
 var lastClicked;
-var totalLayerThumbnails = {'face': 2, 'hair': 2, 'eyebrows': 1, 'eyes': 1, 'nose': 2, 'mouth': 2, 'accessories': 2, 'background': 0};
+var totalLayerThumbnails = {'face': 4, 'hair': 2, 'eyebrows': 1, 'eyes': 2, 'nose': 2, 'mouth': 2, 'accessories': 2, 'background': 0};
 var selectedIndex = {'face': -1, 'hair': -1, 'eyebrows': -1, 'eyes': -1, 'nose': -1, 'mouth': -1, 'accessories': -1, 'background': -1}; // Indices start at 0! -1 == nothing selected
 var layerColor = {'face': 'default', 'hair': 'default', 'eyebrows': 'default', 'eyes': 'fixed', 'nose': 'fixed', 'mouth': 'fixed','accessories': 'fixed', 'background': 'default'};
 var canvasX = 32;
@@ -17,10 +17,10 @@ window.onload = function setup() {
     eraseAllBtn.onclick = function() {
         eraseAll();
     }
-    var changeColorBtn = document.querySelector('.tools__btn--change-color');
-    changeColorBtn.onclick = function() {
-        openPalette(this);
-    }
+    // var changeColorBtn = document.querySelector('.tools__btn--change-color');
+    // changeColorBtn.onclick = function() {
+    //     openPalette(this);
+    // }
     var paletteColors = document.querySelectorAll('.palette__color');
     for (i = 0; i < paletteColors.length; i++) {
         paletteColors[i].onclick = function() {
@@ -31,10 +31,10 @@ window.onload = function setup() {
     resetColorBtn.onclick = function() {
         drawDefaultImg();
     }
-    var changePositionBtn = document.querySelector('.tools__btn--change-position');
-    changePositionBtn.onclick = function() {
-        changePosition(this);
-    }
+    // var changePositionBtn = document.querySelector('.tools__btn--change-position');
+    // changePositionBtn.onclick = function() {
+    //     changePosition(this);
+    // }
     var dPadUpBtn = document.querySelector('.d-pad__btn--up');
     var dPadDownBtn = document.querySelector('.d-pad__btn--down');
     var dPadLeftBtn = document.querySelector('.d-pad__btn--left');
@@ -138,10 +138,10 @@ function loadLayerThumbnails(pageNum) {
     for (i = 0; i < end; i++) (function(i){
         layerThumbnails[i].classList.add('layer-thumbnails__row__cell--unselected');
         // TEMPORARY
-        layerThumbnails[i].textContent = layerSelected + ' ' + (i+1);
-        // layerThumbnailsImgs[i].src = 'png/thumbnail/' + layerSelected + '/' + layerSelected + '-' + i + '.png';
+        layerThumbnails[i].textContent = layerSelected + ' ' + (i + start + 1);
+        // layerThumbnailsImgs[i].src = 'png/thumbnail/' + layerSelected + '/' + layerSelected + '-' + (i + start) + '.png';
         layerThumbnails[i].onclick = function() {
-            setIndexAndDraw(layerThumbnails[i], i + start);
+            setIndexAndDraw(layerThumbnails[i], (i + start));
         }
     })(i);
 
@@ -158,13 +158,16 @@ function loadLayerThumbnails(pageNum) {
 }
 
 function chooseLayer(button) {
-    var rightSidebarPopup = document.querySelector('.right-sidebar-popup');
+    var thumbnailContainer = document.querySelector('.layer-thumbnails-container');
+    var thumbnailNavContainer = document.querySelector('.layer-thumbnails-nav-container');
+
     if (lastClicked == button) {
         // Click the same button twice
         layerSelected = null;
         button.classList.remove('layers__btn--selected');
         button.classList.add('layers__btn--unselected');
-        rightSidebarPopup.style.display = 'none'; //TODO
+        thumbnailContainer.style.display = 'none'; //TODO
+        thumbnailNavContainer.style.display = 'none'; //TODO
         lastClicked = null;
     } else {
         if (lastClicked == null) {
@@ -176,7 +179,8 @@ function chooseLayer(button) {
         lastClicked.classList.add('layers__btn--unselected');
         button.classList.remove('layers__btn--unselected');
         button.classList.add('layers__btn--selected');
-        rightSidebarPopup.style.display = 'flex'; //TODO
+        thumbnailContainer.style.display = 'flex'; //TODO
+        thumbnailNavContainer.style.display = 'flex'; //TODO
         lastClicked = button;
     }
     if (layerSelected == 'face') {
