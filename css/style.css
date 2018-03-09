@@ -49,6 +49,10 @@ canvas {
     align-items: center;
     justify-content: space-between;
 }
+.palette-container {
+    display: flex;
+    flex-direction: row;
+}
 .palette {
     display: flex;
     flex-direction: column;
@@ -56,6 +60,15 @@ canvas {
 .palette__color {
     width: 64px;
     height: 32px;
+}
+.palette--bitcamp {
+    display: flex;
+}
+.palette--skin {
+    display: none;
+}
+.palette--hair {
+    display: none;
 }
 .palette__color--dark-brown {
     background-color: #7F6C5F
@@ -89,6 +102,27 @@ canvas {
 }
 .palette__color--sky-blue {
     background-color: #CBF2FF
+}
+.palette__color--skin-1 {
+    background-color: #FFDBAC
+}
+.palette__color--skin-2 {
+    background-color: #F1C27D
+}
+.palette__color--skin-3 {
+    background-color: #E0AC69
+}
+.palette__color--skin-4 {
+    background-color: #C68642
+}
+.palette__color--skin-5 {
+    background-color: #894C1A
+}
+.palette__color--skin-6 {
+    background-color: #583512
+}
+.palette__color--skin-7 {
+    background-color: #3E2B13
 }
 .d-pad-container {
     width: 128px;

@@ -3,7 +3,7 @@ var layerSelected;
 var lastClicked;
 var totalLayerThumbnails = {'face': 4, 'hair': 2, 'eyebrows': 1, 'eyes': 2, 'nose': 2, 'mouth': 2, 'accessories': 2, 'background': 0};
 var selectedIndex = {'face': -1, 'hair': -1, 'eyebrows': -1, 'eyes': -1, 'nose': -1, 'mouth': -1, 'accessories': -1, 'background': -1}; // Indices start at 0! -1 == nothing selected
-var layerColor = {'face': 'default', 'hair': 'default', 'eyebrows': 'default', 'eyes': 'fixed', 'nose': 'fixed', 'mouth': 'fixed','accessories': 'fixed', 'background': 'default'};
+var layerColor = {'face': 'default', 'hair': 'default', 'eyebrows': 'fixed', 'eyes': 'fixed', 'nose': 'fixed', 'mouth': 'fixed','accessories': 'fixed', 'background': 'default'};
 var canvasX = 32;
 var canvasY = 32;
 
@@ -12,6 +12,9 @@ window.onload = function setup() {
     var eraseLayerBtn = document.querySelector('.tools__btn--erase-layer');
     eraseLayerBtn.onclick = function() {
         eraseLayer();
+        if (layerColor[layerSelected] != 'fixed') {
+	        layerColor[layerSelected] = 'default';
+	    }
     }
     var eraseAllBtn = document.querySelector('.tools__btn--erase-all');
     eraseAllBtn.onclick = function() {
@@ -27,10 +30,10 @@ window.onload = function setup() {
             changeColor(getComputedStyle(this).backgroundColor);
         }
     }
-    var resetColorBtn = document.querySelector('.tools__btn--reset-color');
-    resetColorBtn.onclick = function() {
-        drawDefaultImg();
-    }
+    // var resetColorBtn = document.querySelector('.tools__btn--reset-color');
+    // resetColorBtn.onclick = function() {
+    //     drawDefaultImg();
+    // }
     // var changePositionBtn = document.querySelector('.tools__btn--change-position');
     // changePositionBtn.onclick = function() {
     //     changePosition(this);
@@ -100,7 +103,7 @@ function loadLayerThumbnails(pageNum) {
 
     // Hide/show prev btn
     if (start == 0) {
-        prevBtn.style.display = 'none';
+        prevBtn.style.display = 'none'; //TODO
         prevBtn.onclick = '';
     } else {
         prevBtn.style.display = 'inline';
@@ -111,7 +114,7 @@ function loadLayerThumbnails(pageNum) {
     // Find ending index & hide/show next btn
     if (start + 28 >= total) {
         end = total - start;
-        nextBtn.style.display = 'none';
+        nextBtn.style.display = 'none'; //TODO
         nextBtn.onclick = '';
     } else {
         end = 28;
@@ -183,8 +186,22 @@ function chooseLayer(button) {
         thumbnailNavContainer.style.display = 'flex'; //TODO
         lastClicked = button;
     }
+
+    var bitcampPalette = document.querySelector('.palette--bitcamp');
+    var skinPalette = document.querySelector('.palette--skin');
+    var hairPalette = document.querySelector('.palette--hair');
+
+    bitcampPalette.style.display = 'flex'; //TODO
+    skinPalette.style.display = 'none'; //TODO
+    hairPalette.style.display = 'none'; //TODO
     if (layerSelected == 'face') {
         // Change color palette
+	    bitcampPalette.style.display = 'none'; //TODO
+	    skinPalette.style.display = 'flex'; //TODO
+    }
+    if (layerSelected == 'hair' || layerSelected == 'eyebrows') {
+        // Change color palette
+	    hairPalette.style.display = 'flex'; //TODO
     }
 }
 
@@ -201,7 +218,12 @@ function setIndexAndDraw(currentSelected, index) {
         // Highlight selected layer thumbnail
         currentSelected.classList.add('layer-thumbnails__row__cell--selected');
         selectedIndex[layerSelected] = index;
-        drawDefaultImg();
+        if (layerColor[layerSelected] != 'fixed' && layerColor[layerSelected] != 'default') {
+        	changeColor(layerColor[layerSelected]);
+        }
+        else {
+        	drawDefaultImg();
+        }
     }
 }
 
@@ -354,9 +376,6 @@ function eraseLayer() {
         prevSelected.classList.remove('layer-thumbnails__row__cell--selected');
     }
     selectedIndex[layerSelected] = -1;
-    if (layerColor[layerSelected] != 'fixed') {
-        layerColor[layerSelected] = 'default';
-    }
 }
 
 function eraseAll() {
@@ -373,6 +392,7 @@ function eraseAll() {
         prevSelected.classList.remove('layer-thumbnails__row__cell--selected');
     }
     selectedIndex = {'face': -1, 'hair': -1, 'eyebrows': -1, 'eyes': -1, 'nose': -1, 'mouth': -1, 'accessories': -1, 'background': -1};
+    layerColor = {'face': 'default', 'hair': 'default', 'eyebrows': 'default', 'eyes': 'fixed', 'nose': 'fixed', 'mouth': 'fixed','accessories': 'fixed', 'background': 'default'};
 }
 
 function exportImg() {
