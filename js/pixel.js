@@ -1,7 +1,7 @@
 var buttons_menu_top;
 var layerSelected;
 var lastClicked;
-var totalLayerThumbnails = {'face': 4, 'hair': 2, 'eyebrows': 1, 'eyes': 2, 'nose': 2, 'mouth': 2, 'accessories': 2, 'background': 0};
+var totalLayerThumbnails = {'face': 4, 'hair': 2, 'eyebrows': 1, 'eyes': 2, 'nose': 2, 'mouth': 2, 'accessories': 2, 'background': 11};
 var selectedIndex = {'face': -1, 'hair': -1, 'eyebrows': -1, 'eyes': -1, 'nose': -1, 'mouth': -1, 'accessories': -1, 'background': -1}; // Indices start at 0! -1 == nothing selected
 var layerColor = {'face': 'default', 'hair': 'default', 'eyebrows': 'fixed', 'eyes': 'fixed', 'nose': 'fixed', 'mouth': 'fixed','accessories': 'fixed', 'background': 'default'};
 var canvasX = 32;
@@ -37,6 +37,14 @@ window.onload = function setup() {
     // var changePositionBtn = document.querySelector('.tools__btn--change-position');
     // changePositionBtn.onclick = function() {
     //     changePosition(this);
+    // }
+    // var changeSingleLayerBtn = document.querySelector('.d-pad-tools__btn--single');
+    // changeSingleLayerBtn.onclick = function() {
+    //     changeLayersTranslated(this);
+    // }
+    // var changeAllLayersBtn = document.querySelector('.d-pad-tools__btn--all');
+    // changeAllLayersBtn.onclick = function() {
+    //     changeLayersTranslated(this);
     // }
     var dPadUpBtn = document.querySelector('.d-pad__btn--up');
     var dPadDownBtn = document.querySelector('.d-pad__btn--down');
@@ -86,9 +94,33 @@ window.onload = function setup() {
     var ctx = backgroundLayer.getContext('2d');
     for (i = 0; i < 32; i++) {
       for (j = 0; j < 32; j++) {
-        ctx.fillStyle = 'rgb(' + Math.floor(255 - 10 * i) + ', ' +
-            Math.floor(255 - 10 * j) + ', 0)';
-        ctx.fillRect(j * 25, i * 25, 25, 25);
+        ctx.fillStyle = 'rgb(' + Math.floor(255 - 4 * i) + ', ' +
+            Math.floor(175 - 8 * j) + ', ' + 63 + ')';
+        ctx.fillRect(j * 32, i * 32, 32, 32);
+      }
+    }
+
+    // drawGradientBackground(127,108,95); // Dark brown
+    // drawGradientBackground(165,141,124); // Medium brown
+    // drawGradientBackground(229,216,206); // Light brown
+    // drawGradientBackground(255,255,255); // Cloud white
+    // drawGradientBackground(255,63,70); // Flame red
+    // drawGradientBackground(255,111,63); // Bitcamp orange
+    // drawGradientBackground(255,175,63); // Yellow orange
+    // drawGradientBackground(255,239,63); // Yellow
+    // drawGradientBackground(26,46,51); // Midnight blue
+    // drawGradientBackground(82,140,165); // Medium blue
+    // drawGradientBackground(203,242,255); // Sky blue
+}
+
+function drawGradientBackground(r,g,b) {
+    var backgroundLayer = document.querySelector('.layer--background');
+    var ctx = backgroundLayer.getContext('2d');
+    for (i = 0; i < 32; i++) {
+      for (j = 0; j < 32; j++) {
+        ctx.fillStyle = 'rgb(' + Math.floor(r - 4*i) + ', ' +
+            Math.floor(g - 2*i) + ', ' + b + ')';
+        ctx.fillRect(j * 32, i * 32, 32, 32);
       }
     }
 }
@@ -140,8 +172,9 @@ function loadLayerThumbnails(pageNum) {
     // Populate cells
     for (i = 0; i < end; i++) (function(i){
         layerThumbnails[i].classList.add('layer-thumbnails__row__cell--unselected');
-        // TEMPORARY
-        layerThumbnails[i].textContent = layerSelected + ' ' + (i + start + 1);
+        // If background, don't add thumbnail
+
+        layerThumbnails[i].textContent = layerSelected + ' ' + (i + start + 1); // TEMPORARY
         // layerThumbnailsImgs[i].src = 'png/thumbnail/' + layerSelected + '/' + layerSelected + '-' + (i + start) + '.png';
         layerThumbnails[i].onclick = function() {
             setIndexAndDraw(layerThumbnails[i], (i + start));
@@ -343,6 +376,48 @@ function resetPosition() {
     }
 }
 
+function changeLayersTranslated(button) {
+    var dPadUpBtn = document.querySelector('.d-pad__btn--up');
+    var dPadDownBtn = document.querySelector('.d-pad__btn--down');
+    var dPadLeftBtn = document.querySelector('.d-pad__btn--left');
+    var dPadRightBtn = document.querySelector('.d-pad__btn--right');
+
+    var prevSelected = document.querySelector('.d-pad-tools__btn--selected');
+    if (prevSelected != button) {
+        prevSelected.classList.remove('d-pad-tools__btn--selected');
+        prevSelected.classList.add('d-pad-tools__btn--unselected');
+        button.classList.add('d-pad-tools__btn--selected');
+    }
+
+    if (button.value == 'Single Layer') {
+        dPadUpBtn.onclick = function() {
+            translateLayer(0,-1);
+        }
+        dPadDownBtn.onclick = function() {
+            translateLayer(0,1);
+        }
+        dPadLeftBtn.onclick = function() {
+            translateLayer(-1,0);
+        }
+        dPadRightBtn.onclick = function() {
+            translateLayer(1,0);
+        }
+    } else {
+        dPadUpBtn.onclick = function() {
+            translateAllLayers(0,-1);
+        }
+        dPadDownBtn.onclick = function() {
+            translateAllLayers(0,1);
+        }
+        dPadLeftBtn.onclick = function() {
+            translateAllLayers(-1,0);
+        }
+        dPadRightBtn.onclick = function() {
+            translateAllLayers(1,0);
+        }
+    }
+}
+
 function translateLayer(x,y) {
     // TODO: Disable for background
     if (selectedIndex[layerSelected] != -1 && layerSelected != null) {
@@ -357,6 +432,10 @@ function translateLayer(x,y) {
             changeColor(layerColor[layerSelected]);
         }
     }
+}
+
+function translateAllLayers(x,y) {
+    // Didn't work
 }
 
 function eraseLayer() {
