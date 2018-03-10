@@ -88,7 +88,7 @@ window.onload = function setup() {
         }
     }
 
-    //Set up canvases
+    // Set up canvases
     var layers = document.querySelectorAll('.layer');
     for (i = 0; i < layers.length; i++) {
         var ctx = layers[i].getContext('2d');
@@ -98,8 +98,11 @@ window.onload = function setup() {
         ctx.imageSmoothingEnabled = false;
     }
 
-    //Set up canvas background
+    // Set up canvas background
     drawDefaultBackground();
+
+    // Disable palette
+    disablePalette();
 }
 
 function loadLayerThumbnails(pageNum) {
@@ -192,6 +195,7 @@ function chooseLayer(button) {
     var thumbnailContainer = document.querySelector('.layer-thumbnails-container');
     var thumbnailNavContainer = document.querySelector('.layer-thumbnails-nav-container');
 
+    disablePalette();
     if (lastClicked == button) {
         // Click the same button twice
         layerSelected = null;
@@ -215,21 +219,25 @@ function chooseLayer(button) {
         lastClicked = button;
     }
 
-    var bitcampPalette = document.querySelector('.palette--bitcamp');
+    // var bitcampPalette = document.querySelector('.palette--bitcamp');
     var skinPalette = document.querySelector('.palette--skin');
     var hairPalette = document.querySelector('.palette--hair');
+    // bitcampPalette.style.display = 'flex';
+    skinPalette.style.display = 'none';
+    hairPalette.style.display = 'none';
 
-    bitcampPalette.style.display = 'flex'; //TODO
-    skinPalette.style.display = 'none'; //TODO
-    hairPalette.style.display = 'none'; //TODO
     if (layerSelected == 'face') {
         // Change color palette
-	    bitcampPalette.style.display = 'none'; //TODO
-	    skinPalette.style.display = 'flex'; //TODO
+	    // bitcampPalette.style.display = 'none';
+	    skinPalette.style.display = 'flex';
     }
     if (layerSelected == 'hair' || layerSelected == 'eyebrows') {
         // Change color palette
-	    hairPalette.style.display = 'flex'; //TODO
+	    hairPalette.style.display = 'flex';
+        enablePalette();
+    }
+    if (layerSelected == 'accessories' || layerSelected == 'background') {
+        enablePalette();
     }
 
     var dpadToolContainer = document.querySelector('.d-pad-tools');
@@ -281,6 +289,20 @@ function openPalette(button) {
         button.classList.add('layers__btn--selected');
         palette.style.display = 'flex'; //TODO
         palette.style.borderRight = '16px solid white'; //TODO
+    }
+}
+
+function disablePalette() {
+    var paletteColors = document.querySelectorAll('.palette__color');
+    for(i = 0; i < 12; i++) {
+        paletteColors[i].style.opacity = '0.6';
+    }
+}
+
+function enablePalette() {
+    var paletteColors = document.querySelectorAll('.palette__color');
+    for(i = 0; i < 12; i++) {
+        paletteColors[i].style.opacity = '1.0';
     }
 }
 
@@ -506,13 +528,14 @@ function eraseAll() {
         ctx.setTransform(1, 0, 0, 1, 0, 0);
         ctx.clearRect(0, 0, canvasX, canvasY);
     }
+    drawDefaultBackground();
 
     var prevSelected = document.querySelector('.layer-thumbnails__row__cell--selected');
     if (prevSelected != null) {
         prevSelected.classList.remove('layer-thumbnails__row__cell--selected');
     }
     selectedIndex = {'face': -1, 'hair': -1, 'eyebrows': -1, 'eyes': -1, 'nose': -1, 'mouth': -1, 'accessories': -1, 'background': -1};
-    layerColor = {'face': 'default', 'hair': 'default', 'eyebrows': 'default', 'eyes': 'fixed', 'nose': 'fixed', 'mouth': 'fixed','accessories': 'fixed', 'background': 'default'};
+    layerColor = {'face': 'default', 'hair': 'default', 'eyebrows': 'default', 'eyes': 'fixed', 'nose': 'fixed', 'mouth': 'fixed','accessories': 'fixed', 'background': 'rgb(255, 175, 63)'};
 }
 
 function saveImg() {

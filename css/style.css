@@ -162,6 +162,39 @@ canvas {
 .palette__color--skin-7 {
     background-color: #3E2B13
 }
+.palette__color--hair-1 {
+    background-color: #D7D67C
+}
+.palette__color--hair-2 {
+    background-color: #C6A969
+}
+.palette__color--hair-3 {
+    background-color: #A47A3F
+}
+.palette__color--hair-4 {
+    background-color: #9F5924
+}
+.palette__color--hair-5 {
+    background-color: #C94A18
+}
+.palette__color--hair-6 {
+    background-color: #A62204
+}
+.palette__color--hair-7 {
+    background-color: #5D3222
+}
+.palette__color--hair-8 {
+    background-color: #47200E
+}
+.palette__color--hair-9 {
+    background-color: #3A0A10
+}
+.palette__color--hair-10 {
+    background-color: #210E06
+}
+.palette__color--hair-11 {
+    background-color: #0C0C0C
+}
 .d-pad-container {
     width: 128px;
     height: 128px;
