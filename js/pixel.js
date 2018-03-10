@@ -1,10 +1,11 @@
 var buttons_menu_top;
 var layerSelected;
 var lastClicked;
-var totalLayerThumbnails = {'face': 4, 'hair': 2, 'eyebrows': 1, 'eyes': 10, 'nose': 2, 'mouth': 2, 'accessories': 2, 'background': 11};
-var selectedIndex = {'face': -1, 'hair': -1, 'eyebrows': -1, 'eyes': -1, 'nose': -1, 'mouth': -1, 'accessories': -1, 'background': -1}; // Indices start at 0! -1 == nothing selected
-var layerColor = {'face': 'default', 'hair': 'default', 'eyebrows': 'fixed', 'eyes': 'fixed', 'nose': 'fixed', 'mouth': 'fixed','accessories': 'fixed', 'background': 'default'};
+var totalLayerThumbnails = {'face': 4, 'hair': 2, 'eyebrows': 1, 'eyes': 10, 'nose': 2, 'mouth': 2, 'accessories': 2, 'background': 4};
+var selectedIndex = {'face': -1, 'hair': -1, 'eyebrows': -1, 'eyes': -1, 'nose': -1, 'mouth': -1, 'accessories': -1, 'background': -1}; // Indices start at 0, -1 == nothing selected
+var layerColor = {'face': 'default', 'hair': 'default', 'eyebrows': 'fixed', 'eyes': 'fixed', 'nose': 'fixed', 'mouth': 'fixed','accessories': 'fixed', 'background': 'rgb(255, 175, 63)'};
 var layerWidth = {'eyebrows': 0, 'eyes': 0}
+multiplier = 16;
 var canvasX = 32;
 var canvasY = 32;
 
@@ -13,9 +14,11 @@ window.onload = function setup() {
     var eraseLayerBtn = document.querySelector('.tools__btn--erase-layer');
     eraseLayerBtn.onclick = function() {
         eraseLayer();
-        if (layerColor[layerSelected] != 'fixed') {
-	        layerColor[layerSelected] = 'default';
-	    }
+        if (layerSelected != 'background') {
+            if (layerColor[layerSelected] != 'fixed') {
+                layerColor[layerSelected] = 'default';
+            }
+        }
     }
     var eraseAllBtn = document.querySelector('.tools__btn--erase-all');
     eraseAllBtn.onclick = function() {
@@ -28,7 +31,12 @@ window.onload = function setup() {
     var paletteColors = document.querySelectorAll('.palette__color');
     for (i = 0; i < paletteColors.length; i++) {
         paletteColors[i].onclick = function() {
-            changeColor(getComputedStyle(this).backgroundColor);
+            var colorSelected = String(getComputedStyle(this).backgroundColor);
+            if (layerSelected == 'background') {
+                drawBackground(colorSelected); // Replaces prev color
+            } else {
+                changeColor(colorSelected); // rgb(#,#,#)
+            }
         }
     }
     // var resetColorBtn = document.querySelector('.tools__btn--reset-color');
@@ -91,39 +99,7 @@ window.onload = function setup() {
     }
 
     //Set up canvas background
-    var backgroundLayer = document.querySelector('.layer--background');
-    var ctx = backgroundLayer.getContext('2d');
-    for (i = 0; i < 32; i++) {
-      for (j = 0; j < 32; j++) {
-        ctx.fillStyle = 'rgb(' + Math.floor(255 - 4 * i) + ', ' +
-            Math.floor(175 - 8 * j) + ', ' + 63 + ')';
-        ctx.fillRect(j * 32, i * 32, 32, 32);
-      }
-    }
-
-    // drawGradientBackground(127,108,95); // Dark brown
-    // drawGradientBackground(165,141,124); // Medium brown
-    // drawGradientBackground(229,216,206); // Light brown
-    // drawGradientBackground(255,255,255); // Cloud white
-    // drawGradientBackground(255,63,70); // Flame red
-    // drawGradientBackground(255,111,63); // bitcamp orange
-    // drawGradientBackground(255,175,63); // Yellow orange
-    // drawGradientBackground(255,239,63); // Yellow
-    // drawGradientBackground(26,46,51); // Midnight blue
-    // drawGradientBackground(82,140,165); // Medium blue
-    // drawGradientBackground(203,242,255); // Sky blue
-}
-
-function drawGradientBackground(r,g,b) {
-    var backgroundLayer = document.querySelector('.layer--background');
-    var ctx = backgroundLayer.getContext('2d');
-    for (i = 0; i < 32; i++) {
-      for (j = 0; j < 32; j++) {
-        ctx.fillStyle = 'rgb(' + Math.floor(r - 4*i) + ', ' +
-            Math.floor(g - 2*i) + ', ' + b + ')';
-        ctx.fillRect(j * 32, i * 32, 32, 32);
-      }
-    }
+    drawDefaultBackground();
 }
 
 function loadLayerThumbnails(pageNum) {
@@ -173,10 +149,28 @@ function loadLayerThumbnails(pageNum) {
     // Populate cells
     for (i = 0; i < end; i++) (function(i){
         layerThumbnails[i].classList.add('layer-thumbnails__row__cell--unselected');
-        // If background, don't add thumbnail
-
-        layerThumbnails[i].textContent = layerSelected + ' ' + (i + start + 1); // TEMPORARY
-        // layerThumbnailsImgs[i].src = 'png/thumbnail/' + layerSelected + '/' + layerSelected + '-' + (i + start) + '.png';
+        if (layerSelected == 'background') {
+            if (i == 0) {
+                layerThumbnails[i].textContent = 'Solid Color';
+            }
+            else if (i == 1) {
+                layerThumbnails[i].textContent = 'Gradient 1';
+            }
+            else if (i == 2) {
+                layerThumbnails[i].textContent = 'Gradient 2';
+            }
+            else if (i == 3) {
+                layerThumbnails[i].textContent = 'Gradient 3';
+            }
+            else {
+                layerThumbnails[i].textContent = layerSelected + ' ' + (i + start + 1); // TEMPORARY
+                // layerThumbnailsImgs[i].src = 'png/thumbnail/' + layerSelected + '/' + layerSelected + '-' + (i + start) + '.png';
+            }
+        }
+        else {
+            layerThumbnails[i].textContent = layerSelected + ' ' + (i + start + 1); // TEMPORARY
+            // layerThumbnailsImgs[i].src = 'png/thumbnail/' + layerSelected + '/' + layerSelected + '-' + (i + start) + '.png';
+        }
         layerThumbnails[i].onclick = function() {
             setIndexAndDraw(layerThumbnails[i], (i + start));
         }
@@ -253,7 +247,9 @@ function setIndexAndDraw(currentSelected, index) {
     // index finds the correct image
 
     if (selectedIndex[layerSelected] == index) {
-        eraseLayer();
+        if (layerSelected != 'background') {
+            eraseLayer();
+        }
     }
     else if (selectedIndex[layerSelected] != index) {
         // Remove previously selected layer thumbnail if present
@@ -261,7 +257,10 @@ function setIndexAndDraw(currentSelected, index) {
         // Highlight selected layer thumbnail
         currentSelected.classList.add('layer-thumbnails__row__cell--selected');
         selectedIndex[layerSelected] = index;
-        if (layerColor[layerSelected] != 'fixed' && layerColor[layerSelected] != 'default') {
+        if (layerSelected == 'background') {
+            drawBackground(layerColor['background']);
+        }
+        else if (layerColor[layerSelected] != 'fixed' && layerColor[layerSelected] != 'default') {
         	changeColor(layerColor[layerSelected]);
         }
         else {
@@ -346,8 +345,8 @@ function drawDefaultImg() {
             var img = new Image();
             img.onload = function() {
                 if (layerSelected == 'eyebrows' || layerSelected == 'eyes') {
-                    ctx.drawImage(img, 0 + layerWidth[layerSelected], 0, 16, 32, 0, 0, 16, 32); // Right eye
-                    ctx.drawImage(img, 16 - layerWidth[layerSelected], 0, 16, 32, 16, 0, 16, 32); // Left eye
+                    ctx.drawImage(img, 0 + layerWidth[layerSelected], 0, canvasX/2, canvasY, 0, 0, canvasX/2, canvasY); // Right eye
+                    ctx.drawImage(img, 16 - layerWidth[layerSelected], 0, canvasX/2, canvasY, canvasX/2, 0, canvasX/2, canvasY); // Left eye
                 }
                 else {
                     ctx.drawImage(img, 0, 0);
@@ -358,6 +357,62 @@ function drawDefaultImg() {
             }
             img.src = 'png/' + layerSelected + '/' + layerSelected + '-' + selectedIndex[layerSelected] + '.png';
         }
+    }
+}
+
+function drawBackground(colorSelected) {
+    if (selectedIndex != -1) {
+        layerColor['background'] = colorSelected;
+        if (selectedIndex['background'] == 0) {
+            // Solid color
+            drawSolidBackground(colorSelected);
+        }
+        if (selectedIndex['background'] == 1) {
+            // Gradient
+            drawGradientBackground(colorSelected, 4);
+        }
+        if (selectedIndex['background'] == 2) {
+            // Gradient
+            drawGradientBackground(colorSelected, 2);
+        }
+        if (selectedIndex['background'] == 3) {
+            // Gradient
+            drawGradientBackground(colorSelected, 1);
+        }
+    }
+}
+
+function drawDefaultBackground() {
+    var backgroundLayer = document.querySelector('.layer--background');
+    var ctx = backgroundLayer.getContext('2d');
+    for (i = 0; i < multiplier; i++) {
+      for (j = 0; j < multiplier; j++) {
+        ctx.fillStyle = 'rgb(' + Math.floor(255 - 4 * i) + ', ' +
+            Math.floor(175 - 8 * j) + ', ' + 63 + ')';
+        ctx.fillRect(j * canvasX, i * canvasY, canvasX, canvasY);
+      }
+    }
+}
+
+function drawSolidBackground(colorSelected) {
+    var backgroundLayer = document.querySelector('.layer--background');
+    var ctx = backgroundLayer.getContext('2d');
+    ctx.clearRect(0, 0, canvasX*multiplier, canvasY*multiplier);
+    ctx.fillStyle = colorSelected;
+    ctx.fillRect(0, 0, canvasX*multiplier, canvasY*multiplier);
+}
+
+function drawGradientBackground(colorSelected, factor) {
+    var rgb = colorSelected.match(/\d+/g);
+    var backgroundLayer = document.querySelector('.layer--background');
+    var ctx = backgroundLayer.getContext('2d');
+    ctx.clearRect(0, 0, canvasX*multiplier, canvasY*multiplier);
+    for (i = 0; i < multiplier/factor; i++) {
+      for (j = 0; j < multiplier/factor; j++) {
+        ctx.fillStyle = 'rgb(' + Math.floor(rgb[0] - 4*i) + ', ' +
+            Math.floor(rgb[1] - 2*i) + ', ' + rgb[2] + ')';
+        ctx.fillRect(j * canvasX*factor, i * canvasY*factor, canvasX*factor, canvasY*factor);
+      }
     }
 }
 
@@ -426,18 +481,21 @@ function eraseLayer() {
             var ctx = layer.getContext('2d');
             ctx.setTransform(1, 0, 0, 1, 0, 0);
             ctx.clearRect(0, 0, canvasX, canvasY);
-        }
-    }
 
-    // Remove previously selected layer thumbnail if present
-    var prevSelected = document.querySelector('.layer-thumbnails__row__cell--selected');
-    if (prevSelected != null) {
-        prevSelected.classList.remove('layer-thumbnails__row__cell--selected');
+            if (layerSelected == 'eyebrows' || layerSelected == 'eyes') {
+                layerWidth[layerSelected] = 0;
+            }
+        }
+        else {
+            drawDefaultBackground();
+        }
+        // Remove previously selected layer thumbnail if present
+        var prevSelected = document.querySelector('.layer-thumbnails__row__cell--selected');
+        if (prevSelected != null) {
+            prevSelected.classList.remove('layer-thumbnails__row__cell--selected');
+        }
+            selectedIndex[layerSelected] = -1;
     }
-    if (layerSelected == 'eyebrows' || layerSelected == 'eyes') {
-        layerWidth[layerSelected] = 0;
-    }
-    selectedIndex[layerSelected] = -1;
 }
 
 function eraseAll() {
@@ -462,13 +520,12 @@ function saveImg() {
     var saveLayer = document.querySelector('.layer--save');
     var ctx = saveLayer.getContext('2d');
     ctx.save();
-    ctx.drawImage(layers[0],0,0); //Background does not need rescale
-    ctx.scale(16,16);
+    ctx.drawImage(layers[0], 0, 0); //Background does not need rescale
+    ctx.scale(multiplier, multiplier);
     for (i = 1; i < layers.length; i++)
     {
         ctx.drawImage(layers[i],0,0);
     }
-    // Export dialog needs work
     var exportedImg = saveLayer.toDataURL('image/png').replace('image/png', 'image/octet-stream'); //Convert image to 'octet-stream' (Just a download, really)
     var a = document.createElement('a');
     a.download = 'sprite.png';
