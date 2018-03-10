@@ -488,6 +488,12 @@ canvas {
 .layer--mouth { 
     z-index: 7;
 }
-.layer--accessories { 
+.layer--accessory-1 { 
     z-index: 8;
+}
+.layer--accessory-2 { 
+    z-index: 9;
+}
+.layer--accessory-3 { 
+    z-index: 10;
 }

@@ -1,9 +1,9 @@
 var buttons_menu_top;
 var layerSelected;
 var lastClicked;
-var totalLayerThumbnails = {'face': 4, 'hair': 2, 'eyebrows': 1, 'eyes': 10, 'nose': 2, 'mouth': 2, 'accessories': 2, 'background': 4};
-var selectedIndex = {'face': -1, 'hair': -1, 'eyebrows': -1, 'eyes': -1, 'nose': -1, 'mouth': -1, 'accessories': -1, 'background': -1}; // Indices start at 0, -1 == nothing selected
-var layerColor = {'face': 'default', 'hair': 'default', 'eyebrows': 'fixed', 'eyes': 'fixed', 'nose': 'fixed', 'mouth': 'fixed','accessories': 'fixed', 'background': 'rgb(255, 175, 63)'};
+var totalLayerThumbnails = {'face': 4, 'hair': 2, 'eyebrows': 1, 'eyes': 10, 'nose': 2, 'mouth': 2, 'facial-hair': 0, 'accessory-1': 2, 'accessory-2': 2, 'accessory-3': 2, 'background': 4};
+var selectedIndex = {'face': -1, 'hair': -1, 'eyebrows': -1, 'eyes': -1, 'nose': -1, 'mouth': -1, 'facial-hair': -1, 'accessory-1': -1, 'accessory-2': -1, 'accessory-3': -1, 'background': -1}; // Indices start at 0, -1 == nothing selected
+var layerColor = {'face': 'default', 'hair': 'default', 'eyebrows': 'fixed', 'eyes': 'fixed', 'nose': 'fixed', 'mouth': 'fixed', 'facial-hair': 'default', 'accessory-1': 'default', 'accessory-2': 'default', 'accessory-3': 'default', 'background': 'rgb(255, 175, 63)'};
 var layerWidth = {'eyebrows': 0, 'eyes': 0}
 multiplier = 16;
 var canvasX = 32;
@@ -208,7 +208,7 @@ function chooseLayer(button) {
         if (lastClicked == null) {
             lastClicked = button;
         }
-        layerSelected = button.value.toLowerCase();
+        layerSelected = button.value.toLowerCase().replace(' ','-');
         loadLayerThumbnails(Math.round(selectedIndex[layerSelected]/28) + 1); // Page of selected layer thumbnail
         lastClicked.classList.remove('layers__btn--selected');
         lastClicked.classList.add('layers__btn--unselected');
@@ -219,6 +219,7 @@ function chooseLayer(button) {
         lastClicked = button;
     }
 
+    // Add/remove or enable/disable color palettes
     // var bitcampPalette = document.querySelector('.palette--bitcamp');
     var skinPalette = document.querySelector('.palette--skin');
     var hairPalette = document.querySelector('.palette--hair');
@@ -228,15 +229,18 @@ function chooseLayer(button) {
 
     if (layerSelected == 'face') {
         // Change color palette
-	    // bitcampPalette.style.display = 'none';
-	    skinPalette.style.display = 'flex';
+        // bitcampPalette.style.display = 'none';
+        skinPalette.style.display = 'flex';
     }
-    if (layerSelected == 'hair' || layerSelected == 'eyebrows') {
+    if (layerSelected == 'hair' || layerSelected == 'eyebrows' || layerSelected == 'facial-hair') {
         // Change color palette
-	    hairPalette.style.display = 'flex';
+        hairPalette.style.display = 'flex';
         enablePalette();
     }
-    if (layerSelected == 'accessories' || layerSelected == 'background') {
+    if (layerSelected == 'background') {
+        enablePalette();
+    }
+    if (layerSelected != null && layerSelected.includes('accessory')) {
         enablePalette();
     }
 
@@ -257,6 +261,10 @@ function setIndexAndDraw(currentSelected, index) {
     if (selectedIndex[layerSelected] == index) {
         if (layerSelected != 'background') {
             eraseLayer();
+            // Double clicking removes color (functions same as erase layer button)
+            if (layerColor[layerSelected] != 'fixed') {
+                layerColor[layerSelected] = 'default';
+            }
         }
     }
     else if (selectedIndex[layerSelected] != index) {
@@ -327,12 +335,22 @@ function changeColor(colorSelected) {
                 imgOutline.onerror = function() {
                     changeColor(colorSelected);
                 }
-                imgOutline.src = 'png/' + layerSelected + '/' + layerSelected + '-outline-' + selectedIndex[layerSelected] + '.png';
+                // Change file name for accessories
+                if (layerSelected.includes('accessory')) {
+                    imgOutline.src = 'png/accessory/accessory-outline-' + selectedIndex[layerSelected] + '.png';
+                } else {
+                    imgOutline.src = 'png/' + layerSelected + '/' + layerSelected + '-outline-' + selectedIndex[layerSelected] + '.png';
+                }
             }
             imgColor.onerror = function() {
                 changeColor(colorSelected);
             }
-            imgColor.src = 'png/' + layerSelected + '/' + layerSelected + '-color-' + selectedIndex[layerSelected] + '.png';
+            // Change file name for accessories
+            if (layerSelected.includes('accessory')) {
+                imgColor.src = 'png/accessory/accessory-color-' + selectedIndex[layerSelected] + '.png';
+            } else {
+                imgColor.src = 'png/' + layerSelected + '/' + layerSelected + '-color-' + selectedIndex[layerSelected] + '.png';
+            }
             layerColor[layerSelected] = colorSelected;
         }
     }
@@ -346,6 +364,7 @@ function drawDefaultImg() {
         ctx.clearRect(0, 0, canvasX, canvasY);
         ctx.globalCompositeOperation = "source-over"; // I don't know why this works
         if (layerColor[layerSelected] != 'fixed') {
+            // Draw default color
             var imgColor = new Image();
             imgColor.onload = function() {
                 ctx.drawImage(imgColor, 0, 0);
@@ -356,19 +375,28 @@ function drawDefaultImg() {
                 imgOutline.onerror = function() {
                     drawDefaultImg();
                 }
-                imgOutline.src = 'png/' + layerSelected + '/' + layerSelected + '-outline-' + selectedIndex[layerSelected] + '.png';
+                if (layerSelected.includes('accessory')) {
+                    imgOutline.src = 'png/accessory/accessory-outline-' + selectedIndex[layerSelected] + '.png';
+                } else {
+                    imgOutline.src = 'png/' + layerSelected + '/' + layerSelected + '-outline-' + selectedIndex[layerSelected] + '.png';
+                }
             }
             imgColor.onerror = function() {
                 drawDefaultImg();
             }
-            imgColor.src = 'png/' + layerSelected + '/' + layerSelected + '-color-' + selectedIndex[layerSelected] + '.png';
+            // Change file name for accessories
+            if (layerSelected.includes('accessory')) {
+                imgColor.src = 'png/accessory/accessory-color-' + selectedIndex[layerSelected] + '.png';
+            } else {
+                imgColor.src = 'png/' + layerSelected + '/' + layerSelected + '-color-' + selectedIndex[layerSelected] + '.png';
+            }
             layerColor[layerSelected] = 'default';
         } else {
             var img = new Image();
             img.onload = function() {
                 if (layerSelected == 'eyebrows' || layerSelected == 'eyes') {
                     ctx.drawImage(img, 0 + layerWidth[layerSelected], 0, canvasX/2, canvasY, 0, 0, canvasX/2, canvasY); // Right eye
-                    ctx.drawImage(img, 16 - layerWidth[layerSelected], 0, canvasX/2, canvasY, canvasX/2, 0, canvasX/2, canvasY); // Left eye
+                    ctx.drawImage(img, canvasX/2 - layerWidth[layerSelected], 0, canvasX/2, canvasY, canvasX/2, 0, canvasX/2, canvasY); // Left eye
                 }
                 else {
                     ctx.drawImage(img, 0, 0);
@@ -455,16 +483,17 @@ function changePosition(button) {
 }
 
 function resetPosition() {
-    // TODO: Disable for background
     if (selectedIndex[layerSelected] != -1 && layerSelected != null) {
-        var layer = document.querySelector('.layer--' + layerSelected);
-        var ctx = layer.getContext('2d');
-        ctx.setTransform(1, 0, 0, 1, 0, 0);
-        ctx.clearRect(0, 0, canvasX, canvasY);
-        if (layerColor[layerSelected] == 'default' || layerColor[layerSelected] == 'fixed') {
-            drawDefaultImg();
-        } else {
-            changeColor(layerColor[layerSelected]);
+        if (layerSelected != 'background') {
+            var layer = document.querySelector('.layer--' + layerSelected);
+            var ctx = layer.getContext('2d');
+            ctx.setTransform(1, 0, 0, 1, 0, 0);
+            ctx.clearRect(0, 0, canvasX, canvasY);
+            if (layerColor[layerSelected] == 'default' || layerColor[layerSelected] == 'fixed') {
+                drawDefaultImg();
+            } else {
+                changeColor(layerColor[layerSelected]);
+            }
         }
     }
 }
@@ -496,7 +525,6 @@ function changeWidth(x) {
 }
 
 function eraseLayer() {
-    // TODO: Reset to default background layer if erased.
     if (layerSelected != null) {
         if (layerSelected != 'background') {
             var layer = document.querySelector('.layer--' + layerSelected);
@@ -534,8 +562,8 @@ function eraseAll() {
     if (prevSelected != null) {
         prevSelected.classList.remove('layer-thumbnails__row__cell--selected');
     }
-    selectedIndex = {'face': -1, 'hair': -1, 'eyebrows': -1, 'eyes': -1, 'nose': -1, 'mouth': -1, 'accessories': -1, 'background': -1};
-    layerColor = {'face': 'default', 'hair': 'default', 'eyebrows': 'default', 'eyes': 'fixed', 'nose': 'fixed', 'mouth': 'fixed','accessories': 'fixed', 'background': 'rgb(255, 175, 63)'};
+    selectedIndex = {'face': -1, 'hair': -1, 'eyebrows': -1, 'eyes': -1, 'nose': -1, 'mouth': -1, 'facial-hair': -1, 'accessory-1': -1, 'accessory-2': -1, 'accessory-3': -1, 'background': -1}; // Indices start at 0, -1 == nothing selected
+    layerColor = {'face': 'default', 'hair': 'default', 'eyebrows': 'fixed', 'eyes': 'fixed', 'nose': 'fixed', 'mouth': 'fixed', 'facial-hair': 'default', 'accessory-1': 'default', 'accessory-2': 'default', 'accessory-3': 'default', 'background': 'rgb(255, 175, 63)'};
 }
 
 function saveImg() {
