@@ -103,6 +103,33 @@ window.onload = function setup() {
 
     // Disable palette
     disablePalette();
+
+    // Set up Facebook app
+    window.fbAsyncInit = function() {
+        FB.init({
+            appId      : '182304785885707',
+            cookie     : true,
+            xfbml      : true,
+            version    : 'v2.12'
+        });
+          
+        FB.AppEvents.logPageView();
+
+        var shareBtn = document.querySelector('.tools__btn--share');
+        shareBtn.onclick = function() {
+            shareImg();
+        }
+    };
+
+    (function(d, s, id) {
+        var js, fjs = d.getElementsByTagName(s)[0];
+        if (d.getElementById(id)) {
+            return;
+        }
+        js = d.createElement(s); js.id = id;
+        js.src = "https://connect.facebook.net/en_US/sdk.js";
+        fjs.parentNode.insertBefore(js, fjs);
+    } (document, 'script', 'facebook-jssdk'));
 }
 
 function loadLayerThumbnails(pageNum) {
@@ -584,4 +611,32 @@ function saveImg() {
     a.click();
     ctx.clearRect(0, 0, 512, 512);
     ctx.restore();
+}
+
+function shareImg() {
+    FB.getLoginStatus(function(response) {
+        if (response.status == 'not_authorized' || response.status == 'unknown') {
+            FB.login(function(response) {
+                if (response.authResponse) {
+                    authResponse();
+                } else {
+                    unauthResponse();
+                }
+            });
+        }
+        else {
+            authResponse();
+        }
+    });
+}
+
+function authResponse() {
+    FB.api('/me', function(response) {
+        alert('Good to see you, ' + response.name + '.');
+    });
+
+}
+
+function unauthResponse() {
+    alert('User cancelled login or did not fully authorize.');
 }
