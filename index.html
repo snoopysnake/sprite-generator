@@ -14,6 +14,8 @@ and open the template in the editor.
         <link rel="stylesheet" type="text/css" href="css/style.css">
     </head>
     <body">
+    	<div class="title">bitcamp</div>
+    	<div class="subtitle">Sprite Creator</div>
         <div class="container">
             <div class="left-sidebar-popup">
                 <div class="palette-container">
@@ -61,13 +63,14 @@ and open the template in the editor.
                         <input type="button" class="tools__btn tools__btn--erase-layer" value="Erase Layer">
                         <input type="button" class="tools__btn tools__btn--reset-position" value="Reset Position">
                         <input type="button" class="tools__btn tools__btn--erase-all" value="Erase All">
-                        <input type="button" class="tools__btn tools__btn--export" value="Export!">
+                        <input type="button" class="tools__btn tools__btn--save" value="Save!">
+                        <input type="button" class="tools__btn tools__btn--share" value="Share!">
                         <!-- <input type="button" class="tools__btn tools__btn--change-color tools__btn--unselected" value="Change Color"> -->
                         <!-- <input type="button" class="tools__btn tools__btn--reset-color" value="Reset Color"> -->
                     </div>
                     <div class="d-pad-tools">
-                        <input type="button" class="d-pad-tools__btn d-pad-tools__btn--single d-pad-tools__btn--selected" value="Single Layer">
-                        <input type="button" class="d-pad-tools__btn d-pad-tools__btn--all d-pad-tools__btn--unselected" value="All Layers">
+                        <input type="button" class="d-pad-tools__btn d-pad-tools__btn--wide" value="Wide">
+                        <input type="button" class="d-pad-tools__btn d-pad-tools__btn--narrow" value="Narrow">
                     </div>
                 </div>
             </div>
@@ -80,7 +83,7 @@ and open the template in the editor.
                 <canvas class="layer layer--nose layer--exportable" width="32" height="32"></canvas>
                 <canvas class="layer layer--mouth layer--exportable" width="32" height="32"></canvas>
                 <canvas class="layer layer--accessories layer--exportable" width="32" height="32"></canvas>
-                <canvas class="layer layer--export" width="512" height="512"></canvas>
+                <canvas class="layer layer--save" width="512" height="512"></canvas>
             </div>
             <div class="right-sidebar">
                 <div class="layers">

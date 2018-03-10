@@ -1,9 +1,10 @@
 var buttons_menu_top;
 var layerSelected;
 var lastClicked;
-var totalLayerThumbnails = {'face': 4, 'hair': 2, 'eyebrows': 1, 'eyes': 2, 'nose': 2, 'mouth': 2, 'accessories': 2, 'background': 11};
+var totalLayerThumbnails = {'face': 4, 'hair': 2, 'eyebrows': 1, 'eyes': 10, 'nose': 2, 'mouth': 2, 'accessories': 2, 'background': 11};
 var selectedIndex = {'face': -1, 'hair': -1, 'eyebrows': -1, 'eyes': -1, 'nose': -1, 'mouth': -1, 'accessories': -1, 'background': -1}; // Indices start at 0! -1 == nothing selected
 var layerColor = {'face': 'default', 'hair': 'default', 'eyebrows': 'fixed', 'eyes': 'fixed', 'nose': 'fixed', 'mouth': 'fixed','accessories': 'fixed', 'background': 'default'};
+var layerWidth = {'eyebrows': 0, 'eyes': 0}
 var canvasX = 32;
 var canvasY = 32;
 
@@ -38,14 +39,14 @@ window.onload = function setup() {
     // changePositionBtn.onclick = function() {
     //     changePosition(this);
     // }
-    // var changeSingleLayerBtn = document.querySelector('.d-pad-tools__btn--single');
-    // changeSingleLayerBtn.onclick = function() {
-    //     changeLayersTranslated(this);
-    // }
-    // var changeAllLayersBtn = document.querySelector('.d-pad-tools__btn--all');
-    // changeAllLayersBtn.onclick = function() {
-    //     changeLayersTranslated(this);
-    // }
+    var widenBtn = document.querySelector('.d-pad-tools__btn--wide');
+    widenBtn.onclick = function() {
+        changeWidth(1);
+    }
+    var narrowBtn = document.querySelector('.d-pad-tools__btn--narrow');
+    narrowBtn.onclick = function() {
+        changeWidth(-1);
+    }
     var dPadUpBtn = document.querySelector('.d-pad__btn--up');
     var dPadDownBtn = document.querySelector('.d-pad__btn--down');
     var dPadLeftBtn = document.querySelector('.d-pad__btn--left');
@@ -66,9 +67,9 @@ window.onload = function setup() {
     resetPositionBtn.onclick = function() {
         resetPosition();
     }
-    var exportBtn = document.querySelector('.tools__btn--export');
-    exportBtn.onclick = function() {
-        exportImg();
+    var saveBtn = document.querySelector('.tools__btn--save');
+    saveBtn.onclick = function() {
+        saveImg();
     }
 
     // Set up layer buttons
@@ -105,7 +106,7 @@ window.onload = function setup() {
     // drawGradientBackground(229,216,206); // Light brown
     // drawGradientBackground(255,255,255); // Cloud white
     // drawGradientBackground(255,63,70); // Flame red
-    // drawGradientBackground(255,111,63); // Bitcamp orange
+    // drawGradientBackground(255,111,63); // bitcamp orange
     // drawGradientBackground(255,175,63); // Yellow orange
     // drawGradientBackground(255,239,63); // Yellow
     // drawGradientBackground(26,46,51); // Midnight blue
@@ -236,6 +237,15 @@ function chooseLayer(button) {
         // Change color palette
 	    hairPalette.style.display = 'flex'; //TODO
     }
+
+    var dpadToolContainer = document.querySelector('.d-pad-tools');
+
+    if (layerSelected == 'eyebrows' || layerSelected == 'eyes') {
+        dpadToolContainer.style.display = 'flex';
+    }
+    else {
+        dpadToolContainer.style.display = 'none';
+    }
 }
 
 function setIndexAndDraw(currentSelected, index) {
@@ -335,7 +345,13 @@ function drawDefaultImg() {
         } else {
             var img = new Image();
             img.onload = function() {
-                ctx.drawImage(img, 0, 0);
+                if (layerSelected == 'eyebrows' || layerSelected == 'eyes') {
+                    ctx.drawImage(img, 0 + layerWidth[layerSelected], 0, 16, 32, 0, 0, 16, 32); // Right eye
+                    ctx.drawImage(img, 16 - layerWidth[layerSelected], 0, 16, 32, 16, 0, 16, 32); // Left eye
+                }
+                else {
+                    ctx.drawImage(img, 0, 0);
+                }
             }
             img.onerror = function() {
                 drawDefaultImg();
@@ -376,48 +392,6 @@ function resetPosition() {
     }
 }
 
-function changeLayersTranslated(button) {
-    var dPadUpBtn = document.querySelector('.d-pad__btn--up');
-    var dPadDownBtn = document.querySelector('.d-pad__btn--down');
-    var dPadLeftBtn = document.querySelector('.d-pad__btn--left');
-    var dPadRightBtn = document.querySelector('.d-pad__btn--right');
-
-    var prevSelected = document.querySelector('.d-pad-tools__btn--selected');
-    if (prevSelected != button) {
-        prevSelected.classList.remove('d-pad-tools__btn--selected');
-        prevSelected.classList.add('d-pad-tools__btn--unselected');
-        button.classList.add('d-pad-tools__btn--selected');
-    }
-
-    if (button.value == 'Single Layer') {
-        dPadUpBtn.onclick = function() {
-            translateLayer(0,-1);
-        }
-        dPadDownBtn.onclick = function() {
-            translateLayer(0,1);
-        }
-        dPadLeftBtn.onclick = function() {
-            translateLayer(-1,0);
-        }
-        dPadRightBtn.onclick = function() {
-            translateLayer(1,0);
-        }
-    } else {
-        dPadUpBtn.onclick = function() {
-            translateAllLayers(0,-1);
-        }
-        dPadDownBtn.onclick = function() {
-            translateAllLayers(0,1);
-        }
-        dPadLeftBtn.onclick = function() {
-            translateAllLayers(-1,0);
-        }
-        dPadRightBtn.onclick = function() {
-            translateAllLayers(1,0);
-        }
-    }
-}
-
 function translateLayer(x,y) {
     // TODO: Disable for background
     if (selectedIndex[layerSelected] != -1 && layerSelected != null) {
@@ -434,8 +408,14 @@ function translateLayer(x,y) {
     }
 }
 
-function translateAllLayers(x,y) {
-    // Didn't work
+function changeWidth(x) {
+    // The greater x is, the wider
+    if (selectedIndex[layerSelected] != -1) {
+        if (layerWidth[layerSelected] + x >= -2 && layerWidth[layerSelected] + x <= 2) {
+            layerWidth[layerSelected] = layerWidth[layerSelected] + x;
+        }
+        drawDefaultImg();
+    }
 }
 
 function eraseLayer() {
@@ -453,6 +433,9 @@ function eraseLayer() {
     var prevSelected = document.querySelector('.layer-thumbnails__row__cell--selected');
     if (prevSelected != null) {
         prevSelected.classList.remove('layer-thumbnails__row__cell--selected');
+    }
+    if (layerSelected == 'eyebrows' || layerSelected == 'eyes') {
+        layerWidth[layerSelected] = 0;
     }
     selectedIndex[layerSelected] = -1;
 }
@@ -474,10 +457,10 @@ function eraseAll() {
     layerColor = {'face': 'default', 'hair': 'default', 'eyebrows': 'default', 'eyes': 'fixed', 'nose': 'fixed', 'mouth': 'fixed','accessories': 'fixed', 'background': 'default'};
 }
 
-function exportImg() {
+function saveImg() {
     var layers = document.querySelectorAll('.layer--exportable');
-    var exportLayer = document.querySelector('.layer--export');
-    var ctx = exportLayer.getContext('2d');
+    var saveLayer = document.querySelector('.layer--save');
+    var ctx = saveLayer.getContext('2d');
     ctx.save();
     ctx.drawImage(layers[0],0,0); //Background does not need rescale
     ctx.scale(16,16);
@@ -486,8 +469,11 @@ function exportImg() {
         ctx.drawImage(layers[i],0,0);
     }
     // Export dialog needs work
-    var exportedImg = exportLayer.toDataURL('image/png').replace('image/png', 'image/octet-stream'); //Convert image to 'octet-stream' (Just a download, really)
-    // window.location.href = exportedImg;
+    var exportedImg = saveLayer.toDataURL('image/png').replace('image/png', 'image/octet-stream'); //Convert image to 'octet-stream' (Just a download, really)
+    var a = document.createElement('a');
+    a.download = 'sprite.png';
+    a.href = exportedImg;
+    a.click();
     ctx.clearRect(0, 0, 512, 512);
     ctx.restore();
 }
