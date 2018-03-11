@@ -47,7 +47,7 @@ window.onload = function setup() {
     // changePositionBtn.onclick = function() {
     //     changePosition(this);
     // }
-    var widenBtn = document.querySelector('.d-pad-tools__btn--wide');
+    var widenBtn = document.querySelector('.d-pad-tools__btn--widen');
     widenBtn.onclick = function() {
         changeWidth(1);
     }
@@ -92,6 +92,14 @@ window.onload = function setup() {
     var layers = document.querySelectorAll('.layer');
     for (i = 0; i < layers.length; i++) {
         var ctx = layers[i].getContext('2d');
+        if (i == 0 || i == layers.length - 1) { // Background + Save layer full size
+	        layers[i].width = canvasX*multiplier;
+	        layers[i].height = canvasY*multiplier;
+        } 
+        else {
+	        layers[i].width = canvasX;
+	        layers[i].height = canvasY;
+        }
         ctx.mozImageSmoothingEnabled = false;
         ctx.webkitImageSmoothingEnabled = false;
         ctx.msImageSmoothingEnabled = false;
@@ -262,13 +270,6 @@ function chooseLayer(button) {
     if (layerSelected == 'hair' || layerSelected == 'eyebrows' || layerSelected == 'facial-hair') {
         // Change color palette
         hairPalette.style.display = 'flex';
-        enablePalette();
-    }
-    if (layerSelected == 'background') {
-        enablePalette();
-    }
-    if (layerSelected != null && layerSelected.includes('accessory')) {
-        enablePalette();
     }
 
     var dpadToolContainer = document.querySelector('.d-pad-tools');
@@ -285,6 +286,10 @@ function setIndexAndDraw(currentSelected, index) {
     // currentSelected == layer thumbnail div clicked
     // index finds the correct image
 
+    if (layerSelected != 'eyes' && layerSelected != 'nose' && layerSelected != 'mouth') {
+    	enablePalette();
+    }
+
     if (selectedIndex[layerSelected] == index) {
         if (layerSelected != 'background') {
             eraseLayer();
@@ -293,6 +298,7 @@ function setIndexAndDraw(currentSelected, index) {
                 layerColor[layerSelected] = 'default';
             }
         }
+        disablePalette();
     }
     else if (selectedIndex[layerSelected] != index) {
         // Remove previously selected layer thumbnail if present
@@ -329,15 +335,26 @@ function openPalette(button) {
 
 function disablePalette() {
     var paletteColors = document.querySelectorAll('.palette__color');
-    for(i = 0; i < 12; i++) {
+    for(i = 0; i < paletteColors.length; i++) {
         paletteColors[i].style.opacity = '0.6';
+        paletteColors[i].onclick = function() {
+        	return false;
+		}
     }
 }
 
 function enablePalette() {
     var paletteColors = document.querySelectorAll('.palette__color');
-    for(i = 0; i < 12; i++) {
+    for(i = 0; i < paletteColors.length; i++) {
         paletteColors[i].style.opacity = '1.0';
+        paletteColors[i].onclick = function() {
+	        var colorSelected = String(getComputedStyle(this).backgroundColor);
+	        if (layerSelected == 'background') {
+	            drawBackground(colorSelected); // Replaces prev color
+	        } else {
+	            changeColor(colorSelected); // rgb(#,#,#)
+	        }
+		}
     }
 }
 
