@@ -77,9 +77,6 @@ canvas {
 .help-link {
     display: none;
 }
-.help-link:active {
-    color: #528CA5;
-}
 .container {
     display: inline-flex;
     flex-flow: column;

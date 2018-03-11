@@ -1,7 +1,7 @@
 var buttons_menu_top;
 var layerSelected;
 var lastClicked;
-var totalLayerThumbnails = {'face': 4, 'hair': 2, 'eyebrows': 1, 'eyes': 10, 'nose': 2, 'mouth': 2, 'facial-hair': 0, 'accessory-1': 2, 'accessory-2': 2, 'accessory-3': 2, 'background': 4};
+var totalLayerThumbnails = {'face': 4, 'hair': 2, 'eyebrows': 1, 'eyes': 10, 'nose': 2, 'mouth': 2, 'facial-hair': 0, 'accessory-1': 2, 'accessory-2': 2, 'accessory-3': 2, 'background': 12};
 var selectedIndex = {'face': -1, 'hair': -1, 'eyebrows': -1, 'eyes': -1, 'nose': -1, 'mouth': -1, 'facial-hair': -1, 'accessory-1': -1, 'accessory-2': -1, 'accessory-3': -1, 'background': -1}; // Indices start at 0, -1 == nothing selected
 var layerColor = {'face': 'default', 'hair': 'default', 'eyebrows': 'fixed', 'eyes': 'fixed', 'nose': 'fixed', 'mouth': 'fixed', 'facial-hair': 'default', 'accessory-1': 'default', 'accessory-2': 'default', 'accessory-3': 'default', 'background': 'rgb(255, 175, 63)'};
 var layerWidth = {'eyebrows': 0, 'eyes': 0}
@@ -13,11 +13,15 @@ window.onload = function setup() {
     // Set up tool buttons
     var eraseLayerBtn = document.querySelector('.tools__btn--erase-layer');
     eraseLayerBtn.onclick = function() {
-        eraseLayer();
         if (layerSelected != 'background') {
+        	eraseLayer();
             if (layerColor[layerSelected] != 'fixed') {
                 layerColor[layerSelected] = 'default';
             }
+        }
+        else {
+        	layerColor = 'rgb(255, 175, 63)';
+        	drawDefaultBackground();
         }
     }
     var eraseAllBtn = document.querySelector('.tools__btn--erase-all');
@@ -176,7 +180,6 @@ function loadLayerThumbnails(pageNum) {
 
     // Clear cells
     var layerThumbnails = document.querySelectorAll('.layer-thumbnails__row__cell');
-    var layerThumbnailsImgs = document.querySelectorAll('.layer-thumbnails__row__cell__img');
     for (i = 0; i < 28; i++) {
         layerThumbnails[i].classList.remove('layer-thumbnails__row__cell--unselected');
         // TEMPORARY
@@ -200,14 +203,65 @@ function loadLayerThumbnails(pageNum) {
             else if (i == 3) {
                 layerThumbnails[i].textContent = 'Gradient 3';
             }
-            else {
-                layerThumbnails[i].textContent = layerSelected + ' ' + (i + start + 1); // TEMPORARY
-                // layerThumbnailsImgs[i].src = 'png/thumbnail/' + layerSelected + '/' + layerSelected + '-' + (i + start) + '.png';
+            else if (i == 4) {
+                layerThumbnails[i].textContent = 'Campfire 1';
+            }
+            else if (i == 5) {
+                layerThumbnails[i].textContent = 'Campfire 1';
+            }
+            else if (i == 6) {
+                layerThumbnails[i].textContent = 'Campfire 3';
+            }
+            else if (i == 7) {
+                layerThumbnails[i].textContent = 'Campfire 4';
+            }
+            else if (i == 8) {
+                layerThumbnails[i].textContent = 'Sprite Bomb 1';
+            }
+            else if (i == 9) {
+                layerThumbnails[i].textContent = 'Sprite Bomb 2';
+            }
+            else if (i == 10) {
+                layerThumbnails[i].textContent = 'Sprite Bomb 3';
+            }
+            else if (i == 11) {
+                layerThumbnails[i].textContent = 'Sprite Bomb 4';
             }
         }
         else {
-            layerThumbnails[i].textContent = layerSelected + ' ' + (i + start + 1); // TEMPORARY
-            // layerThumbnailsImgs[i].src = 'png/thumbnail/' + layerSelected + '/' + layerSelected + '-' + (i + start) + '.png';
+            // layerThumbnails[i].textContent = layerSelected + ' ' + (i + start + 1); // TEMPORARY
+            if (layerColor[layerSelected] != 'fixed') {
+	            var imgColor = document.createElement('img');
+                if (layerSelected.includes('accessory')) {
+	            	imgColor.setAttribute('src', 'png/accessory/accessory-color-' + (i + start) + '.png');
+                } 
+                else {
+	            	imgColor.setAttribute('src', 'png/' + layerSelected + '/' + layerSelected + '-color-' + (i + start) + '.png');
+	        	}
+	            imgColor.setAttribute('height',canvasX*2);
+	            imgColor.setAttribute('width',canvasX*2);
+	            imgColor.classList.add('layer-thumbnails__row__cell__img');
+	            layerThumbnails[i].appendChild(imgColor);
+	            var imgOutline = document.createElement('img');
+                if (layerSelected.includes('accessory')) {
+	            	imgOutline.setAttribute('src', 'png/accessory/accessory-outline-' + (i + start) + '.png');
+                } 
+                else {
+	            	imgOutline.setAttribute('src', 'png/' + layerSelected + '/' + layerSelected + '-outline-' + (i + start) + '.png');
+	        	}
+	            imgOutline.setAttribute('height',canvasX*2);
+	            imgOutline.setAttribute('width',canvasX*2);
+	            imgOutline.classList.add('layer-thumbnails__row__cell__img');
+	            layerThumbnails[i].appendChild(imgOutline);
+            }
+            else {
+	            var img = document.createElement('img');
+	            img.setAttribute('src', 'png/' + layerSelected + '/' + layerSelected + '-' + (i + start) + '.png');
+	            img.setAttribute('height',canvasX*2);
+	            img.setAttribute('width',canvasX*2);
+	            img.classList.add('layer-thumbnails__row__cell__img');
+	            layerThumbnails[i].appendChild(img);
+            }
         }
         layerThumbnails[i].onclick = function() {
             setIndexAndDraw(layerThumbnails[i], (i + start));
@@ -230,7 +284,6 @@ function chooseLayer(button) {
     var thumbnailContainer = document.querySelector('.layer-thumbnails-container');
     var thumbnailNavContainer = document.querySelector('.layer-thumbnails-nav-container');
 
-    disablePalette();
     if (lastClicked == button) {
         // Click the same button twice
         layerSelected = null;
@@ -239,6 +292,7 @@ function chooseLayer(button) {
         thumbnailContainer.style.display = 'none'; //TODO
         thumbnailNavContainer.style.display = 'none'; //TODO
         lastClicked = null;
+        disablePalette();
     } else {
         if (lastClicked == null) {
             lastClicked = button;
@@ -252,6 +306,12 @@ function chooseLayer(button) {
         thumbnailContainer.style.display = 'flex'; //TODO
         thumbnailNavContainer.style.display = 'flex'; //TODO
         lastClicked = button;
+	    if (selectedIndex[layerSelected] != -1 && layerColor[layerSelected] != 'fixed') {
+	    	enablePalette();
+	    }
+	    else {
+	    	disablePalette();
+	    }
     }
 
     // Add/remove or enable/disable color palettes
@@ -273,32 +333,35 @@ function chooseLayer(button) {
     }
 
     var dpadToolContainer = document.querySelector('.d-pad-tools');
-
     if (layerSelected == 'eyebrows' || layerSelected == 'eyes') {
         dpadToolContainer.style.display = 'flex';
     }
     else {
         dpadToolContainer.style.display = 'none';
     }
+
+    // TODO: Disable background translation
 }
 
 function setIndexAndDraw(currentSelected, index) {
     // currentSelected == layer thumbnail div clicked
     // index finds the correct image
 
-    if (layerSelected != 'eyes' && layerSelected != 'nose' && layerSelected != 'mouth') {
+    if (layerColor[layerSelected] != 'fixed') {
     	enablePalette();
     }
 
     if (selectedIndex[layerSelected] == index) {
         if (layerSelected != 'background') {
+        	disablePalette();
             eraseLayer();
             // Double clicking removes color (functions same as erase layer button)
             if (layerColor[layerSelected] != 'fixed') {
                 layerColor[layerSelected] = 'default';
             }
+        } else {
+        	drawBackground(layerColor['background']);
         }
-        disablePalette();
     }
     else if (selectedIndex[layerSelected] != index) {
         // Remove previously selected layer thumbnail if present
@@ -457,21 +520,40 @@ function drawDefaultImg() {
 function drawBackground(colorSelected) {
     if (selectedIndex != -1) {
         layerColor['background'] = colorSelected;
+        var backgroundLayer = document.querySelector('.layer--background');
+	    var ctx = backgroundLayer.getContext('2d');
+	    ctx.setTransform(1, 0, 0, 1, 0, 0);
+	    ctx.clearRect(0, 0, 512, 512);
         if (selectedIndex['background'] == 0) {
             // Solid color
             drawSolidBackground(colorSelected);
         }
-        if (selectedIndex['background'] == 1) {
+        else if (selectedIndex['background'] == 1) {
             // Gradient
             drawGradientBackground(colorSelected, 4);
         }
-        if (selectedIndex['background'] == 2) {
+        else if (selectedIndex['background'] == 2) {
             // Gradient
             drawGradientBackground(colorSelected, 2);
         }
-        if (selectedIndex['background'] == 3) {
+        else if (selectedIndex['background'] == 3) {
             // Gradient
             drawGradientBackground(colorSelected, 1);
+        }
+        else if (selectedIndex['background'] >= 3 && selectedIndex['background'] <= 12) {
+        	drawSolidBackground(colorSelected);
+        	if (selectedIndex['background'] == 4) {
+        		drawCampfireBackground(false, false);
+        	}
+        	if (selectedIndex['background'] == 5) {
+        		drawCampfireBackground(true, false);
+        	}
+        	if (selectedIndex['background'] == 6) {
+        		drawCampfireBackground(false, true);
+        	}
+        	if (selectedIndex['background'] == 7) {
+        		drawCampfireBackground(true, true);
+        	}
         }
     }
 }
@@ -479,6 +561,7 @@ function drawBackground(colorSelected) {
 function drawDefaultBackground() {
     var backgroundLayer = document.querySelector('.layer--background');
     var ctx = backgroundLayer.getContext('2d');
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
     for (i = 0; i < multiplier; i++) {
       for (j = 0; j < multiplier; j++) {
         ctx.fillStyle = 'rgb(' + Math.floor(255 - 4 * i) + ', ' +
@@ -508,6 +591,54 @@ function drawGradientBackground(colorSelected, factor) {
         ctx.fillRect(j * canvasX*factor, i * canvasY*factor, canvasX*factor, canvasY*factor);
       }
     }
+}
+
+function drawCampfireBackground(randomSize, rotation) {
+    var backgroundLayer = document.querySelector('.layer--background');
+	var ctx = backgroundLayer.getContext('2d');
+	ctx.translate(canvasX*multiplier/2,canvasY*multiplier/2);
+	var campfire = new Image();
+	campfire.onload = function() {
+		for (i = 1; i < 160; i++) {
+			// RANDOMNESS
+			var randSize = Math.floor((Math.random()*2)*4)*Math.floor(Math.random()*8) + 16;
+			var randAngle = Math.floor(Math.random()*-3 + 6);
+			var randX = Math.floor((Math.random()*-32)*16 + 256);
+			var randY = Math.floor((Math.random()*-32)*16 + 256);
+			if (!randomSize && !rotation) {
+				ctx.drawImage(campfire, randX, randY, 32, 32);
+			}
+			if (randomSize && !rotation) {
+				ctx.drawImage(campfire, randX, randY, randSize, randSize);
+			}
+			if (!randomSize && rotation) {
+				ctx.rotate((i+randAngle)*2*Math.PI/120);
+				ctx.drawImage(campfire, -50, -200 - 1.1*i, 32, 32);
+			}
+			if (randomSize && rotation) {
+				ctx.rotate(i*2*Math.PI/120);
+				ctx.drawImage(campfire, -50, -200 - 1.1*i, randSize, randSize);
+			}
+		}
+   	}
+	campfire.src = 'svg/background/campfire.svg';
+}
+
+function drawSpotlight() {
+	// Assume canvas translated to center
+    var backgroundLayer = document.querySelector('.layer--background');
+	var ctx = backgroundLayer.getContext('2d');
+	var gradient = ctx.createRadialGradient(0,0,120,0,0,280);
+	// var gradient1 = ctx.createRadialGradient(0, 0, 10, 10, 10, 100);
+	var rgba = layerColor['background'];
+	// rgba = rgba.replace('rgb(', 'rgba(');
+	// rgba = rgba.replace(')', '');
+	// gradient.addColorStop(0, rgba + ', .8)');
+	// gradient.addColorStop(1, rgba + ', .05)');
+	gradient.addColorStop(0,'rgba(255, 255, 255, .7)');
+	gradient.addColorStop(1,'rgba(255, 255, 255, .05)');
+	ctx.fillStyle = gradient;
+	ctx.fillRect(-256,-256, 512, 512);
 }
 
 function changePosition(button) {
@@ -579,9 +710,6 @@ function eraseLayer() {
             if (layerSelected == 'eyebrows' || layerSelected == 'eyes') {
                 layerWidth[layerSelected] = 0;
             }
-        }
-        else {
-            drawDefaultBackground();
         }
         // Remove previously selected layer thumbnail if present
         var prevSelected = document.querySelector('.layer-thumbnails__row__cell--selected');

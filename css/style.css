@@ -78,7 +78,7 @@ canvas {
     font-family: "Aleo Regular", arial, sans-serif;
     font-weight: normal;
     font-style: normal;
-    color: white;
+    color: #528CA5;
     position: absolute;
     right: 4px;
     top: -20px;
@@ -91,7 +91,7 @@ canvas {
    user-select: none;
 }
 .help-link:active {
-    color: #528CA5;
+    color: #1A2E33;
 }
 .container {
     display: inline-flex;
@@ -416,11 +416,12 @@ canvas {
     font-family: "Aleo Regular", arial, sans-serif;
     font-weight: normal;
     font-style: normal;
-    font-size: 12px;
-    color: white;
+    font-size: 14px;
+    color: #528CA5;
     height: 64px;
     width: 64px;
     display: flex;
+    white-space: normal;
     align-items: center;
     justify-content: center;
     text-align: center;
@@ -437,12 +438,13 @@ canvas {
     background-color: white;
 }
 .layer-thumbnails__row__cell--selected {
-    color: #FFAF3F;
+    color: #1A2E33;
     background-color: white;
 }
 .layer-thumbnails__row__cell--selected:active {
 }
 .layer-thumbnails__row__cell__img {
+    position: absolute;
     image-rendering: optimizeSpeed;
     image-rendering: -moz-crisp-edges;
     image-rendering: -webkit-optimize-contrast;
