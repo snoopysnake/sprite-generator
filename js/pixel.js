@@ -146,6 +146,7 @@ window.onload = function setup() {
 
     var shareBtn = document.querySelector('.tools__btn--share');
     shareBtn.onclick = function() {
+  		// FB.AppEvents.logEvent('Shared Sprite');
     	shareImg();
     }
 }
@@ -804,23 +805,27 @@ function disableToolBtn(text) {
 function enableToolBtn(text, toolFunction) {
     var toolBtn = document.querySelector(text);
     toolBtn.classList.remove('tools__btn--selected');
-    toolBtn.onclick = function() {
-		toolFunction();
-    }
+    toolBtn.onclick = toolFunction;
 }
 
 function shareImg() {
 	disableToolBtn('.tools__btn--share');
     if (loginStatus != 'connected') {
         FB.login(function(loginResponse) {
-    		FB.api('/me/permissions', function(permissionsResponse) {
-    			var permission = checkShareImgPermissions(permissionsResponse.data);
-	            if (loginResponse.authResponse && permission) {
-	                shareImgAuth();
-	            } else {
-	                unauthResponse();
-	            }
-    		});
+        	if (loginResponse.authResponse) {
+	    		FB.api('/me/permissions', function(permissionsResponse) {
+	    			var permission = checkShareImgPermissions(permissionsResponse.data);
+		            if (permission) {
+		                shareImgAuth();
+		            } else {
+		                unauthResponse();
+		            }
+    			});
+
+        	}
+        	else {
+        		unauthResponse();
+        	}
         }, {scope: 'publish_actions'});
     }
     else {
@@ -936,7 +941,7 @@ function shareImgAuth() {
 	    else {
 	    	console.log(xhr.responseText);
 	    }
-    	enableToolBtn('.tools__btn--share', function() {toolFunction()});
+    	enableToolBtn('.tools__btn--share', function() {shareImg()});
 	};
 	xhr.send(fd);
 }
@@ -972,7 +977,7 @@ function setProfileAuth() {
 
 function unauthResponse() {
     alert('User cancelled login or did not fully authorize.');
-    enableToolBtn('.tools__btn--share', shareImg()); // TODO
+    enableToolBtn('.tools__btn--share', function() {shareImg()}); // TODO: Change for set profile pic?
 }
 
 function checkShareImgPermissions(responseData) {
