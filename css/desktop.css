@@ -349,10 +349,10 @@ canvas {
     background-color: #FFAF3F;
     color: white;
 }
-/*.tools__btn--selected:active {
+.tools__btn--selected:active {
     background-color: white;
     color: #FFAF3F;
-}*/
+}
 .center {
     border-top: 16px solid white;
     border-bottom: 16px solid white;

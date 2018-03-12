@@ -1,3 +1,4 @@
+var loginStatus;
 var buttons_menu_top;
 var layerSelected;
 var lastClicked;
@@ -23,10 +24,12 @@ window.onload = function setup() {
         	layerColor = 'rgb(255, 175, 63)';
         	drawDefaultBackground();
         }
+        disablePalette();
     }
     var eraseAllBtn = document.querySelector('.tools__btn--erase-all');
     eraseAllBtn.onclick = function() {
         eraseAll();
+        disablePalette();
     }
     // var changeColorBtn = document.querySelector('.tools__btn--change-color');
     // changeColorBtn.onclick = function() {
@@ -126,11 +129,9 @@ window.onload = function setup() {
         });
           
         FB.AppEvents.logPageView();
-
-        var shareBtn = document.querySelector('.tools__btn--share');
-        shareBtn.onclick = function() {
-            shareImg();
-        }
+	    FB.getLoginStatus(function(response) {
+			loginStatus = response.status;
+	    });
     };
 
     (function(d, s, id) {
@@ -139,9 +140,14 @@ window.onload = function setup() {
             return;
         }
         js = d.createElement(s); js.id = id;
-        js.src = "https://connect.facebook.net/en_US/sdk.js";
+        js.src = 'https://connect.facebook.net/en_US/sdk.js';
         fjs.parentNode.insertBefore(js, fjs);
     } (document, 'script', 'facebook-jssdk'));
+
+    var shareBtn = document.querySelector('.tools__btn--share');
+    shareBtn.onclick = function() {
+    	shareImg();
+    }
 }
 
 function loadLayerThumbnails(pageNum) {
@@ -408,7 +414,11 @@ function disablePalette() {
 
 function enablePalette() {
     var paletteColors = document.querySelectorAll('.palette__color');
-    for(i = 0; i < paletteColors.length; i++) {
+    var start = 0;
+    if (layerSelected == 'face') {
+    	start = 12;
+    }
+    for(i = start; i < paletteColors.length; i++) {
         paletteColors[i].style.opacity = '1.0';
         paletteColors[i].onclick = function() {
 	        var colorSelected = String(getComputedStyle(this).backgroundColor);
@@ -427,13 +437,13 @@ function changeColor(colorSelected) {
         if (layerColor[layerSelected] != 'fixed') {
             var layer = document.querySelector('.layer--' + layerSelected);
             var ctx = layer.getContext('2d');
-            ctx.globalCompositeOperation = "source-over"; // I don't know why this works
+            ctx.globalCompositeOperation = 'source-over'; // I don't know why this works
             ctx.clearRect(0, 0, canvasX, canvasY);
             var imgColor = new Image();
             imgColor.onload = function() {
                 var imgOutline = new Image();
                 ctx.drawImage(imgColor, 0, 0);
-                ctx.globalCompositeOperation = "source-atop";
+                ctx.globalCompositeOperation = 'source-atop';
                 ctx.fillStyle = colorSelected;
                 ctx.fillRect(0, 0, canvasX, canvasY);
                 imgOutline.onload = function() {
@@ -469,7 +479,7 @@ function drawDefaultImg() {
         var layer = document.querySelector('.layer--' + layerSelected);
         var ctx = layer.getContext('2d');
         ctx.clearRect(0, 0, canvasX, canvasY);
-        ctx.globalCompositeOperation = "source-over"; // I don't know why this works
+        ctx.globalCompositeOperation = 'source-over'; // I don't know why this works
         if (layerColor[layerSelected] != 'fixed') {
             // Draw default color
             var imgColor = new Image();
@@ -620,6 +630,9 @@ function drawCampfireBackground(randomSize, rotation) {
 				ctx.drawImage(campfire, -50, -200 - 1.1*i, randSize, randSize);
 			}
 		}
+		// if (rotation) {
+		// 	drawSpotlight();
+		// }
    	}
 	campfire.src = 'svg/background/campfire.svg';
 }
@@ -628,9 +641,9 @@ function drawSpotlight() {
 	// Assume canvas translated to center
     var backgroundLayer = document.querySelector('.layer--background');
 	var ctx = backgroundLayer.getContext('2d');
-	var gradient = ctx.createRadialGradient(0,0,120,0,0,280);
+	var gradient = ctx.createRadialGradient(0,0,160,0,0,280);
 	// var gradient1 = ctx.createRadialGradient(0, 0, 10, 10, 10, 100);
-	var rgba = layerColor['background'];
+	// var rgba = layerColor['background'];
 	// rgba = rgba.replace('rgb(', 'rgba(');
 	// rgba = rgba.replace(')', '');
 	// gradient.addColorStop(0, rgba + ', .8)');
@@ -638,7 +651,9 @@ function drawSpotlight() {
 	gradient.addColorStop(0,'rgba(255, 255, 255, .7)');
 	gradient.addColorStop(1,'rgba(255, 255, 255, .05)');
 	ctx.fillStyle = gradient;
+	ctx.setTransform(1, 0, 0, 1, 256, 256);
 	ctx.fillRect(-256,-256, 512, 512);
+	ctx.translate(canvasX*multiplier/2,canvasY*multiplier/2);
 }
 
 function changePosition(button) {
@@ -739,49 +754,251 @@ function eraseAll() {
 }
 
 function saveImg() {
-    var layers = document.querySelectorAll('.layer--exportable');
-    var saveLayer = document.querySelector('.layer--save');
-    var ctx = saveLayer.getContext('2d');
-    ctx.save();
-    ctx.drawImage(layers[0], 0, 0); //Background does not need rescale
-    ctx.scale(multiplier, multiplier);
-    for (i = 1; i < layers.length; i++)
-    {
-        ctx.drawImage(layers[i],0,0);
-    }
-    var exportedImg = saveLayer.toDataURL('image/png').replace('image/png', 'image/octet-stream'); //Convert image to 'octet-stream' (Just a download, really)
+	var exportedImg = imgToDataURI();
+    restoreSaveLayer();
     var a = document.createElement('a');
     a.download = 'sprite.png';
     a.href = exportedImg;
     a.click();
+}
+
+function imgToDataURI() {
+	var layers = document.querySelectorAll('.layer--exportable');
+	var saveLayer = document.querySelector('.layer--save');
+	var ctx = saveLayer.getContext('2d');
+	ctx.save();
+	ctx.drawImage(layers[0], 0, 0); //Background does not need rescale
+	ctx.scale(multiplier, multiplier);
+	for (i = 1; i < layers.length; i++)
+	{
+	    ctx.drawImage(layers[i],0,0);
+	}
+    return saveLayer.toDataURL('image/png').replace('image/png', 'image/octet-stream'); //Convert image to 'octet-stream' (Just a download, really)
+}
+
+function dataURIToBlob(dataURI) {
+    var byteString = atob(dataURI.split(',')[1]);
+    var ab = new ArrayBuffer(byteString.length);
+    var ia = new Uint8Array(ab);
+    for (var i = 0; i < byteString.length; i++) {
+        ia[i] = byteString.charCodeAt(i);
+    }
+    return new Blob([ab], {type: 'image/png'});
+}
+
+function restoreSaveLayer() {
+	var saveLayer = document.querySelector('.layer--save');
+	var ctx = saveLayer.getContext('2d');
     ctx.clearRect(0, 0, 512, 512);
     ctx.restore();
 }
 
-function shareImg() {
-    FB.getLoginStatus(function(response) {
-        if (response.status == 'not_authorized' || response.status == 'unknown') {
-            FB.login(function(response) {
-                if (response.authResponse) {
-                    authResponse();
-                } else {
-                    unauthResponse();
-                }
-            });
-        }
-        else {
-            authResponse();
-        }
-    });
+function disableToolBtn(text) {
+    var toolBtn = document.querySelector(text);
+    toolBtn.classList.add('tools__btn--selected');
+    toolBtn.onclick = function() {
+		return false;
+    }
 }
 
-function authResponse() {
-    FB.api('/me', function(response) {
-        alert('Good to see you, ' + response.name + '.');
-    });
+function enableToolBtn(text, toolFunction) {
+    var toolBtn = document.querySelector(text);
+    toolBtn.classList.remove('tools__btn--selected');
+    toolBtn.onclick = function() {
+		toolFunction();
+    }
+}
 
+function shareImg() {
+	disableToolBtn('.tools__btn--share');
+    if (loginStatus != 'connected') {
+        FB.login(function(loginResponse) {
+    		FB.api('/me/permissions', function(permissionsResponse) {
+    			var permission = checkShareImgPermissions(permissionsResponse.data);
+	            if (loginResponse.authResponse && permission) {
+	                shareImgAuth();
+	            } else {
+	                unauthResponse();
+	            }
+    		});
+        }, {scope: 'publish_actions'});
+    }
+    else {
+		FB.api('/me/permissions', function(permissionsResponse) {
+			disableToolBtn('.tools__btn--share');
+			var permission = checkShareImgPermissions(permissionsResponse.data);
+            if (permission) {
+                shareImgAuth();
+            } else {
+                unauthResponse();
+            }
+		});
+    }
+}
+
+function shareImgAuth() {
+    var exportedImg = imgToDataURI();
+    restoreSaveLayer();
+	var imgBlob = dataURIToBlob(exportedImg);
+	var accessToken = FB.getAuthResponse().accessToken;
+    var fd = new FormData();
+    fd.append('access_token', accessToken);
+    fd.append('source', imgBlob);
+    fd.append('no_story', true);
+
+	var xhr = new XMLHttpRequest();
+	xhr.open('POST', 'https://graph.facebook.com/photos?access_token=' + accessToken);
+	// Define what happens on successful data submission
+	xhr.onload = function() {
+	    if (xhr.status === 200) {
+	    	alert('Successfully uploaded to Facebook!');
+			console.log(xhr);
+	    	var photoID = JSON.parse(xhr.responseText).id;
+	    	console.log('Photo ID: ' + photoID);
+			var xhr2 = new XMLHttpRequest();
+			xhr2.open('GET', 'https://graph.facebook.com/' + photoID + '?fields=images&access_token=' + accessToken);
+			xhr2.onload = function() {
+				console.log(xhr2);
+				var images = JSON.parse(xhr2.responseText).images;
+				var sourceURL = images[0].source;
+				console.log(sourceURL);
+
+				// TEMPORARY
+				// PROFILE PICTURES ALBUM IS NOT VISIBLE
+				// FB.api(
+				// '/me/albums',
+				// function (response) {
+				// 	if (response && !response.error) {
+				// 		console.log(response.data);
+				// 		for (i = 0; i < response.data.length; i++) {
+				// 			if (response.data[i].name == 'Profile Pictures') {
+				// 				var albumID = response.data[i].id;
+
+				// 				xhr = new XMLHttpRequest();
+				// 				xhr.open('GET', 'https://graph.facebook.com/' + photoID);
+
+				// 				FB.api(
+				// 				    '/' + albumID + '/photos',
+				// 				    'POST',
+				// 				    {
+				// 				        'url': sourceURL
+				// 				    },
+				// 				    function (response) {
+				// 			      		if (response && !response.error) {
+				// 				        /* handle the result */
+				// 			      		}
+				// 			      		else {
+				// 			      			console.log(response.error);
+				// 			      		}
+				// 				    }
+				// 				);
+				// 			}
+				// 		}
+				// 	}
+				// 	else {
+				// 		console.log(response.error);
+				// 	}
+				// });
+			}
+			xhr2.send();
+
+			// FB.api(
+			//     '/me/feed',
+			//     'POST',
+			//     {
+			//         'message': 'This is a test message',
+			//         'object_attachment': photoID
+			//     },
+			//     function (response) {
+			// 		if (response && !response.error) {
+			// 			alert('Successfully posted!');
+			// 		}
+			// 		else {
+			// 			console.log(response.error);
+			// 		}
+			//     }
+			// );
+
+	    	// Move/delete?
+	  //   	FB.api(
+			//     '/' + photoID,
+			//     'DELETE',
+			//     function (response) {
+			// 		if (response && !response.error) {
+			// 			alert('Successfully deleted!');
+			// 		}
+			// 		else {
+			// 			console.log(response.error);
+			// 		}
+			//     }
+			// );
+	    }
+	    else {
+	    	console.log(xhr.responseText);
+	    }
+    	enableToolBtn('.tools__btn--share', function() {toolFunction()});
+	};
+	xhr.send(fd);
+}
+
+function setProfileImg() {
+    if (loginStatus != 'connected' || !checkSetProfilePermissions()) {
+        FB.login(function(response) {
+            if (response.authResponse && checkSetProfilePermissions()) {
+                // setProfileAuth();
+            } else {
+                unauthResponse();
+            }
+        }, {scope: 'publish_actions,user_photos'});
+    }
+    else {
+    	// setProfileAuth();
+    }
+}
+
+function setProfileAuth() {
+    FB.api(
+    '/me/albums',
+    function (response) {
+		if (response && !response.error) {
+			console.log(response.data);
+			for (album in response.data) {
+
+			}
+		}
+		else console.log(response.error);
+    });
 }
 
 function unauthResponse() {
     alert('User cancelled login or did not fully authorize.');
+    enableToolBtn('.tools__btn--share', shareImg()); // TODO
+}
+
+function checkShareImgPermissions(responseData) {
+	for (i = 0; i < responseData.length; i++) { 
+		if (responseData[i].permission == 'publish_actions') {
+		 	if (responseData[i].status == 'granted') {
+		 		return true;
+		 	}
+		}
+	}
+}
+
+function checkSetProfilePermissions() {
+	var publishStatus = false;
+	var photoStatus = false;
+	for (i = 0; i < response.data.length; i++) { 
+		if (response.data[i].permission == 'publish_actions') {
+		 	if (response.data[i].status == 'granted') {
+		 		publishStatus = true;
+		 	}
+		}
+		else if (response.data[i].permission == 'user_photos') {
+		 	if (response.data[i].status == 'granted') {
+		 		photoStatus = true;
+		 	}
+		}
+	}
+	return publishStatus && photoStatus;
 }
