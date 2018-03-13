@@ -291,6 +291,7 @@ function chooseLayer(button) {
     var thumbnailContainer = document.querySelector('.layer-thumbnails-container');
     var thumbnailNavContainer = document.querySelector('.layer-thumbnails-nav-container');
 
+    disablePalette();
     if (lastClicked == button) {
         // Click the same button twice
         layerSelected = null;
@@ -299,7 +300,6 @@ function chooseLayer(button) {
         thumbnailContainer.style.display = 'none'; //TODO
         thumbnailNavContainer.style.display = 'none'; //TODO
         lastClicked = null;
-        disablePalette();
     } else {
         if (lastClicked == null) {
             lastClicked = button;
@@ -325,7 +325,6 @@ function chooseLayer(button) {
     // var bitcampPalette = document.querySelector('.palette--bitcamp');
     var skinPalette = document.querySelector('.palette--skin');
     var hairPalette = document.querySelector('.palette--hair');
-    // bitcampPalette.style.display = 'flex';
     skinPalette.style.display = 'none';
     hairPalette.style.display = 'none';
 
@@ -334,18 +333,21 @@ function chooseLayer(button) {
         // bitcampPalette.style.display = 'none';
         skinPalette.style.display = 'flex';
     }
-    if (layerSelected == 'hair' || layerSelected == 'eyebrows' || layerSelected == 'facial-hair') {
+    else if (layerSelected == 'hair' || layerSelected == 'eyebrows' || layerSelected == 'facial-hair') {
         // Change color palette
         hairPalette.style.display = 'flex';
     }
+    // else {
+    //     bitcampPalette.style.display = 'flex';
+    // }
 
-    var dpadToolContainer = document.querySelector('.d-pad-tools');
-    if (layerSelected == 'eyebrows' || layerSelected == 'eyes') {
-        dpadToolContainer.style.display = 'flex';
-    }
-    else {
-        dpadToolContainer.style.display = 'none';
-    }
+    // var dpadToolContainer = document.querySelector('.d-pad-tools');
+    // if (layerSelected == 'eyebrows' || layerSelected == 'eyes') {
+    //     dpadToolContainer.style.display = 'flex';
+    // }
+    // else {
+    //     dpadToolContainer.style.display = 'none';
+    // }
 
     // TODO: Disable background translation
 }

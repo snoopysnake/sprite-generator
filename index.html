@@ -19,6 +19,60 @@ and open the template in the editor.
     	<div class="subtitle">Sprite Creator</div>
         <div class="container">
             <a class="help-link" href="#help">Need help?</a>
+            <div class="left-sidebar">
+                <div class="tools-container">
+                    <div class="tools">
+                        <input type="button" class="tools__btn tools__btn--erase-layer" value="Erase Layer">
+                        <input type="button" class="tools__btn tools__btn--reset-position" value="Reset Position">
+                        <input type="button" class="tools__btn tools__btn--erase-all" value="Erase All">
+                        <input type="button" class="tools__btn tools__btn--save" value="Save!">
+                        <input type="button" class="tools__btn tools__btn--share" value="Share!">
+                        <!-- <input type="button" class="tools__btn tools__btn--change-color tools__btn--unselected" value="Change Color"> -->
+                        <!-- <input type="button" class="tools__btn tools__btn--reset-color" value="Reset Color"> -->
+                    </div>
+                </div>
+            </div>
+            <div class="center">
+                <canvas class="layer layer--background layer--exportable"></canvas>
+                <canvas class="layer layer--face layer--exportable"></canvas>
+                <canvas class="layer layer--hair layer--exportable"></canvas>
+                <canvas class="layer layer--eyebrows layer--exportable"></canvas>
+                <canvas class="layer layer--eyes layer--exportable"></canvas>
+                <canvas class="layer layer--nose layer--exportable"></canvas>
+                <canvas class="layer layer--mouth layer--exportable"></canvas>
+                <canvas class="layer layer--facial-hair layer--exportable"></canvas>
+                <canvas class="layer layer--accessory-1 layer--exportable"></canvas>
+                <canvas class="layer layer--accessory-2 layer--exportable"></canvas>
+                <canvas class="layer layer--accessory-3 layer--exportable"></canvas>
+                <canvas class="layer layer--save"></canvas>
+            </div>
+            <div class="right-sidebar">
+                <div class="layers">
+                    <input type="button" class="layers__btn layers__btn--unselected" value="Face">
+                    <input type="button" class="layers__btn layers__btn--unselected" value="Hair">
+                    <input type="button" class="layers__btn layers__btn--unselected" value="Eyebrows">
+                    <input type="button" class="layers__btn layers__btn--unselected" value="Eyes">
+                    <input type="button" class="layers__btn layers__btn--unselected" value="Nose">
+                    <input type="button" class="layers__btn layers__btn--unselected" value="Mouth">
+                    <input type="button" class="layers__btn layers__btn--unselected" value="Facial Hair">
+                    <input type="button" class="layers__btn layers__btn--unselected" value="Accessory 1">
+                    <input type="button" class="layers__btn layers__btn--unselected" value="Accessory 2">
+                    <input type="button" class="layers__btn layers__btn--unselected" value="Accessory 3">
+                    <input type="button" class="layers__btn layers__btn--unselected" value="Background">
+                </div>
+                <div class="d-pad-container">
+                    <div class="d-pad d-pad--up">
+                        <input type="button" class="d-pad__btn d-pad__btn--up" value="Up">
+                    </div>
+                    <div class="d-pad d-pad--mid">
+                        <input type="button" class="d-pad__btn d-pad__btn--left" value="Left">
+                        <input type="button" class="d-pad__btn d-pad__btn--right" value="Right">
+                    </div>
+                    <div class="d-pad d-pad--down">
+                        <input type="button" class="d-pad__btn d-pad__btn--down" value="Down">
+                    </div>
+                </div>
+            </div>
             <div class="left-sidebar-popup">
                 <div class="palette-container">
                     <div class="palette palette--bitcamp">
@@ -57,64 +111,10 @@ and open the template in the editor.
                         <div class="palette__color palette__color--hair-11"></div>
                     </div>
                 </div>
-                <div class="d-pad-container">
-                    <div class="d-pad d-pad--up">
-                        <input type="button" class="d-pad__btn d-pad__btn--up" value="Up">
-                    </div>
-                    <div class="d-pad d-pad--mid">
-                        <input type="button" class="d-pad__btn d-pad__btn--left" value="Left">
-                        <input type="button" class="d-pad__btn d-pad__btn--right" value="Right">
-                    </div>
-                    <div class="d-pad d-pad--down">
-                        <input type="button" class="d-pad__btn d-pad__btn--down" value="Down">
-                    </div>
-                </div>
-            </div>
-            <div class="left-sidebar">
-                <div class="tools-container">
-                    <div class="tools">
-                        <input type="button" class="tools__btn tools__btn--erase-layer" value="Erase Layer">
-                        <input type="button" class="tools__btn tools__btn--reset-position" value="Reset Position">
-                        <input type="button" class="tools__btn tools__btn--erase-all" value="Erase All">
-                        <input type="button" class="tools__btn tools__btn--save" value="Save!">
-                        <input type="button" class="tools__btn tools__btn--share" value="Share!">
-                        <input type="button" class="tools__btn tools__btn--share" value="Profile Picture!">
-                        <!-- <input type="button" class="tools__btn tools__btn--change-color tools__btn--unselected" value="Change Color"> -->
-                        <!-- <input type="button" class="tools__btn tools__btn--reset-color" value="Reset Color"> -->
-                    </div>
-                    <div class="d-pad-tools">
-                        <input type="button" class="d-pad-tools__btn d-pad-tools__btn--widen" value="Widen">
-                        <input type="button" class="d-pad-tools__btn d-pad-tools__btn--narrow" value="Narrow">
-                    </div>
-                </div>
-            </div>
-            <div class="center">
-                <canvas class="layer layer--background layer--exportable"></canvas>
-                <canvas class="layer layer--face layer--exportable"></canvas>
-                <canvas class="layer layer--hair layer--exportable"></canvas>
-                <canvas class="layer layer--eyebrows layer--exportable"></canvas>
-                <canvas class="layer layer--eyes layer--exportable"></canvas>
-                <canvas class="layer layer--nose layer--exportable"></canvas>
-                <canvas class="layer layer--mouth layer--exportable"></canvas>
-                <canvas class="layer layer--facial-hair layer--exportable"></canvas>
-                <canvas class="layer layer--accessory-1 layer--exportable"></canvas>
-                <canvas class="layer layer--accessory-2 layer--exportable"></canvas>
-                <canvas class="layer layer--accessory-3 layer--exportable"></canvas>
-                <canvas class="layer layer--save"></canvas>
-            </div>
-            <div class="right-sidebar">
-                <div class="layers">
-                    <input type="button" class="layers__btn layers__btn--unselected" value="Face">
-                    <input type="button" class="layers__btn layers__btn--unselected" value="Hair">
-                    <input type="button" class="layers__btn layers__btn--unselected" value="Eyebrows">
-                    <input type="button" class="layers__btn layers__btn--unselected" value="Eyes">
-                    <input type="button" class="layers__btn layers__btn--unselected" value="Nose">
-                    <input type="button" class="layers__btn layers__btn--unselected" value="Mouth">
-                    <input type="button" class="layers__btn layers__btn--unselected" value="Facial Hair">
-                    <input type="button" class="layers__btn layers__btn--unselected" value="Accessory 1">
-                    <input type="button" class="layers__btn layers__btn--unselected" value="Accessory 2">
-                    <input type="button" class="layers__btn layers__btn--unselected" value="Accessory 3">
-                    <input type="button" class="layers__btn layers__btn--unselected" value="Background">
+                <div class="d-pad-tools">
+                    <input type="button" class="d-pad-tools__btn d-pad-tools__btn--widen" value="Widen">
+                    <input type="button" class="d-pad-tools__btn d-pad-tools__btn--narrow" value="Narrow">
+                    <input type="button" class="d-pad-tools__btn d-pad-tools__btn--flip" value="Flip">
                 </div>
             </div>
             <div class="right-sidebar-popup">
