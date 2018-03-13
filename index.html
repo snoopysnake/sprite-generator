@@ -18,17 +18,17 @@ and open the template in the editor.
     	<div class="title">bitcamp</div>
     	<div class="subtitle">Sprite Creator</div>
         <div class="container">
-            <a class="help-link" href="#help">Need help?</a>
-            <div class="left-sidebar">
+            <a class="help__link" href="#help">Need help?</a>
+            <div class="tools-sidebar">
                 <div class="tools-container">
-                    <div class="tools">
-                        <input type="button" class="tools__btn tools__btn--erase-layer" value="Erase Layer">
-                        <input type="button" class="tools__btn tools__btn--reset-position" value="Reset Position">
-                        <input type="button" class="tools__btn tools__btn--erase-all" value="Erase All">
-                        <input type="button" class="tools__btn tools__btn--save" value="Save!">
-                        <input type="button" class="tools__btn tools__btn--share" value="Share!">
-                        <!-- <input type="button" class="tools__btn tools__btn--change-color tools__btn--unselected" value="Change Color"> -->
-                        <!-- <input type="button" class="tools__btn tools__btn--reset-color" value="Reset Color"> -->
+                    <div class="main-tools">
+                        <input type="button" class="main-tools__btn main-tools__btn--erase-layer" value="Erase Layer">
+                        <input type="button" class="main-tools__btn main-tools__btn--reset-position" value="Reset Position">
+                        <input type="button" class="main-tools__btn main-tools__btn--erase-all" value="Erase All">
+                    </div>
+                    <div class="export-tools">
+                        <input type="button" class="export-tools__btn export-tools__btn--save" value="Save!">
+                        <input type="button" class="export-tools__btn export-tools__btn--share" value="Share!">
                     </div>
                 </div>
             </div>
@@ -46,7 +46,7 @@ and open the template in the editor.
                 <canvas class="layer layer--accessory-3 layer--exportable"></canvas>
                 <canvas class="layer layer--save"></canvas>
             </div>
-            <div class="right-sidebar">
+            <div class="layers-sidebar">
                 <div class="layers">
                     <input type="button" class="layers__btn layers__btn--unselected" value="Face">
                     <input type="button" class="layers__btn layers__btn--unselected" value="Hair">
@@ -73,7 +73,7 @@ and open the template in the editor.
                     </div>
                 </div>
             </div>
-            <div class="left-sidebar-popup">
+            <div class="palette-sidebar">
                 <div class="palette-container">
                     <div class="palette palette--bitcamp">
                         <div class="palette__color palette__color--dark-brown"></div>
@@ -111,17 +111,17 @@ and open the template in the editor.
                         <div class="palette__color palette__color--hair-11"></div>
                     </div>
                 </div>
-                <div class="d-pad-tools">
-                    <input type="button" class="d-pad-tools__btn d-pad-tools__btn--widen" value="Widen">
-                    <input type="button" class="d-pad-tools__btn d-pad-tools__btn--narrow" value="Narrow">
-                    <input type="button" class="d-pad-tools__btn d-pad-tools__btn--flip" value="Flip">
+                <div class="move-tools">
+                    <input type="button" class="move-tools__btn move-tools__btn--widen" value="Widen">
+                    <input type="button" class="move-tools__btn move-tools__btn--narrow" value="Narrow">
+                    <input type="button" class="move-tools__btn move-tools__btn--flip" value="Flip">
                 </div>
             </div>
-            <div class="right-sidebar-popup">
-                <div class="layer-thumbnails-container">
+            <div class="right-sidebar">
+                <!-- <div class="layer-thumbnails-container"> -->
                     <!-- dynamically load buttons -->
-                    <div class="layer-thumbnails">
-                        <div class="layer-thumbnails__row">
+                    <div class="layer-thumbnails-container">
+                        <div class="layer-thumbnails__row layer-thumbnails__row--help">
                             <div class="layer-thumbnails__row__cell"></div>
                             <div class="layer-thumbnails__row__cell"></div>
                             <div class="layer-thumbnails__row__cell"></div>
@@ -163,18 +163,32 @@ and open the template in the editor.
                             <div class="layer-thumbnails__row__cell"></div>
                             <div class="layer-thumbnails__row__cell"></div>
                         </div>
+                    </div>
+                <!-- </div> -->
+                <div class="right-sidebar-nav-container">
+                    <div class="right-sidebar-nav right-sidebar-nav--prev">
+                        <input  type="button" class="right-sidebar-nav__btn right-sidebar-nav__btn--prev" value="Previous"/>
+                    </div>
+                    <a class="right-sidebar-nav-page-num"></a>
+                    <div class="right-sidebar-nav right-sidebar-nav--next">
+                        <input type="button" class="right-sidebar-nav__btn right-sidebar-nav__btn--next" value="Next"/>
                     </div>
                 </div>
-                <div class="layer-thumbnails-nav-container">
-                    <div class="layer-thumbnails-nav layer-thumbnails-nav--prev">
-                        <input  type="button" class="layer-thumbnails-nav__btn layer-thumbnails-nav__btn--prev" value="Previous"/>
+                <div class="message-container">
+                    <img class="intro__img" src="svg/background/campfire.svg"/>
+                    <div class="intro-message">
+                        Welcome to the JUNGLE
+                        asdf asdfa 
+                        asdf ad 
                     </div>
-                    <a class="layer-thumbnails-nav-page"></a>
-                    <div class="layer-thumbnails-nav layer-thumbnails-nav--next">
-                        <input type="button" class="layer-thumbnails-nav__btn layer-thumbnails-nav__btn--next" value="Next"/>
-                    </div>
+                    <!-- <input type="button" class="intro__btn" value="OK"> -->
                 </div>
             </div>
+        </div>
+        <div class="additional-info">
+            <a class="additional-info__link about-link" href="#aboutLink">About</a>
+            <a class="additional-info__link contact-link" href="#contactLink">Contact</a>
+            <a class="additional-info__link privacy-link" href="#privacyLink">Privacy Policy</a>
         </div>
     </body>
 </html>

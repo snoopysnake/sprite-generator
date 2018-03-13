@@ -5,14 +5,24 @@ var lastClicked;
 var totalLayerThumbnails = {'face': 4, 'hair': 2, 'eyebrows': 1, 'eyes': 10, 'nose': 2, 'mouth': 2, 'facial-hair': 0, 'accessory-1': 2, 'accessory-2': 2, 'accessory-3': 2, 'background': 12};
 var selectedIndex = {'face': -1, 'hair': -1, 'eyebrows': -1, 'eyes': -1, 'nose': -1, 'mouth': -1, 'facial-hair': -1, 'accessory-1': -1, 'accessory-2': -1, 'accessory-3': -1, 'background': -1}; // Indices start at 0, -1 == nothing selected
 var layerColor = {'face': 'default', 'hair': 'default', 'eyebrows': 'fixed', 'eyes': 'fixed', 'nose': 'fixed', 'mouth': 'fixed', 'facial-hair': 'default', 'accessory-1': 'default', 'accessory-2': 'default', 'accessory-3': 'default', 'background': 'rgb(255, 175, 63)'};
+var layerFlipped = {'hair': 1, 'eyebrows': 1, 'nose': 1, 'mouth': 1, 'facial-hair': 1, 'accessory-1': 1, 'accessory-2': 1, 'accessory-3': 1};
 var layerWidth = {'eyebrows': 0, 'eyes': 0}
 multiplier = 16;
 var canvasX = 32;
 var canvasY = 32;
 
 window.onload = function setup() {
+	// Intro
+    // var introBtn = document.querySelector('.intro__btn');
+    // introBtn.onclick =  function() {
+    // 	var thumbnailContainer = document.querySelector('.layer-thumbnails-container');
+    // 	var thumbnailNavContainer = document.querySelector('.right-sidebar-nav-container');
+    // 	thumbnailContainer.style.display = 'flex';
+    // 	thumbnailNavContainer.style.display = 'flex';
+    // }
+
     // Set up tool buttons
-    var eraseLayerBtn = document.querySelector('.tools__btn--erase-layer');
+    var eraseLayerBtn = document.querySelector('.main-tools__btn--erase-layer');
     eraseLayerBtn.onclick = function() {
         if (layerSelected != 'background') {
         	eraseLayer();
@@ -26,15 +36,11 @@ window.onload = function setup() {
         }
         disablePalette();
     }
-    var eraseAllBtn = document.querySelector('.tools__btn--erase-all');
+    var eraseAllBtn = document.querySelector('.main-tools__btn--erase-all');
     eraseAllBtn.onclick = function() {
         eraseAll();
         disablePalette();
     }
-    // var changeColorBtn = document.querySelector('.tools__btn--change-color');
-    // changeColorBtn.onclick = function() {
-    //     openPalette(this);
-    // }
     var paletteColors = document.querySelectorAll('.palette__color');
     for (i = 0; i < paletteColors.length; i++) {
         paletteColors[i].onclick = function() {
@@ -46,21 +52,17 @@ window.onload = function setup() {
             }
         }
     }
-    // var resetColorBtn = document.querySelector('.tools__btn--reset-color');
-    // resetColorBtn.onclick = function() {
-    //     drawDefaultImg();
-    // }
-    // var changePositionBtn = document.querySelector('.tools__btn--change-position');
-    // changePositionBtn.onclick = function() {
-    //     changePosition(this);
-    // }
-    var widenBtn = document.querySelector('.d-pad-tools__btn--widen');
+    var widenBtn = document.querySelector('.move-tools__btn--widen');
     widenBtn.onclick = function() {
         changeWidth(1);
     }
-    var narrowBtn = document.querySelector('.d-pad-tools__btn--narrow');
+    var narrowBtn = document.querySelector('.move-tools__btn--narrow');
     narrowBtn.onclick = function() {
         changeWidth(-1);
+    }
+    var flipBtn = document.querySelector('.move-tools__btn--flip');
+    flipBtn.onclick = function() {
+        flip();
     }
     var dPadUpBtn = document.querySelector('.d-pad__btn--up');
     var dPadDownBtn = document.querySelector('.d-pad__btn--down');
@@ -78,11 +80,12 @@ window.onload = function setup() {
     dPadRightBtn.onclick = function() {
         translateLayer(1,0);
     }
-    var resetPositionBtn = document.querySelector('.tools__btn--reset-position');
+    disableDPad();
+    var resetPositionBtn = document.querySelector('.main-tools__btn--reset-position');
     resetPositionBtn.onclick = function() {
         resetPosition();
     }
-    var saveBtn = document.querySelector('.tools__btn--save');
+    var saveBtn = document.querySelector('.export-tools__btn--save');
     saveBtn.onclick = function() {
         saveImg();
     }
@@ -144,7 +147,7 @@ window.onload = function setup() {
         fjs.parentNode.insertBefore(js, fjs);
     } (document, 'script', 'facebook-jssdk'));
 
-    var shareBtn = document.querySelector('.tools__btn--share');
+    var shareBtn = document.querySelector('.export-tools__btn--share');
     shareBtn.onclick = function() {
   		// FB.AppEvents.logEvent('Shared Sprite');
     	shareImg();
@@ -152,8 +155,8 @@ window.onload = function setup() {
 }
 
 function loadLayerThumbnails(pageNum) {
-    var prevBtn = document.querySelector('.layer-thumbnails-nav__btn--prev');
-    var nextBtn = document.querySelector('.layer-thumbnails-nav__btn--next');
+    var prevBtn = document.querySelector('.right-sidebar-nav__btn--prev');
+    var nextBtn = document.querySelector('.right-sidebar-nav__btn--next');
 
     var total = totalLayerThumbnails[layerSelected];
     var start = (pageNum - 1) * 28; // Absolute index (0 to total)
@@ -182,7 +185,7 @@ function loadLayerThumbnails(pageNum) {
         }
     }
     // Change page num
-    var pageNumDisplay = document.querySelector('.layer-thumbnails-nav-page');
+    var pageNumDisplay = document.querySelector('.right-sidebar-nav-page-num');
     pageNumDisplay.innerHTML = 'Page ' + pageNum;
 
     // Clear cells
@@ -289,18 +292,19 @@ function loadLayerThumbnails(pageNum) {
 
 function chooseLayer(button) {
     var thumbnailContainer = document.querySelector('.layer-thumbnails-container');
-    var thumbnailNavContainer = document.querySelector('.layer-thumbnails-nav-container');
+    var thumbnailNavContainer = document.querySelector('.right-sidebar-nav-container');
 
-    disablePalette();
-    if (lastClicked == button) {
-        // Click the same button twice
-        layerSelected = null;
-        button.classList.remove('layers__btn--selected');
-        button.classList.add('layers__btn--unselected');
-        thumbnailContainer.style.display = 'none'; //TODO
-        thumbnailNavContainer.style.display = 'none'; //TODO
-        lastClicked = null;
-    } else {
+    // if (lastClicked == button) {
+    //     // Click the same button twice
+    //     layerSelected = null;
+    //     button.classList.remove('layers__btn--selected');
+    //     button.classList.add('layers__btn--unselected');
+    //     thumbnailContainer.style.display = 'none'; //TODO
+    //     thumbnailNavContainer.style.display = 'none'; //TODO
+    //     lastClicked = null;
+    // 	disablePalette();
+    // } else {
+	if (lastClicked != button) { // New
         if (lastClicked == null) {
             lastClicked = button;
         }
@@ -340,16 +344,6 @@ function chooseLayer(button) {
     // else {
     //     bitcampPalette.style.display = 'flex';
     // }
-
-    // var dpadToolContainer = document.querySelector('.d-pad-tools');
-    // if (layerSelected == 'eyebrows' || layerSelected == 'eyes') {
-    //     dpadToolContainer.style.display = 'flex';
-    // }
-    // else {
-    //     dpadToolContainer.style.display = 'none';
-    // }
-
-    // TODO: Disable background translation
 }
 
 function setIndexAndDraw(currentSelected, index) {
@@ -390,25 +384,10 @@ function setIndexAndDraw(currentSelected, index) {
     }
 }
 
-function openPalette(button) {
-    var palette = document.querySelector('.palette');
-    if (palette.style.display == 'flex') {
-        button.classList.remove('layers__btn--selected');
-        button.classList.add('layers__btn--unselected');
-        palette.style.display = 'none'; //TODO
-        palette.style.borderRight = '0px'; //TODO
-    } else {
-        button.classList.remove('layers__btn--unselected');
-        button.classList.add('layers__btn--selected');
-        palette.style.display = 'flex'; //TODO
-        palette.style.borderRight = '16px solid white'; //TODO
-    }
-}
-
 function disablePalette() {
     var paletteColors = document.querySelectorAll('.palette__color');
     for(i = 0; i < paletteColors.length; i++) {
-        paletteColors[i].style.opacity = '0.6';
+        paletteColors[i].style.opacity = '0.6'; // Maybe I should make a class for this?
         paletteColors[i].onclick = function() {
         	return false;
 		}
@@ -417,11 +396,7 @@ function disablePalette() {
 
 function enablePalette() {
     var paletteColors = document.querySelectorAll('.palette__color');
-    var start = 0;
-    if (layerSelected == 'face') {
-    	start = 12;
-    }
-    for(i = start; i < paletteColors.length; i++) {
+    for(i = 0; i < paletteColors.length; i++) {
         paletteColors[i].style.opacity = '1.0';
         paletteColors[i].onclick = function() {
 	        var colorSelected = String(getComputedStyle(this).backgroundColor);
@@ -431,6 +406,20 @@ function enablePalette() {
 	            changeColor(colorSelected); // rgb(#,#,#)
 	        }
 		}
+    }
+}
+
+function disableDPad() {
+    var dPadBtns = document.querySelectorAll('.d-pad__btn');
+    for(i = 0; i < dPadBtns.length; i++) {
+        dPadBtns[i].classList.add('d-pad__btn--disabled');
+    }
+}
+
+function enableDPad() {
+    var dPadBtns = document.querySelectorAll('.d-pad__btn');
+    for(i = 0; i < dPadBtns.length; i++) {
+        dPadBtns[i].classList.remove('d-pad__btn--disabled');
     }
 }
 
@@ -717,6 +706,26 @@ function changeWidth(x) {
     }
 }
 
+function flip() {
+	if (layerSelected != null && selectedIndex[layerSelected] != -1) {
+	    var layer = document.querySelector('.layer--' + layerSelected);
+	    var ctx = layer.getContext('2d');
+	    ctx.scale(-1,1);
+	    drawDefaultImg();
+	    translateLayer(-32,0);
+
+	    var dPadLeftBtn = document.querySelector('.d-pad__btn--left');
+	    var dPadRightBtn = document.querySelector('.d-pad__btn--right');
+	    layerFlipped[layerSelected]*=-1;
+	    dPadLeftBtn.onclick = function() {
+	        translateLayer(-1*layerFlipped[layerSelected],0);
+	    }
+	    dPadRightBtn.onclick = function() {
+	        translateLayer(1*layerFlipped[layerSelected],0);
+	    }
+	}
+}
+
 function eraseLayer() {
     if (layerSelected != null) {
         if (layerSelected != 'background') {
@@ -798,7 +807,7 @@ function restoreSaveLayer() {
 
 function disableToolBtn(text) {
     var toolBtn = document.querySelector(text);
-    toolBtn.classList.add('tools__btn--selected');
+    toolBtn.classList.add('export-tools__btn--selected');
     toolBtn.onclick = function() {
 		return false;
     }
@@ -806,12 +815,12 @@ function disableToolBtn(text) {
 
 function enableToolBtn(text, toolFunction) {
     var toolBtn = document.querySelector(text);
-    toolBtn.classList.remove('tools__btn--selected');
+    toolBtn.classList.remove('export-tools__btn--selected');
     toolBtn.onclick = toolFunction;
 }
 
 function shareImg() {
-	disableToolBtn('.tools__btn--share');
+	disableToolBtn('.export-tools__btn--share');
     if (loginStatus != 'connected') {
         FB.login(function(loginResponse) {
         	if (loginResponse.authResponse) {
@@ -832,7 +841,7 @@ function shareImg() {
     }
     else {
 		FB.api('/me/permissions', function(permissionsResponse) {
-			disableToolBtn('.tools__btn--share');
+			disableToolBtn('.export-tools__btn--share');
 			var permission = checkShareImgPermissions(permissionsResponse.data);
             if (permission) {
                 shareImgAuth();
@@ -943,7 +952,7 @@ function shareImgAuth() {
 	    else {
 	    	console.log(xhr.responseText);
 	    }
-    	enableToolBtn('.tools__btn--share', function() {shareImg()});
+    	enableToolBtn('.export-tools__btn--share', function() {shareImg()});
 	};
 	xhr.send(fd);
 }
@@ -979,7 +988,7 @@ function setProfileAuth() {
 
 function unauthResponse() {
     alert('User cancelled login or did not fully authorize.');
-    enableToolBtn('.tools__btn--share', function() {shareImg()}); // TODO: Change for set profile pic?
+    enableToolBtn('.export-tools__btn--share', function() {shareImg()}); // TODO: Change for set profile pic?
 }
 
 function checkShareImgPermissions(responseData) {
