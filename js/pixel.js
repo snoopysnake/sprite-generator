@@ -1,7 +1,7 @@
 var loginStatus;
 var buttons_menu_top;
 var layerSelected;
-var lastClicked;
+var lastClicked = null;
 var totalLayerThumbnails = {'face': 4, 'hair': 2, 'eyebrows': 1, 'eyes': 10, 'nose': 2, 'mouth': 2, 'facial-hair': 0, 'accessory-1': 2, 'accessory-2': 2, 'accessory-3': 2, 'background': 12};
 var selectedIndex = {'face': -1, 'hair': -1, 'eyebrows': -1, 'eyes': -1, 'nose': -1, 'mouth': -1, 'facial-hair': -1, 'accessory-1': -1, 'accessory-2': -1, 'accessory-3': -1, 'background': -1}; // Indices start at 0, -1 == nothing selected
 var layerColor = {'face': 'default', 'hair': 'default', 'eyebrows': 'fixed', 'eyes': 'fixed', 'nose': 'fixed', 'mouth': 'fixed', 'facial-hair': 'default', 'accessory-1': 'default', 'accessory-2': 'default', 'accessory-3': 'default', 'background': 'rgb(255, 175, 63)'};
@@ -12,14 +12,15 @@ var canvasX = 32;
 var canvasY = 32;
 
 window.onload = function setup() {
-	// Intro
-    // var introBtn = document.querySelector('.intro__btn');
-    // introBtn.onclick =  function() {
-    // 	var thumbnailContainer = document.querySelector('.layer-thumbnails-container');
-    // 	var thumbnailNavContainer = document.querySelector('.right-sidebar-nav-container');
-    // 	thumbnailContainer.style.display = 'flex';
-    // 	thumbnailNavContainer.style.display = 'flex';
-    // }
+	// Set up help
+    var helpLink = document.querySelector('.help__link');
+    helpLink.onclick =  function() {
+    	openHelp();
+    }
+    var gettingStartedLink = document.querySelector('.help__link--getting-started');
+    gettingStartedLink.onclick =  function() {
+    	openGettingStarted(1);
+    }
 
     // Set up tool buttons
     var eraseLayerBtn = document.querySelector('.main-tools__btn--erase-layer');
@@ -35,11 +36,13 @@ window.onload = function setup() {
         	drawDefaultBackground();
         }
         disablePalette();
+        disableDPad();
     }
     var eraseAllBtn = document.querySelector('.main-tools__btn--erase-all');
     eraseAllBtn.onclick = function() {
         eraseAll();
         disablePalette();
+        disableDPad();
     }
     var paletteColors = document.querySelectorAll('.palette__color');
     for (i = 0; i < paletteColors.length; i++) {
@@ -155,8 +158,8 @@ window.onload = function setup() {
 }
 
 function loadLayerThumbnails(pageNum) {
-    var prevBtn = document.querySelector('.right-sidebar-nav__btn--prev');
-    var nextBtn = document.querySelector('.right-sidebar-nav__btn--next');
+    var prevBtn = document.querySelector('.layer-thumbnails-nav__btn--prev');
+    var nextBtn = document.querySelector('.layer-thumbnails-nav__btn--next');
 
     var total = totalLayerThumbnails[layerSelected];
     var start = (pageNum - 1) * 28; // Absolute index (0 to total)
@@ -185,7 +188,7 @@ function loadLayerThumbnails(pageNum) {
         }
     }
     // Change page num
-    var pageNumDisplay = document.querySelector('.right-sidebar-nav-page-num');
+    var pageNumDisplay = document.querySelector('.layer-thumbnails-nav-page-num');
     pageNumDisplay.innerHTML = 'Page ' + pageNum;
 
     // Clear cells
@@ -292,7 +295,9 @@ function loadLayerThumbnails(pageNum) {
 
 function chooseLayer(button) {
     var thumbnailContainer = document.querySelector('.layer-thumbnails-container');
-    var thumbnailNavContainer = document.querySelector('.right-sidebar-nav-container');
+    var thumbnailNavContainer = document.querySelector('.layer-thumbnails-nav-container');
+    var helpMessageContainer = document.querySelector('.help-container');
+    var helpMessage = document.querySelector('.help-container');
 
     // if (lastClicked == button) {
     //     // Click the same button twice
@@ -300,12 +305,13 @@ function chooseLayer(button) {
     //     button.classList.remove('layers__btn--selected');
     //     button.classList.add('layers__btn--unselected');
     //     thumbnailContainer.style.display = 'none'; //TODO
-    //     thumbnailNavContainer.style.display = 'none'; //TODO
+    //     navContainer.style.display = 'none'; //TODO
     //     lastClicked = null;
     // 	disablePalette();
     // } else {
 	if (lastClicked != button) { // New
         if (lastClicked == null) {
+	        helpMessageContainer.style.display = 'none';
             lastClicked = button;
         }
         layerSelected = button.value.toLowerCase().replace(' ','-');
@@ -317,11 +323,20 @@ function chooseLayer(button) {
         thumbnailContainer.style.display = 'flex'; //TODO
         thumbnailNavContainer.style.display = 'flex'; //TODO
         lastClicked = button;
-	    if (selectedIndex[layerSelected] != -1 && layerColor[layerSelected] != 'fixed') {
-	    	enablePalette();
+	    if (selectedIndex[layerSelected] != -1) {
+	    	if (layerSelected != 'background') {
+	    		enableDPad();
+	    	}
+	    	else {
+	    		disableDPad();
+	    	}
+	    	if (layerColor[layerSelected] != 'fixed') {
+	    		enablePalette();
+	    	}
 	    }
 	    else {
 	    	disablePalette();
+	    	disableDPad();
 	    }
     }
 
@@ -350,21 +365,27 @@ function setIndexAndDraw(currentSelected, index) {
     // currentSelected == layer thumbnail div clicked
     // index finds the correct image
 
+    // FOR TUTORIAL
+	var helpMessageContainer = document.querySelector('.help-message-container');
+
     if (layerColor[layerSelected] != 'fixed') {
     	enablePalette();
     }
 
     if (selectedIndex[layerSelected] == index) {
-        if (layerSelected != 'background') {
-        	disablePalette();
-            eraseLayer();
-            // Double clicking removes color (functions same as erase layer button)
-            if (layerColor[layerSelected] != 'fixed') {
-                layerColor[layerSelected] = 'default';
-            }
-        } else {
-        	drawBackground(layerColor['background']);
-        }
+		if (helpMessageContainer.style.display != 'flex') { // FOR TUTORIAL
+	        if (layerSelected != 'background') {
+	        	disablePalette();
+	        	disableDPad();
+	            eraseLayer();
+	            // Double clicking removes color (functions same as erase layer button)
+	            if (layerColor[layerSelected] != 'fixed') {
+	                layerColor[layerSelected] = 'default';
+	            }
+	        } else {
+	        	drawBackground(layerColor['background']);
+	        }
+		}
     }
     else if (selectedIndex[layerSelected] != index) {
         // Remove previously selected layer thumbnail if present
@@ -372,6 +393,9 @@ function setIndexAndDraw(currentSelected, index) {
         // Highlight selected layer thumbnail
         currentSelected.classList.add('layer-thumbnails__row__cell--selected');
         selectedIndex[layerSelected] = index;
+        if (layerSelected != 'background') {
+        	enableDPad();
+        }
         if (layerSelected == 'background') {
             drawBackground(layerColor['background']);
         }
@@ -382,6 +406,16 @@ function setIndexAndDraw(currentSelected, index) {
         	drawDefaultImg();
         }
     }
+
+    // FOR TUTORIAL
+	if (helpMessageContainer.style.display == 'flex') {
+		if (layerColor[layerSelected] != 'fixed') {
+			openGettingStarted(3); // Maybe check for help-message text too?..
+		}
+		else {
+			openGettingStarted(4);
+		}
+	}
 }
 
 function disablePalette() {
@@ -461,6 +495,12 @@ function changeColor(colorSelected) {
                 imgColor.src = 'png/' + layerSelected + '/' + layerSelected + '-color-' + selectedIndex[layerSelected] + '.png';
             }
             layerColor[layerSelected] = colorSelected;
+
+            // FOR TUTORIAL
+			var helpMessageContainer = document.querySelector('.help-message-container');
+			if (helpMessageContainer.style.display == 'flex') {
+				openGettingStarted(4);
+			}
         }
     }
 }
@@ -682,7 +722,7 @@ function resetPosition() {
 
 function translateLayer(x,y) {
     // TODO: Disable for background
-    if (selectedIndex[layerSelected] != -1 && layerSelected != null) {
+    if (selectedIndex[layerSelected] != -1 && layerSelected != null && layerSelected != 'background') {
         var layer = document.querySelector('.layer--' + layerSelected);
         var ctx = layer.getContext('2d');
         // Erase + copy to current layer
@@ -711,7 +751,6 @@ function flip() {
 	    var layer = document.querySelector('.layer--' + layerSelected);
 	    var ctx = layer.getContext('2d');
 	    ctx.scale(-1,1);
-	    drawDefaultImg();
 	    translateLayer(-32,0);
 
 	    var dPadLeftBtn = document.querySelector('.d-pad__btn--left');
@@ -743,7 +782,7 @@ function eraseLayer() {
         if (prevSelected != null) {
             prevSelected.classList.remove('layer-thumbnails__row__cell--selected');
         }
-            selectedIndex[layerSelected] = -1;
+        selectedIndex[layerSelected] = -1;
     }
 }
 
@@ -763,6 +802,94 @@ function eraseAll() {
     }
     selectedIndex = {'face': -1, 'hair': -1, 'eyebrows': -1, 'eyes': -1, 'nose': -1, 'mouth': -1, 'facial-hair': -1, 'accessory-1': -1, 'accessory-2': -1, 'accessory-3': -1, 'background': -1}; // Indices start at 0, -1 == nothing selected
     layerColor = {'face': 'default', 'hair': 'default', 'eyebrows': 'fixed', 'eyes': 'fixed', 'nose': 'fixed', 'mouth': 'fixed', 'facial-hair': 'default', 'accessory-1': 'default', 'accessory-2': 'default', 'accessory-3': 'default', 'background': 'rgb(255, 175, 63)'};
+}
+
+function openHelp() {
+	var thumbnailContainer = document.querySelector('.layer-thumbnails-container');
+	var thumbnailNavContainer = document.querySelector('.layer-thumbnails-nav-container');
+	var helpMessageContainer = document.querySelector('.help-container');
+	if (helpMessageContainer.style.display != 'none' || helpMessageContainer.style.display != 'flex') {
+    	thumbnailContainer.style.display = 'none';
+    	thumbnailNavContainer.style.display = 'none';
+		helpMessageContainer.style.display = 'inline';
+
+		if (lastClicked != null) {
+			lastClicked.classList.add('layers__btn--unselected');
+			lastClicked.classList.remove('layers__btn--selected');
+			lastClicked = null;
+		}
+		layerSelected = null;
+		disablePalette();
+		disableDPad();
+	}
+}
+
+function openGettingStarted(stepNum) {
+	// TODO: DISABLE ERASE BUTTONS
+	var helpMessageContainer = document.querySelector('.help-message-container');
+	var helpMessage = document.querySelector('.help-message');
+    var layersBtns = document.querySelectorAll('.layers__btn');
+	var layers = document.querySelector('.layers');
+	var thumbnailContainer = document.querySelector('.layer-thumbnails-container');
+	var thumbnailNavContainer = document.querySelector('.layer-thumbnails-nav-container');
+	var paletteContainer = document.querySelector('.palette-container');
+    var paletteColors = document.querySelectorAll('.palette__color');
+
+	if (helpMessageContainer.style.display != 'flex') {
+		helpMessageContainer.style.display = 'flex';
+	}
+	switch (stepNum) {
+		case 1: {
+		    for (i = 0; i < layersBtns.length; i++) {
+		        layersBtns[i].onclick = function() {
+        			layerSelected = this.value.toLowerCase().replace(' ','-');
+        			this.classList.add('layers__btn--selected');
+		            openGettingStarted(2);
+		        }
+		    }
+			helpMessage.textContent = 'First, select a feature to add to the canvas (highlighted in orange).';
+			layers.style.backgroundColor = '#FFAF3F';
+			break;
+		}
+		case 2: {
+			// Disable layer btns
+		    for (i = 0; i < layersBtns.length; i++) {
+		        layersBtns[i].onclick = function() {
+		        	return false;
+		        }
+		    }
+			layers.style.backgroundColor = 'white';
+			loadLayerThumbnails(1);
+			thumbnailContainer.style.display = 'flex';
+			thumbnailNavContainer.style.display = 'none';
+			helpMessage.textContent = 'Next, select any option in the list above.';
+			break;
+		}
+		case 3: {
+			thumbnailContainer.style.display = 'none';
+			helpMessage.textContent = 'Now, choose a color in the palette!';
+			paletteContainer.style.border = 'solid 6px #FFAF3F';
+
+		    var skinPalette = document.querySelector('.palette--skin');
+		    var hairPalette = document.querySelector('.palette--hair');
+		    skinPalette.style.display = 'none';
+		    hairPalette.style.display = 'none';
+		    if (layerSelected == 'face') {
+		        skinPalette.style.display = 'flex';
+		    }
+		    else if (layerSelected == 'hair' || layerSelected == 'eyebrows' || layerSelected == 'facial-hair') {
+		        hairPalette.style.display = 'flex';
+		    }
+			break;
+		}
+		case 4: {
+			paletteContainer.style.border = 'none';
+			thumbnailContainer.style.display = 'none';
+			helpMessage.textContent = 'Great job, you have successfully completed the first piece of your sprite!';
+    		var helpNavContainer = document.querySelector('.help-nav-container');
+    		helpNavContainer.style.display = 'flex';
+		}
+	}
 }
 
 function saveImg() {

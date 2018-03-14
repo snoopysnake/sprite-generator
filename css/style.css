@@ -464,8 +464,11 @@ canvas {
     flex-direction: column;
 }
 .layer-thumbnails__row {
+    height: 64px;
     display: flex;
     flex-direction: row;
+    align-items: center;
+    text-align: center;
 }
 .layer-thumbnails__row__cell {
     font-family: "Aleo Regular", sans-serif;
@@ -509,10 +512,83 @@ canvas {
     align-items: center;
     justify-content: center;
 }
+.help-container {
+    height: 512px;
+    width: 256px;
+    font-family: "Avenir Light";
+    color: #528CA5;
+    align-items: center;
+    /*justify-content: space-between;*/
+    display: none;
+    flex-direction: column;
+}
+.help-contents {
+    height: 512px;
+    width: 256px;
+    font-family: "Aleo Regular", sans-serif;
+    font-weight: normal;
+    font-style: normal;
+    font-size: 24px;
+    /*justify-content: space-between;*/
+    display: flex;
+    flex-direction: column;
+    margin-top: 4px;
+}
+.help-topic {
+    color: #FFAF3F;
+    margin: 12px;
+    text-decoration: none;
+    flex-flow: column wrap;
+   -moz-user-select: -moz-none;
+   -khtml-user-select: none;
+   -webkit-user-select: none;
+   -ms-user-select: none;
+   user-select: none;
+}
+.help-nav-container {
+    height: 64px;
+    width: 256px;
+    display: none;
+    align-items: center;
+    text-align: center;
+    justify-content: center;
+}
+.help-nav__btn {
+    font-family: "Aleo Regular", sans-serif;
+    font-weight: normal;
+    font-style: normal;
+    font-size: 12px;
+    color: white;
+    margin: 8px;
+    width: 64px;
+    height: 32px;
+    border-radius: 8px;
+    border: 2px solid white;
+    display: flex;
+    justify-content: center;
+    background-color: #FFAF3F;
+    outline-style: none;
+}
+.help-nav__btn:active {
+    background-color: #FF3F46;
+}
+.help-message-container {
+    height: 512px;
+    width: 256px;
+    display: none;
+    flex-direction: column;
+    justify-content: space-between;
+}
+.help-message {
+    align-items: center; /* Center or top?*/
+    justify-content: center;
+    /*margin: 8px;*/
+    padding: 8px;
+}
 .intro__img {
     margin: 8px;
 }
-.message-container {
+.intro-message-container {
     height: 512px;
     width: 256px;
     font-family: "Avenir Light";
@@ -546,14 +622,14 @@ canvas {
     color: #FFAF3F;
     border: solid 2px #FFAF3F;
 }
-.right-sidebar-nav-container {
+.layer-thumbnails-nav-container {
     height: 64px;
     width: 256px;
     display: none;
     align-items: center;
     text-align: center;
 }
-.right-sidebar-nav__btn {
+.layer-thumbnails-nav__btn {
     font-family: "Aleo Regular", sans-serif;
     font-weight: normal;
     font-style: normal;
@@ -569,14 +645,14 @@ canvas {
     background-color: #FFAF3F;
     outline-style: none;
 }
-.right-sidebar-nav__btn:active {
+.layer-thumbnails-nav__btn:active {
     background-color: #FF3F46;
 }
-.right-sidebar-nav {
+.layer-thumbnails-nav {
     width: 80px;
     /*flex: 1;*/
 }
-.right-sidebar-nav-page-num {
+.layer-thumbnails-nav-page-num {
     font-family: "Aleo Bold", sans-serif;
     font-weight: normal;
     font-style: normal;
