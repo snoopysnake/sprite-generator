@@ -11,7 +11,7 @@ and open the template in the editor.
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <!-- <script src='js/zepto.min.js'></script> -->
         <script src='js/pixel.js'></script>
-        <link rel="stylesheet" type="text/css" href="css/style.css">
+        <link rel="stylesheet" type="text/css" href="css/desktop.css">
         <!-- <link rel="stylesheet" type="text/css" href="css/mobile.css"> -->
     </head>
     <body">
@@ -20,19 +20,45 @@ and open the template in the editor.
         <div class="container">
             <a class="help__link" href="#help">Need help?</a>
             <div class="tools-sidebar">
-                <div class="tools-container">
-                    <div class="main-tools">
-                        <input type="button" class="main-tools__btn main-tools__btn--erase-layer" value="Erase Layer">
-                        <input type="button" class="main-tools__btn main-tools__btn--reset-position" value="Reset Position">
-                        <input type="button" class="main-tools__btn main-tools__btn--erase-all" value="Erase All">
-                    </div>
-                    <div class="export-tools">
-                        <input type="button" class="export-tools__btn export-tools__btn--save" value="Save!">
-                        <input type="button" class="export-tools__btn export-tools__btn--share" value="Share!">
-                    </div>
+                <div class="main-tools">
+                    <input type="button" class="main-tools__btn main-tools__btn--erase-layer" value="Erase Layer">
+                    <input type="button" class="main-tools__btn main-tools__btn--reset-position" value="Reset Position">
+                    <input type="button" class="main-tools__btn main-tools__btn--erase-all" value="Erase All">
+                </div>
+                <div class="export-tools">
+                    <input type="button" class="export-tools__btn export-tools__btn--save" value="Save!">
+                    <input type="button" class="export-tools__btn export-tools__btn--share" value="Share!">
                 </div>
             </div>
             <div class="center">
+                <div class="export-options">
+                    <div class="export-options__title">Share on Facebook?</div>
+                    <div class="export-options__body">
+                        <br>
+                        <a>Add to Photos</a>
+                        <input type="radio" class="export-options--photo__btn" name="share" checked="checked">
+                        <br>
+                        <a>Share to Timeline</a>
+                        <input type="radio" class="export-options--timeline__btn" name="share">
+                        <br>
+                        <br>
+                        <div class="export-options-container--photo">
+                            <a>Add a description to photo:</a>
+                            <textarea class="export-options--photo__text"></textarea>
+                            <br>
+                        </div>
+                        <br>
+                        <div class="export-options-container--timeline">
+                            <a>Add a description to Timeline:</a>
+                            <textarea class="export-options--timeline__text"></textarea>
+                            <br>
+                        </div>
+                    </div>
+                    <div class="export-options-submit">
+                        <input type="button" class="export-options__btn export-options__btn--yes" value="Yes">
+                        <input type="button" class="export-options__btn export-options__btn--no" value="No">
+                    </div>
+                </div>
                 <canvas class="layer layer--background layer--exportable"></canvas>
                 <canvas class="layer layer--face layer--exportable"></canvas>
                 <canvas class="layer layer--hair layer--exportable"></canvas>
@@ -46,81 +72,84 @@ and open the template in the editor.
                 <canvas class="layer layer--accessory-3 layer--exportable"></canvas>
                 <canvas class="layer layer--save"></canvas>
             </div>
-            <div class="layers-sidebar">
-                <div class="layers">
-                    <input type="button" class="layers__btn layers__btn--unselected" value="Face">
-                    <input type="button" class="layers__btn layers__btn--unselected" value="Hair">
-                    <input type="button" class="layers__btn layers__btn--unselected" value="Eyebrows">
-                    <input type="button" class="layers__btn layers__btn--unselected" value="Eyes">
-                    <input type="button" class="layers__btn layers__btn--unselected" value="Nose">
-                    <input type="button" class="layers__btn layers__btn--unselected" value="Mouth">
-                    <input type="button" class="layers__btn layers__btn--unselected" value="Facial Hair">
-                    <input type="button" class="layers__btn layers__btn--unselected" value="Accessory 1">
-                    <input type="button" class="layers__btn layers__btn--unselected" value="Accessory 2">
-                    <input type="button" class="layers__btn layers__btn--unselected" value="Accessory 3">
-                    <input type="button" class="layers__btn layers__btn--unselected" value="Background">
-                </div>
-                <div class="d-pad-container">
-                    <div class="d-pad d-pad--up">
-                        <input type="button" class="d-pad__btn d-pad__btn--up" value="Up">
+            <div class="center-sidebar">
+                <div class="layers-sidebar">
+                    <div class="layers">
+                        <input type="button" class="layers__btn layers__btn--unselected" value="Face">
+                        <input type="button" class="layers__btn layers__btn--unselected" value="Hair">
+                        <input type="button" class="layers__btn layers__btn--unselected" value="Eyebrows">
+                        <input type="button" class="layers__btn layers__btn--unselected" value="Eyes">
+                        <input type="button" class="layers__btn layers__btn--unselected" value="Nose">
+                        <input type="button" class="layers__btn layers__btn--unselected" value="Mouth">
+                        <input type="button" class="layers__btn layers__btn--unselected" value="Facial Hair">
+                        <input type="button" class="layers__btn layers__btn--unselected" value="Accessory 1">
+                        <input type="button" class="layers__btn layers__btn--unselected" value="Accessory 2">
+                        <input type="button" class="layers__btn layers__btn--unselected" value="Accessory 3">
+                        <input type="button" class="layers__btn layers__btn--unselected" value="Background">
                     </div>
-                    <div class="d-pad d-pad--mid">
-                        <input type="button" class="d-pad__btn d-pad__btn--left" value="Left">
-                        <input type="button" class="d-pad__btn d-pad__btn--right" value="Right">
-                    </div>
-                    <div class="d-pad d-pad--down">
-                        <input type="button" class="d-pad__btn d-pad__btn--down" value="Down">
-                    </div>
-                </div>
-            </div>
-            <div class="palette-sidebar">
-                <div class="palette-container">
-                    <div class="palette palette--bitcamp">
-                        <div class="palette__color palette__color--dark-brown"></div>
-                        <div class="palette__color palette__color--medium-brown"></div>
-                        <div class="palette__color palette__color--light-brown"></div>
-                        <div class="palette__color palette__color--cloud-white"></div>
-                        <div class="palette__color palette__color--flame-red"></div>
-                        <div class="palette__color palette__color--bitcamp-orange"></div>
-                        <div class="palette__color palette__color--yellow-orange"></div>
-                        <div class="palette__color palette__color--yellow"></div>
-                        <div class="palette__color palette__color--midnight-blue"></div>
-                        <div class="palette__color palette__color--medium-blue"></div>
-                        <div class="palette__color palette__color--sky-blue"></div>
-                    </div>
-                    <div class="palette palette--skin">
-                        <div class="palette__color palette__color--skin-1"></div>
-                        <div class="palette__color palette__color--skin-2"></div>
-                        <div class="palette__color palette__color--skin-3"></div>
-                        <div class="palette__color palette__color--skin-4"></div>
-                        <div class="palette__color palette__color--skin-5"></div>
-                        <div class="palette__color palette__color--skin-6"></div>
-                        <div class="palette__color palette__color--skin-7"></div>
-                    </div>
-                    <div class="palette palette--hair">
-                        <div class="palette__color palette__color--hair-1"></div>
-                        <div class="palette__color palette__color--hair-2"></div>
-                        <div class="palette__color palette__color--hair-3"></div>
-                        <div class="palette__color palette__color--hair-4"></div>
-                        <div class="palette__color palette__color--hair-5"></div>
-                        <div class="palette__color palette__color--hair-6"></div>
-                        <div class="palette__color palette__color--hair-7"></div>
-                        <div class="palette__color palette__color--hair-8"></div>
-                        <div class="palette__color palette__color--hair-9"></div>
-                        <div class="palette__color palette__color--hair-10"></div>
-                        <div class="palette__color palette__color--hair-11"></div>
+                    <div class="d-pad-container">
+                        <div class="d-pad d-pad--up">
+                            <input type="button" class="d-pad__btn d-pad__btn--up" value="Up">
+                        </div>
+                        <div class="d-pad d-pad--mid">
+                            <input type="button" class="d-pad__btn d-pad__btn--left" value="Left">
+                            <input type="button" class="d-pad__btn d-pad__btn--right" value="Right">
+                        </div>
+                        <div class="d-pad d-pad--down">
+                            <input type="button" class="d-pad__btn d-pad__btn--down" value="Down">
+                        </div>
                     </div>
                 </div>
-                <div class="move-tools">
-                    <input type="button" class="move-tools__btn move-tools__btn--widen" value="Widen">
-                    <input type="button" class="move-tools__btn move-tools__btn--narrow" value="Narrow">
-                    <input type="button" class="move-tools__btn move-tools__btn--flip" value="Flip">
+                <div class="palette-sidebar">
+                    <div class="palette-container">
+                        <div class="palette palette--bitcamp">
+                            <div class="palette__color palette__color--dark-brown"></div>
+                            <div class="palette__color palette__color--medium-brown"></div>
+                            <div class="palette__color palette__color--light-brown"></div>
+                            <div class="palette__color palette__color--cloud-white"></div>
+                            <div class="palette__color palette__color--flame-red"></div>
+                            <div class="palette__color palette__color--bitcamp-orange"></div>
+                            <div class="palette__color palette__color--yellow-orange"></div>
+                            <div class="palette__color palette__color--yellow"></div>
+                            <div class="palette__color palette__color--midnight-blue"></div>
+                            <div class="palette__color palette__color--medium-blue"></div>
+                            <div class="palette__color palette__color--sky-blue"></div>
+                        </div>
+                        <div class="palette palette--skin">
+                            <div class="palette__color palette__color--skin-1"></div>
+                            <div class="palette__color palette__color--skin-2"></div>
+                            <div class="palette__color palette__color--skin-3"></div>
+                            <div class="palette__color palette__color--skin-4"></div>
+                            <div class="palette__color palette__color--skin-5"></div>
+                            <div class="palette__color palette__color--skin-6"></div>
+                            <div class="palette__color palette__color--skin-7"></div>
+                        </div>
+                        <div class="palette palette--hair">
+                            <div class="palette__color palette__color--hair-1"></div>
+                            <div class="palette__color palette__color--hair-2"></div>
+                            <div class="palette__color palette__color--hair-3"></div>
+                            <div class="palette__color palette__color--hair-4"></div>
+                            <div class="palette__color palette__color--hair-5"></div>
+                            <div class="palette__color palette__color--hair-6"></div>
+                            <div class="palette__color palette__color--hair-7"></div>
+                            <div class="palette__color palette__color--hair-8"></div>
+                            <div class="palette__color palette__color--hair-9"></div>
+                            <div class="palette__color palette__color--hair-10"></div>
+                            <div class="palette__color palette__color--hair-11"></div>
+                        </div>
+                    </div>
+                    <div class="move-tools">
+                        <input type="button" class="move-tools__btn move-tools__btn--widen" value="Widen">
+                        <input type="button" class="move-tools__btn move-tools__btn--narrow" value="Narrow">
+                        <input type="button" class="move-tools__btn move-tools__btn--flip" value="Flip">
+                    </div>
                 </div>
             </div>
             <div class="right-sidebar">
+                <div class="layer-thumbnails-nav-layer"></div>
                 <!-- dynamically load buttons -->
                 <div class="layer-thumbnails-container">
-                    <div class="layer-thumbnails__row layer-thumbnails__row--help">
+                    <div class="layer-thumbnails__row layer-thumbnails__row--mobile">
                         <div class="layer-thumbnails__row__cell"></div>
                         <div class="layer-thumbnails__row__cell"></div>
                         <div class="layer-thumbnails__row__cell"></div>
@@ -190,9 +219,7 @@ and open the template in the editor.
                 <div class="intro-message-container">
                     <img class="intro__img" src="svg/background/campfire.svg"/>
                     <div class="intro-message">
-                        Welcome to the JUNGLE
-                        asdf asdfa 
-                        asdf ad 
+                        Welcome! Create your own Bitcamp-themed sprite!
                     </div>
                     <!-- <input type="button" class="intro__btn" value="OK"> -->
                 </div>

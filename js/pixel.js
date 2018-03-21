@@ -32,7 +32,7 @@ window.onload = function setup() {
             }
         }
         else {
-        	layerColor = 'rgb(255, 175, 63)';
+        	layerColor['background'] = 'rgb(255, 175, 63)';
         	drawDefaultBackground();
         }
         disablePalette();
@@ -151,19 +151,47 @@ window.onload = function setup() {
     } (document, 'script', 'facebook-jssdk'));
 
     var shareBtn = document.querySelector('.export-tools__btn--share');
+	var shareOptions = document.querySelector('.export-options');
     shareBtn.onclick = function() {
   		// FB.AppEvents.logEvent('Shared Sprite');
+		shareBtn.classList.add('export-tools__btn--selected');
+		shareOptions.style.display = 'flex';
+  	}
+
+  	var addToPhotosBtn = document.querySelector('.export-options--photo__btn');
+  	var addToTimelineBtn = document.querySelector('.export-options--timeline__btn');
+	var photoTextContainer = document.querySelector('.export-options-container--photo');
+	var timelineTextContainer = document.querySelector('.export-options-container--timeline');
+	var photoTextArea = document.querySelector('.export-options--photo__text');
+	var timelineTextArea = document.querySelector('.export-options--timeline__text');
+  	addToTimelineBtn.onclick = function() {
+  		timelineTextContainer.style.display = 'inline';
+  	}
+  	addToPhotosBtn.onclick = function() {
+  		photoTextContainer.style.display = 'inline';
+  		timelineTextContainer.style.display = 'none';
+  	}
+    var shareSubmit = document.querySelector('.export-options__btn--yes');
+    shareSubmit.onclick = function() {
     	shareImg();
+    }
+    var shareCancel = document.querySelector('.export-options__btn--no');
+    shareCancel.onclick = function() {
+    	addToPhotosBtn.click();
+    	photoTextArea.value = '';
+    	timelineTextArea.value = '';
+		shareBtn.classList.remove('export-tools__btn--selected');
+		shareOptions.style.display = 'none';
     }
 }
 
-function loadLayerThumbnails(pageNum) {
+function loadLayerThumbnails(pageNum, totalThumbnails) {
     var prevBtn = document.querySelector('.layer-thumbnails-nav__btn--prev');
     var nextBtn = document.querySelector('.layer-thumbnails-nav__btn--next');
 
     var total = totalLayerThumbnails[layerSelected];
-    var start = (pageNum - 1) * 28; // Absolute index (0 to total)
-    var end; // Relative index to div (0 to 28)
+    var start = (pageNum - 1) * totalThumbnails; // Absolute index (0 to total)
+    var end; // Relative index to div (0 to 4 or 28)
 
     // Hide/show prev btn
     if (start == 0) {
@@ -172,28 +200,37 @@ function loadLayerThumbnails(pageNum) {
     } else {
         prevBtn.style.display = 'inline';
         prevBtn.onclick = function() {
-            loadLayerThumbnails(pageNum - 1);
+            loadLayerThumbnails(pageNum - 1, totalThumbnails);
         }
     }
     // Find ending index & hide/show next btn
-    if (start + 28 >= total) {
+    if (start + totalThumbnails >= total) {
         end = total - start;
         nextBtn.style.display = 'none'; //TODO
         nextBtn.onclick = '';
     } else {
-        end = 28;
+        end = totalThumbnails;
         nextBtn.style.display = 'inline';
         nextBtn.onclick = function() {
-            loadLayerThumbnails(pageNum + 1);
+            loadLayerThumbnails(pageNum + 1, totalThumbnails);
         }
     }
     // Change page num
-    var pageNumDisplay = document.querySelector('.layer-thumbnails-nav-page-num');
-    pageNumDisplay.innerHTML = 'Page ' + pageNum;
+    if (window.matchMedia('(max-width: 500px)').matches) {
+	    var navLayer = document.querySelector('.layer-thumbnails-nav-layer');
+	    var layerSelectedText = layerSelected;
+		layerSelectedText = layerSelectedText.charAt(0).toUpperCase() + layerSelectedText.substring(1);
+		layerSelectedText = layerSelectedText.replace('-',' ');
+	    navLayer.innerHTML = layerSelectedText;
+	}
+	else {
+	    var pageNumDisplay = document.querySelector('.layer-thumbnails-nav-page-num');
+	    pageNumDisplay.innerHTML = 'Page ' + pageNum;
+	}
 
     // Clear cells
     var layerThumbnails = document.querySelectorAll('.layer-thumbnails__row__cell');
-    for (i = 0; i < 28; i++) {
+    for (i = 0; i < totalThumbnails; i++) {
         layerThumbnails[i].classList.remove('layer-thumbnails__row__cell--unselected');
         // TEMPORARY
         layerThumbnails[i].textContent = '';
@@ -204,40 +241,41 @@ function loadLayerThumbnails(pageNum) {
     for (i = 0; i < end; i++) (function(i){
         layerThumbnails[i].classList.add('layer-thumbnails__row__cell--unselected');
         if (layerSelected == 'background') {
-            if (i == 0) {
-                layerThumbnails[i].textContent = 'Solid Color';
+        	// layerThumbnails[i].style.alignItems = 'center'; // Doesn't work with images LOL
+            if ((pageNum-1)*totalThumbnails+i == 0) {
+                layerThumbnails[i].innerText = 'Solid Color';
             }
-            else if (i == 1) {
+            else if ((pageNum-1)*totalThumbnails+i == 1) {
                 layerThumbnails[i].textContent = 'Gradient 1';
             }
-            else if (i == 2) {
+            else if ((pageNum-1)*totalThumbnails+i == 2) {
                 layerThumbnails[i].textContent = 'Gradient 2';
             }
-            else if (i == 3) {
+            else if ((pageNum-1)*totalThumbnails+i == 3) {
                 layerThumbnails[i].textContent = 'Gradient 3';
             }
-            else if (i == 4) {
+            else if ((pageNum-1)*totalThumbnails+i == 4) {
                 layerThumbnails[i].textContent = 'Campfire 1';
             }
-            else if (i == 5) {
+            else if ((pageNum-1)*totalThumbnails+i == 5) {
                 layerThumbnails[i].textContent = 'Campfire 1';
             }
-            else if (i == 6) {
+            else if ((pageNum-1)*totalThumbnails+i == 6) {
                 layerThumbnails[i].textContent = 'Campfire 3';
             }
-            else if (i == 7) {
+            else if ((pageNum-1)*totalThumbnails+i == 7) {
                 layerThumbnails[i].textContent = 'Campfire 4';
             }
-            else if (i == 8) {
+            else if ((pageNum-1)*totalThumbnails+i == 8) {
                 layerThumbnails[i].textContent = 'Sprite Bomb 1';
             }
-            else if (i == 9) {
+            else if ((pageNum-1)*totalThumbnails+i == 9) {
                 layerThumbnails[i].textContent = 'Sprite Bomb 2';
             }
-            else if (i == 10) {
+            else if ((pageNum-1)*totalThumbnails+i == 10) {
                 layerThumbnails[i].textContent = 'Sprite Bomb 3';
             }
-            else if (i == 11) {
+            else if ((pageNum-1)*totalThumbnails+i == 11) {
                 layerThumbnails[i].textContent = 'Sprite Bomb 4';
             }
         }
@@ -288,7 +326,7 @@ function loadLayerThumbnails(pageNum) {
     }
     // Highlight selected layer thumbnail if present
     if (selectedIndex[layerSelected] >= start && selectedIndex[layerSelected] < start + end) {
-        var currentSelected = layerThumbnails[selectedIndex[layerSelected] % 28];
+        var currentSelected = layerThumbnails[selectedIndex[layerSelected] % totalThumbnails];
         currentSelected.classList.add('layer-thumbnails__row__cell--selected');
     }
 }
@@ -315,7 +353,11 @@ function chooseLayer(button) {
             lastClicked = button;
         }
         layerSelected = button.value.toLowerCase().replace(' ','-');
-        loadLayerThumbnails(Math.round(selectedIndex[layerSelected]/28) + 1); // Page of selected layer thumbnail
+        if (window.matchMedia('(max-width: 500px)').matches) {
+        	loadLayerThumbnails(parseInt(selectedIndex[layerSelected]/4) + 1, 4);  // Page of selected layer thumbnail + total thumbnails
+		} else {
+        	loadLayerThumbnails(parseInt(selectedIndex[layerSelected]/28) + 1, 28);
+		}
         lastClicked.classList.remove('layers__btn--selected');
         lastClicked.classList.add('layers__btn--unselected');
         button.classList.remove('layers__btn--unselected');
@@ -496,7 +538,7 @@ function changeColor(colorSelected) {
             }
             layerColor[layerSelected] = colorSelected;
 
-            // FOR TUTORIAL
+            // FOR TUTORIAL HMPH!
 			var helpMessageContainer = document.querySelector('.help-message-container');
 			if (helpMessageContainer.style.display == 'flex') {
 				openGettingStarted(4);
@@ -859,7 +901,7 @@ function openGettingStarted(stepNum) {
 		        }
 		    }
 			layers.style.backgroundColor = 'white';
-			loadLayerThumbnails(1);
+			loadLayerThumbnails(1, 28);
 			thumbnailContainer.style.display = 'flex';
 			thumbnailNavContainer.style.display = 'none';
 			helpMessage.textContent = 'Next, select any option in the list above.';
@@ -885,7 +927,17 @@ function openGettingStarted(stepNum) {
 		case 4: {
 			paletteContainer.style.border = 'none';
 			thumbnailContainer.style.display = 'none';
-			helpMessage.textContent = 'Great job, you have successfully completed the first piece of your sprite!';
+			var layerSelectedText = layerSelected;
+			if (layerSelected == null) {
+				layerSelectedText = '?';
+			}
+			else if (layerSelected.includes('accessory')) {
+				layerSelectedText = 'accessory';
+			}
+			else if (layerSelected == 'facial-hair') {
+				layerSelectedText = 'facial hair';
+			}
+			helpMessage.textContent = 'Great job! You have successfully added a ' + layerSelectedText +' to your sprite!';
     		var helpNavContainer = document.querySelector('.help-nav-container');
     		helpNavContainer.style.display = 'flex';
 		}
@@ -934,7 +986,7 @@ function restoreSaveLayer() {
 
 function disableToolBtn(text) {
     var toolBtn = document.querySelector(text);
-    toolBtn.classList.add('export-tools__btn--selected');
+    toolBtn.classList.add('export-options__btn--selected');
     toolBtn.onclick = function() {
 		return false;
     }
@@ -942,17 +994,17 @@ function disableToolBtn(text) {
 
 function enableToolBtn(text, toolFunction) {
     var toolBtn = document.querySelector(text);
-    toolBtn.classList.remove('export-tools__btn--selected');
+    toolBtn.classList.remove('export-options__btn--selected');
     toolBtn.onclick = toolFunction;
 }
 
 function shareImg() {
-	disableToolBtn('.export-tools__btn--share');
+	disableToolBtn('.export-options__btn--yes');
     if (loginStatus != 'connected') {
         FB.login(function(loginResponse) {
         	if (loginResponse.authResponse) {
 	    		FB.api('/me/permissions', function(permissionsResponse) {
-	    			var permission = checkShareImgPermissions(permissionsResponse.data);
+	    			var permission = checkPublishPermissions(permissionsResponse.data);
 		            if (permission) {
 		                shareImgAuth();
 		            } else {
@@ -968,8 +1020,8 @@ function shareImg() {
     }
     else {
 		FB.api('/me/permissions', function(permissionsResponse) {
-			disableToolBtn('.export-tools__btn--share');
-			var permission = checkShareImgPermissions(permissionsResponse.data);
+			disableToolBtn('.export-options__btn--yes');
+			var permission = checkPublishPermissions(permissionsResponse.data);
             if (permission) {
                 shareImgAuth();
             } else {
@@ -987,7 +1039,18 @@ function shareImgAuth() {
     var fd = new FormData();
     fd.append('access_token', accessToken);
     fd.append('source', imgBlob);
-    fd.append('no_story', true);
+
+	var photoText = document.querySelector('.export-options--photo__text');
+    fd.append('caption', photoText.value);
+
+	var timelineText = document.querySelector('.export-options--timeline__text');
+    var shareTimelineBtn = document.querySelector('.export-options--timeline__btn');
+	if (shareTimelineBtn.checked) {
+    	fd.append('no_story', false);
+	}
+	else {
+    	fd.append('no_story', true);
+	}
 
 	var xhr = new XMLHttpRequest();
 	xhr.open('POST', 'https://graph.facebook.com/photos?access_token=' + accessToken);
@@ -1045,22 +1108,24 @@ function shareImgAuth() {
 			}
 			xhr2.send();
 
-			// FB.api(
-			//     '/me/feed',
-			//     'POST',
-			//     {
-			//         'message': 'This is a test message',
-			//         'object_attachment': photoID
-			//     },
-			//     function (response) {
-			// 		if (response && !response.error) {
-			// 			alert('Successfully posted!');
-			// 		}
-			// 		else {
-			// 			console.log(response.error);
-			// 		}
-			//     }
-			// );
+			if (shareTimelineBtn.checked) {
+				FB.api(
+				    '/me/feed',
+				    'POST',
+				    {
+				        'message': timelineText.value,
+				        'object_attachment': photoID
+				    },
+				    function (response) {
+						if (response && !response.error) {
+							alert('Successfully shared to Timeline!');
+						}
+						else {
+							console.log(response.error);
+						}
+				    }
+				);
+			}
 
 	    	// Move/delete?
 	  //   	FB.api(
@@ -1079,7 +1144,7 @@ function shareImgAuth() {
 	    else {
 	    	console.log(xhr.responseText);
 	    }
-    	enableToolBtn('.export-tools__btn--share', function() {shareImg()});
+    	enableToolBtn('.export-options__btn--yes', function() {shareImg()});
 	};
 	xhr.send(fd);
 }
@@ -1115,10 +1180,10 @@ function setProfileAuth() {
 
 function unauthResponse() {
     alert('User cancelled login or did not fully authorize.');
-    enableToolBtn('.export-tools__btn--share', function() {shareImg()}); // TODO: Change for set profile pic?
+    enableToolBtn('.export-options__btn--yes', function() {shareImg()}); // TODO: Change for set profile pic?
 }
 
-function checkShareImgPermissions(responseData) {
+function checkPublishPermissions(responseData) {
 	for (i = 0; i < responseData.length; i++) { 
 		if (responseData[i].permission == 'publish_actions') {
 		 	if (responseData[i].status == 'granted') {
@@ -1128,20 +1193,107 @@ function checkShareImgPermissions(responseData) {
 	}
 }
 
-function checkSetProfilePermissions() {
-	var publishStatus = false;
-	var photoStatus = false;
-	for (i = 0; i < response.data.length; i++) { 
-		if (response.data[i].permission == 'publish_actions') {
-		 	if (response.data[i].status == 'granted') {
-		 		publishStatus = true;
-		 	}
-		}
-		else if (response.data[i].permission == 'user_photos') {
-		 	if (response.data[i].status == 'granted') {
-		 		photoStatus = true;
-		 	}
-		}
-	}
-	return publishStatus && photoStatus;
+function resetButtons() {
+    var eraseLayerBtn = document.querySelector('.main-tools__btn--erase-layer');
+    eraseLayerBtn.onclick = function() {
+        if (layerSelected != 'background') {
+        	eraseLayer();
+            if (layerColor[layerSelected] != 'fixed') {
+                layerColor[layerSelected] = 'default';
+            }
+        }
+        else {
+        	layerColor['background'] = 'rgb(255, 175, 63)';
+        	drawDefaultBackground();
+        }
+        disablePalette();
+        disableDPad();
+    }
+    var eraseAllBtn = document.querySelector('.main-tools__btn--erase-all');
+    eraseAllBtn.onclick = function() {
+        eraseAll();
+        disablePalette();
+        disableDPad();
+    }
+    var paletteColors = document.querySelectorAll('.palette__color');
+    for (i = 0; i < paletteColors.length; i++) {
+        paletteColors[i].onclick = function() {
+            var colorSelected = String(getComputedStyle(this).backgroundColor);
+            if (layerSelected == 'background') {
+                drawBackground(colorSelected); // Replaces prev color
+            } else {
+                changeColor(colorSelected); // rgb(#,#,#)
+            }
+        }
+    }
+    var widenBtn = document.querySelector('.move-tools__btn--widen');
+    widenBtn.onclick = function() {
+        changeWidth(1);
+    }
+    var narrowBtn = document.querySelector('.move-tools__btn--narrow');
+    narrowBtn.onclick = function() {
+        changeWidth(-1);
+    }
+    var flipBtn = document.querySelector('.move-tools__btn--flip');
+    flipBtn.onclick = function() {
+        flip();
+    }
+    var dPadUpBtn = document.querySelector('.d-pad__btn--up');
+    var dPadDownBtn = document.querySelector('.d-pad__btn--down');
+    var dPadLeftBtn = document.querySelector('.d-pad__btn--left');
+    var dPadRightBtn = document.querySelector('.d-pad__btn--right');
+    dPadUpBtn.onclick = function() {
+        translateLayer(0,-1);
+    }
+    dPadDownBtn.onclick = function() {
+        translateLayer(0,1);
+    }
+    dPadLeftBtn.onclick = function() {
+        translateLayer(-1,0);
+    }
+    dPadRightBtn.onclick = function() {
+        translateLayer(1,0);
+    }
+    disableDPad();
+    var resetPositionBtn = document.querySelector('.main-tools__btn--reset-position');
+    resetPositionBtn.onclick = function() {
+        resetPosition();
+    }
+    var saveBtn = document.querySelector('.export-tools__btn--save');
+    saveBtn.onclick = function() {
+        saveImg();
+    }
+
+    // Set up layer buttons
+    var layersBtns = document.querySelectorAll('.layers__btn');
+    for (i = 0; i < layersBtns.length; i++) {
+        layersBtns[i].onclick = function(){
+            chooseLayer(this);
+        }
+    }
+
+    // Set up canvases
+    var layers = document.querySelectorAll('.layer');
+    for (i = 0; i < layers.length; i++) {
+        var ctx = layers[i].getContext('2d');
+        if (i == 0 || i == layers.length - 1) { // Background + Save layer full size
+	        layers[i].width = canvasX*multiplier;
+	        layers[i].height = canvasY*multiplier;
+        } 
+        else {
+	        layers[i].width = canvasX;
+	        layers[i].height = canvasY;
+        }
+        ctx.mozImageSmoothingEnabled = false;
+        ctx.webkitImageSmoothingEnabled = false;
+        ctx.msImageSmoothingEnabled = false;
+        ctx.imageSmoothingEnabled = false;
+    }
+
+    // Set up canvas background
+    drawDefaultBackground();
+
+    // Disable palette
+    disablePalette();
+
 }
