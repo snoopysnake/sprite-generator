@@ -11,8 +11,9 @@ and open the template in the editor.
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <!-- <script src='js/zepto.min.js'></script> -->
         <script src='js/pixel.js'></script>
+        <link rel="stylesheet" type="text/css" href="css/fonts.css">
         <link rel="stylesheet" type="text/css" href="css/desktop.css">
-        <!-- <link rel="stylesheet" type="text/css" href="css/mobile.css"> -->
+        <link rel="stylesheet" type="text/css" href="css/mobile.css">
     </head>
     <body">
     	<div class="title">bitcamp</div>
@@ -32,7 +33,7 @@ and open the template in the editor.
             </div>
             <div class="center">
                 <div class="export-options">
-                    <div class="export-options__title">Share on Facebook?</div>
+                    <div class="export-options__title">Share to Facebook?</div>
                     <div class="export-options__body">
                         <br>
                         <a>Add to Photos</a>
@@ -43,16 +44,20 @@ and open the template in the editor.
                         <br>
                         <br>
                         <div class="export-options-container--photo">
-                            <a>Add a description to photo:</a>
+                            <a>Add description to photo:</a>
                             <textarea class="export-options--photo__text"></textarea>
                             <br>
                         </div>
-                        <br>
                         <div class="export-options-container--timeline">
-                            <a>Add a description to Timeline:</a>
+                            <a>Add description to Timeline:</a>
                             <textarea class="export-options--timeline__text"></textarea>
                             <br>
                         </div>
+                        <a class="disclaimer">
+                            This app requires permission to publish to Facebook. A login prompt
+                             will display after accepting.
+                        </a>
+                        <br>
                     </div>
                     <div class="export-options-submit">
                         <input type="button" class="export-options__btn export-options__btn--yes" value="Yes">
@@ -226,9 +231,11 @@ and open the template in the editor.
             </div>
         </div>
         <div class="additional-info">
-            <a class="additional-info__link about-link" href="#aboutLink">About</a>
-            <a class="additional-info__link contact-link" href="#contactLink">Contact</a>
-            <a class="additional-info__link privacy-link" href="#privacyLink">Privacy Policy</a>
+            <div class="additional-info-container">
+                <a class="additional-info__link about-link" href="info.html#about" target="_blank">About</a>
+                <a class="additional-info__link contact-link" href="info.html#contact" target="_blank">Contact</a>
+                <a class="additional-info__link privacy-link" href="info.html#privacy" target="_blank">Privacy Policy</a>
+            </div>
         </div>
     </body>
 </html>

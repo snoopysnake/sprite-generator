@@ -25,8 +25,8 @@ window.onload = function setup() {
     // Set up tool buttons
     var eraseLayerBtn = document.querySelector('.main-tools__btn--erase-layer');
     eraseLayerBtn.onclick = function() {
+    	eraseLayer();
         if (layerSelected != 'background') {
-        	eraseLayer();
             if (layerColor[layerSelected] != 'fixed') {
                 layerColor[layerSelected] = 'default';
             }
@@ -37,12 +37,17 @@ window.onload = function setup() {
         }
         disablePalette();
         disableDPad();
+        disableWidenNarrow();
+        disableFlip();
     }
     var eraseAllBtn = document.querySelector('.main-tools__btn--erase-all');
     eraseAllBtn.onclick = function() {
         eraseAll();
         disablePalette();
         disableDPad();
+        disableWidenNarrow();
+        disableFlip();
+
     }
     var paletteColors = document.querySelectorAll('.palette__color');
     for (i = 0; i < paletteColors.length; i++) {
@@ -84,6 +89,8 @@ window.onload = function setup() {
         translateLayer(1,0);
     }
     disableDPad();
+    disableWidenNarrow();
+    disableFlip();
     var resetPositionBtn = document.querySelector('.main-tools__btn--reset-position');
     resetPositionBtn.onclick = function() {
         resetPosition();
@@ -238,46 +245,25 @@ function loadLayerThumbnails(pageNum, totalThumbnails) {
         layerThumbnails[i].onclick = '';
     }
     // Populate cells
+    if (layerSelected == 'background') {
+    }
     for (i = 0; i < end; i++) (function(i){
         layerThumbnails[i].classList.add('layer-thumbnails__row__cell--unselected');
         if (layerSelected == 'background') {
-        	// layerThumbnails[i].style.alignItems = 'center'; // Doesn't work with images LOL
-            if ((pageNum-1)*totalThumbnails+i == 0) {
-                layerThumbnails[i].innerText = 'Solid Color';
-            }
-            else if ((pageNum-1)*totalThumbnails+i == 1) {
-                layerThumbnails[i].textContent = 'Gradient 1';
-            }
-            else if ((pageNum-1)*totalThumbnails+i == 2) {
-                layerThumbnails[i].textContent = 'Gradient 2';
-            }
-            else if ((pageNum-1)*totalThumbnails+i == 3) {
-                layerThumbnails[i].textContent = 'Gradient 3';
-            }
-            else if ((pageNum-1)*totalThumbnails+i == 4) {
-                layerThumbnails[i].textContent = 'Campfire 1';
-            }
-            else if ((pageNum-1)*totalThumbnails+i == 5) {
-                layerThumbnails[i].textContent = 'Campfire 1';
-            }
-            else if ((pageNum-1)*totalThumbnails+i == 6) {
-                layerThumbnails[i].textContent = 'Campfire 3';
-            }
-            else if ((pageNum-1)*totalThumbnails+i == 7) {
-                layerThumbnails[i].textContent = 'Campfire 4';
-            }
-            else if ((pageNum-1)*totalThumbnails+i == 8) {
-                layerThumbnails[i].textContent = 'Sprite Bomb 1';
-            }
-            else if ((pageNum-1)*totalThumbnails+i == 9) {
-                layerThumbnails[i].textContent = 'Sprite Bomb 2';
-            }
-            else if ((pageNum-1)*totalThumbnails+i == 10) {
-                layerThumbnails[i].textContent = 'Sprite Bomb 3';
-            }
-            else if ((pageNum-1)*totalThumbnails+i == 11) {
-                layerThumbnails[i].textContent = 'Sprite Bomb 4';
-            }
+	    	switch ((pageNum-1)*totalThumbnails+i) {
+	    		case 0: layerThumbnails[i].innerText = 'Solid Color'; break;
+	    		case 1: layerThumbnails[i].textContent = 'Gradient 1'; break;
+	    		case 2: layerThumbnails[i].textContent = 'Gradient 2'; break;
+	    		case 3: layerThumbnails[i].textContent = 'Gradient 3'; break;
+	    		case 4: layerThumbnails[i].textContent = 'Campfire 1'; break;
+	    		case 5: layerThumbnails[i].textContent = 'Campfire 2'; break;
+	    		case 6: layerThumbnails[i].textContent = 'Campfire 3'; break;
+	    		case 7: layerThumbnails[i].textContent = 'Campfire 4'; break;
+	    		case 8: layerThumbnails[i].textContent = 'Sprite Bomb 1'; break;
+	    		case 9: layerThumbnails[i].textContent = 'Sprite Bomb 2'; break;
+	    		case 10: layerThumbnails[i].textContent = 'Sprite Bomb 3'; break;
+	    		case 11: layerThumbnails[i].textContent = 'Sprite Bomb 4'; break;
+	    	}
         }
         else {
             // layerThumbnails[i].textContent = layerSelected + ' ' + (i + start + 1); // TEMPORARY
@@ -337,16 +323,6 @@ function chooseLayer(button) {
     var helpMessageContainer = document.querySelector('.help-container');
     var helpMessage = document.querySelector('.help-container');
 
-    // if (lastClicked == button) {
-    //     // Click the same button twice
-    //     layerSelected = null;
-    //     button.classList.remove('layers__btn--selected');
-    //     button.classList.add('layers__btn--unselected');
-    //     thumbnailContainer.style.display = 'none'; //TODO
-    //     navContainer.style.display = 'none'; //TODO
-    //     lastClicked = null;
-    // 	disablePalette();
-    // } else {
 	if (lastClicked != button) { // New
         if (lastClicked == null) {
 	        helpMessageContainer.style.display = 'none';
@@ -368,9 +344,14 @@ function chooseLayer(button) {
 	    if (selectedIndex[layerSelected] != -1) {
 	    	if (layerSelected != 'background') {
 	    		enableDPad();
+	    		enableFlip();
 	    	}
 	    	else {
 	    		disableDPad();
+        		disableFlip();
+	    	}
+	    	if (layerSelected == 'eyes' || layerSelected == 'eyebrows') {
+	    		enableWidenNarrow();
 	    	}
 	    	if (layerColor[layerSelected] != 'fixed') {
 	    		enablePalette();
@@ -379,11 +360,12 @@ function chooseLayer(button) {
 	    else {
 	    	disablePalette();
 	    	disableDPad();
+	    	disableWidenNarrow();
+        	disableFlip();
 	    }
     }
 
     // Add/remove or enable/disable color palettes
-    // var bitcampPalette = document.querySelector('.palette--bitcamp');
     var skinPalette = document.querySelector('.palette--skin');
     var hairPalette = document.querySelector('.palette--hair');
     skinPalette.style.display = 'none';
@@ -391,16 +373,12 @@ function chooseLayer(button) {
 
     if (layerSelected == 'face') {
         // Change color palette
-        // bitcampPalette.style.display = 'none';
         skinPalette.style.display = 'flex';
     }
     else if (layerSelected == 'hair' || layerSelected == 'eyebrows' || layerSelected == 'facial-hair') {
         // Change color palette
         hairPalette.style.display = 'flex';
     }
-    // else {
-    //     bitcampPalette.style.display = 'flex';
-    // }
 }
 
 function setIndexAndDraw(currentSelected, index) {
@@ -415,10 +393,12 @@ function setIndexAndDraw(currentSelected, index) {
     }
 
     if (selectedIndex[layerSelected] == index) {
-		if (helpMessageContainer.style.display != 'flex') { // FOR TUTORIAL
+		if (helpMessageContainer.style.display != 'flex') { // FOR TUTORIAL (if a layer is already drawn)
 	        if (layerSelected != 'background') {
 	        	disablePalette();
 	        	disableDPad();
+	        	disableWidenNarrow();
+       			disableFlip();
 	            eraseLayer();
 	            // Double clicking removes color (functions same as erase layer button)
 	            if (layerColor[layerSelected] != 'fixed') {
@@ -437,6 +417,10 @@ function setIndexAndDraw(currentSelected, index) {
         selectedIndex[layerSelected] = index;
         if (layerSelected != 'background') {
         	enableDPad();
+        	enableFlip();
+        }
+        if (layerSelected == 'eyes' || layerSelected == 'eyebrows') {
+        	enableWidenNarrow();
         }
         if (layerSelected == 'background') {
             drawBackground(layerColor['background']);
@@ -497,6 +481,30 @@ function enableDPad() {
     for(i = 0; i < dPadBtns.length; i++) {
         dPadBtns[i].classList.remove('d-pad__btn--disabled');
     }
+}
+
+function disableWidenNarrow() {
+    var moveBtns = document.querySelectorAll('.move-tools__btn');
+    for(i = 0; i < 2; i++) {
+        moveBtns[i].classList.add('move-tools__btn--disabled');
+    }
+}
+
+function enableWidenNarrow() {
+    var moveBtns = document.querySelectorAll('.move-tools__btn');
+    for(i = 0; i < 2; i++) {
+        moveBtns[i].classList.remove('move-tools__btn--disabled');
+    }
+}
+
+function disableFlip() {
+    var flipBtn = document.querySelector('.move-tools__btn--flip');
+    flipBtn.classList.add('move-tools__btn--disabled');
+}
+
+function enableFlip() {
+    var flipBtn = document.querySelector('.move-tools__btn--flip');
+    flipBtn.classList.remove('move-tools__btn--disabled');
 }
 
 function changeColor(colorSelected) {
@@ -608,37 +616,23 @@ function drawBackground(colorSelected) {
 	    var ctx = backgroundLayer.getContext('2d');
 	    ctx.setTransform(1, 0, 0, 1, 0, 0);
 	    ctx.clearRect(0, 0, 512, 512);
-        if (selectedIndex['background'] == 0) {
-            // Solid color
-            drawSolidBackground(colorSelected);
-        }
-        else if (selectedIndex['background'] == 1) {
-            // Gradient
-            drawGradientBackground(colorSelected, 4);
-        }
-        else if (selectedIndex['background'] == 2) {
-            // Gradient
-            drawGradientBackground(colorSelected, 2);
-        }
-        else if (selectedIndex['background'] == 3) {
-            // Gradient
-            drawGradientBackground(colorSelected, 1);
-        }
-        else if (selectedIndex['background'] >= 3 && selectedIndex['background'] <= 12) {
+        if (selectedIndex['background'] >= 4 && selectedIndex['background'] <= 12) {
         	drawSolidBackground(colorSelected);
-        	if (selectedIndex['background'] == 4) {
-        		drawCampfireBackground(false, false);
-        	}
-        	if (selectedIndex['background'] == 5) {
-        		drawCampfireBackground(true, false);
-        	}
-        	if (selectedIndex['background'] == 6) {
-        		drawCampfireBackground(false, true);
-        	}
-        	if (selectedIndex['background'] == 7) {
-        		drawCampfireBackground(true, true);
-        	}
-        }
+		}
+	    switch (selectedIndex['background']) {
+	    	case 0: drawSolidBackground(colorSelected); break; // Solid color
+	    	case 1: drawGradientBackground(colorSelected, 4); break; // Gradient
+	    	case 2: drawGradientBackground(colorSelected, 2); break; // Gradient
+	    	case 3: drawGradientBackground(colorSelected, 1); break; // Gradient
+	    	case 4: drawSpriteBackground('campfire', 0, false, false); break;
+	    	case 5: drawSpriteBackground('campfire', 300, true, false); break;
+	    	case 6: drawSpriteBackground('campfire', 240, false, true); break;
+	    	case 7: drawSpriteBackground('campfire', 300, true, true); break;
+	    	case 8: drawSpriteBomb(14,14); break;
+	    	case 9: drawRandomSpriteBomb(400, true, false); break;
+	    	case 10: drawRandomSpriteBomb(400, false, true); break;
+	    	case 11: drawRandomSpriteBomb(400, true, true); break;
+	    }
     }
 }
 
@@ -677,38 +671,101 @@ function drawGradientBackground(colorSelected, factor) {
     }
 }
 
-function drawCampfireBackground(randomSize, rotation) {
+function drawSpriteBackground(sprite, spriteNum, randomSize, rotation) {
     var backgroundLayer = document.querySelector('.layer--background');
 	var ctx = backgroundLayer.getContext('2d');
-	ctx.translate(canvasX*multiplier/2,canvasY*multiplier/2);
-	var campfire = new Image();
-	campfire.onload = function() {
-		for (i = 1; i < 160; i++) {
-			// RANDOMNESS
-			var randSize = Math.floor((Math.random()*2)*4)*Math.floor(Math.random()*8) + 16;
-			var randAngle = Math.floor(Math.random()*-3 + 6);
-			var randX = Math.floor((Math.random()*-32)*16 + 256);
-			var randY = Math.floor((Math.random()*-32)*16 + 256);
-			if (!randomSize && !rotation) {
-				ctx.drawImage(campfire, randX, randY, 32, 32);
+	var img = new Image();
+	img.onload = function() {
+		if (!randomSize && !rotation) {
+			for (i = 0; i < 15; i++) {
+				for (j = 0; j < 15; j++) {
+					ctx.drawImage(img, (i*36)+8, (j*36)+8, 32, 32);
+				}
 			}
-			if (randomSize && !rotation) {
-				ctx.drawImage(campfire, randX, randY, randSize, randSize);
-			}
-			if (!randomSize && rotation) {
-				ctx.rotate((i+randAngle)*2*Math.PI/120);
-				ctx.drawImage(campfire, -50, -200 - 1.1*i, 32, 32);
-			}
-			if (randomSize && rotation) {
-				ctx.rotate(i*2*Math.PI/120);
-				ctx.drawImage(campfire, -50, -200 - 1.1*i, randSize, randSize);
+		}
+		else {
+			ctx.translate(canvasX*multiplier/2,canvasY*multiplier/2);
+			for (i = 0; i < spriteNum; i++) {
+				// RANDOMNESS
+				var randSize = Math.floor((Math.random()*2)*4)*Math.floor(Math.random()*8) + 16;
+				var randAngle = Math.floor(Math.random()*-3 + 6);
+				var randX = Math.floor((Math.random()*-36)*16 + 256);
+				var randY = Math.floor((Math.random()*-36)*16 + 256);
+				if (randomSize && !rotation) {
+					ctx.drawImage(img, randX, randY, randSize, randSize);
+				}
+				if (!randomSize && rotation) {
+					ctx.rotate((i+randAngle)*2*Math.PI/120);
+					ctx.drawImage(img, -50, -200 - .7*i, 32, 32);
+				}
+				if (randomSize && rotation) {
+					ctx.rotate(i*2*Math.PI/120);
+					ctx.drawImage(img, -50, -200 - .5*i, randSize, randSize);
+				}
 			}
 		}
 		// if (rotation) {
 		// 	drawSpotlight();
 		// }
    	}
-	campfire.src = 'svg/background/campfire.svg';
+   	if (sprite == 'campfire') {
+		img.src = 'svg/background/campfire.svg';
+   	}
+   	else {
+		img.src = 'png/background/'+sprite+'.png';
+   	}
+}
+
+function drawSpriteBomb(row, col) {
+	console.log(row, col);
+    var backgroundLayer = document.querySelector('.layer--background');
+	var ctx = backgroundLayer.getContext('2d');
+	if (row >= 0) {
+		if (col >= 0) {
+			var img = new Image();
+			img.onload = function() {
+				drawSpriteBomb(row, col - 1);
+				ctx.drawImage(img, (row*36)+8, (col*36)+8, 32, 32);
+
+			}
+			var randNum = Math.floor(Math.random()*15);
+			img.src = 'png/background/background-'+randNum+'.png';
+		}
+		else {
+			drawSpriteBomb(row - 1, 14);
+		}
+	}
+}
+
+function drawRandomSpriteBomb(spriteNum, randomSize, rotation) {
+    var backgroundLayer = document.querySelector('.layer--background');
+	var ctx = backgroundLayer.getContext('2d');
+	if (spriteNum == 400) {
+		ctx.translate(canvasX*multiplier/2,canvasY*multiplier/2);
+	}
+	if (spriteNum >= 0) {
+		var img = new Image();
+		img.onload = function() {
+			drawRandomSpriteBomb(spriteNum - 1, randomSize, rotation);
+			var randSize = Math.floor((Math.random()*2)*4)*Math.floor(Math.random()*8) + 16;
+			var randAngle = Math.floor(Math.random()*-3 + 6);
+			var randX = Math.floor((Math.random()*-36)*16 + 256);
+			var randY = Math.floor((Math.random()*-36)*16 + 256);
+			if (randomSize && !rotation) {
+				ctx.drawImage(img, randX, randY, randSize, randSize);
+			}
+			if (!randomSize && rotation) {
+				ctx.rotate((spriteNum+randAngle)*2*Math.PI/120);
+				ctx.drawImage(img, -50, -200 - .4*spriteNum, 32, 32);
+			}
+			if (randomSize && rotation) {
+				ctx.rotate(spriteNum*2*Math.PI/120);
+				ctx.drawImage(img, -50, -200 - .4*spriteNum, randSize, randSize);
+			}
+		}
+		var randNum = Math.floor(Math.random()*15);
+		img.src = 'png/background/background-'+randNum+'.png';
+	}
 }
 
 function drawSpotlight() {
@@ -716,12 +773,6 @@ function drawSpotlight() {
     var backgroundLayer = document.querySelector('.layer--background');
 	var ctx = backgroundLayer.getContext('2d');
 	var gradient = ctx.createRadialGradient(0,0,160,0,0,280);
-	// var gradient1 = ctx.createRadialGradient(0, 0, 10, 10, 10, 100);
-	// var rgba = layerColor['background'];
-	// rgba = rgba.replace('rgb(', 'rgba(');
-	// rgba = rgba.replace(')', '');
-	// gradient.addColorStop(0, rgba + ', .8)');
-	// gradient.addColorStop(1, rgba + ', .05)');
 	gradient.addColorStop(0,'rgba(255, 255, 255, .7)');
 	gradient.addColorStop(1,'rgba(255, 255, 255, .05)');
 	ctx.fillStyle = gradient;
@@ -780,11 +831,13 @@ function translateLayer(x,y) {
 
 function changeWidth(x) {
     // The greater x is, the wider
-    if (selectedIndex[layerSelected] != -1) {
-        if (layerWidth[layerSelected] + x >= -2 && layerWidth[layerSelected] + x <= 2) {
-            layerWidth[layerSelected] = layerWidth[layerSelected] + x;
-        }
-        drawDefaultImg();
+    if (layerSelected != null && selectedIndex[layerSelected] != -1) {
+    	if (layerSelected == 'eyes' || layerSelected == 'eyebrows') {
+	        if (layerWidth[layerSelected] + x >= -2 && layerWidth[layerSelected] + x <= 2) {
+	            layerWidth[layerSelected] = layerWidth[layerSelected] + x;
+	        }
+        	drawDefaultImg();
+    	}
     }
 }
 
@@ -850,7 +903,7 @@ function openHelp() {
 	var thumbnailContainer = document.querySelector('.layer-thumbnails-container');
 	var thumbnailNavContainer = document.querySelector('.layer-thumbnails-nav-container');
 	var helpMessageContainer = document.querySelector('.help-container');
-	if (helpMessageContainer.style.display != 'none' || helpMessageContainer.style.display != 'flex') {
+	if (helpMessageContainer.style.display != 'none') { //TODO
     	thumbnailContainer.style.display = 'none';
     	thumbnailNavContainer.style.display = 'none';
 		helpMessageContainer.style.display = 'inline';
@@ -863,6 +916,8 @@ function openHelp() {
 		layerSelected = null;
 		disablePalette();
 		disableDPad();
+        disableFlip();
+
 	}
 }
 
@@ -1068,43 +1123,6 @@ function shareImgAuth() {
 				var images = JSON.parse(xhr2.responseText).images;
 				var sourceURL = images[0].source;
 				console.log(sourceURL);
-
-				// TEMPORARY
-				// PROFILE PICTURES ALBUM IS NOT VISIBLE
-				// FB.api(
-				// '/me/albums',
-				// function (response) {
-				// 	if (response && !response.error) {
-				// 		console.log(response.data);
-				// 		for (i = 0; i < response.data.length; i++) {
-				// 			if (response.data[i].name == 'Profile Pictures') {
-				// 				var albumID = response.data[i].id;
-
-				// 				xhr = new XMLHttpRequest();
-				// 				xhr.open('GET', 'https://graph.facebook.com/' + photoID);
-
-				// 				FB.api(
-				// 				    '/' + albumID + '/photos',
-				// 				    'POST',
-				// 				    {
-				// 				        'url': sourceURL
-				// 				    },
-				// 				    function (response) {
-				// 			      		if (response && !response.error) {
-				// 				        /* handle the result */
-				// 			      		}
-				// 			      		else {
-				// 			      			console.log(response.error);
-				// 			      		}
-				// 				    }
-				// 				);
-				// 			}
-				// 		}
-				// 	}
-				// 	else {
-				// 		console.log(response.error);
-				// 	}
-				// });
 			}
 			xhr2.send();
 
@@ -1126,20 +1144,6 @@ function shareImgAuth() {
 				    }
 				);
 			}
-
-	    	// Move/delete?
-	  //   	FB.api(
-			//     '/' + photoID,
-			//     'DELETE',
-			//     function (response) {
-			// 		if (response && !response.error) {
-			// 			alert('Successfully deleted!');
-			// 		}
-			// 		else {
-			// 			console.log(response.error);
-			// 		}
-			//     }
-			// );
 	    }
 	    else {
 	    	console.log(xhr.responseText);
@@ -1149,38 +1153,9 @@ function shareImgAuth() {
 	xhr.send(fd);
 }
 
-function setProfileImg() {
-    if (loginStatus != 'connected' || !checkSetProfilePermissions()) {
-        FB.login(function(response) {
-            if (response.authResponse && checkSetProfilePermissions()) {
-                // setProfileAuth();
-            } else {
-                unauthResponse();
-            }
-        }, {scope: 'publish_actions,user_photos'});
-    }
-    else {
-    	// setProfileAuth();
-    }
-}
-
-function setProfileAuth() {
-    FB.api(
-    '/me/albums',
-    function (response) {
-		if (response && !response.error) {
-			console.log(response.data);
-			for (album in response.data) {
-
-			}
-		}
-		else console.log(response.error);
-    });
-}
-
 function unauthResponse() {
     alert('User cancelled login or did not fully authorize.');
-    enableToolBtn('.export-options__btn--yes', function() {shareImg()}); // TODO: Change for set profile pic?
+    enableToolBtn('.export-options__btn--yes', function() {shareImg()});
 }
 
 function checkPublishPermissions(responseData) {
@@ -1194,106 +1169,4 @@ function checkPublishPermissions(responseData) {
 }
 
 function resetButtons() {
-    var eraseLayerBtn = document.querySelector('.main-tools__btn--erase-layer');
-    eraseLayerBtn.onclick = function() {
-        if (layerSelected != 'background') {
-        	eraseLayer();
-            if (layerColor[layerSelected] != 'fixed') {
-                layerColor[layerSelected] = 'default';
-            }
-        }
-        else {
-        	layerColor['background'] = 'rgb(255, 175, 63)';
-        	drawDefaultBackground();
-        }
-        disablePalette();
-        disableDPad();
-    }
-    var eraseAllBtn = document.querySelector('.main-tools__btn--erase-all');
-    eraseAllBtn.onclick = function() {
-        eraseAll();
-        disablePalette();
-        disableDPad();
-    }
-    var paletteColors = document.querySelectorAll('.palette__color');
-    for (i = 0; i < paletteColors.length; i++) {
-        paletteColors[i].onclick = function() {
-            var colorSelected = String(getComputedStyle(this).backgroundColor);
-            if (layerSelected == 'background') {
-                drawBackground(colorSelected); // Replaces prev color
-            } else {
-                changeColor(colorSelected); // rgb(#,#,#)
-            }
-        }
-    }
-    var widenBtn = document.querySelector('.move-tools__btn--widen');
-    widenBtn.onclick = function() {
-        changeWidth(1);
-    }
-    var narrowBtn = document.querySelector('.move-tools__btn--narrow');
-    narrowBtn.onclick = function() {
-        changeWidth(-1);
-    }
-    var flipBtn = document.querySelector('.move-tools__btn--flip');
-    flipBtn.onclick = function() {
-        flip();
-    }
-    var dPadUpBtn = document.querySelector('.d-pad__btn--up');
-    var dPadDownBtn = document.querySelector('.d-pad__btn--down');
-    var dPadLeftBtn = document.querySelector('.d-pad__btn--left');
-    var dPadRightBtn = document.querySelector('.d-pad__btn--right');
-    dPadUpBtn.onclick = function() {
-        translateLayer(0,-1);
-    }
-    dPadDownBtn.onclick = function() {
-        translateLayer(0,1);
-    }
-    dPadLeftBtn.onclick = function() {
-        translateLayer(-1,0);
-    }
-    dPadRightBtn.onclick = function() {
-        translateLayer(1,0);
-    }
-    disableDPad();
-    var resetPositionBtn = document.querySelector('.main-tools__btn--reset-position');
-    resetPositionBtn.onclick = function() {
-        resetPosition();
-    }
-    var saveBtn = document.querySelector('.export-tools__btn--save');
-    saveBtn.onclick = function() {
-        saveImg();
-    }
-
-    // Set up layer buttons
-    var layersBtns = document.querySelectorAll('.layers__btn');
-    for (i = 0; i < layersBtns.length; i++) {
-        layersBtns[i].onclick = function(){
-            chooseLayer(this);
-        }
-    }
-
-    // Set up canvases
-    var layers = document.querySelectorAll('.layer');
-    for (i = 0; i < layers.length; i++) {
-        var ctx = layers[i].getContext('2d');
-        if (i == 0 || i == layers.length - 1) { // Background + Save layer full size
-	        layers[i].width = canvasX*multiplier;
-	        layers[i].height = canvasY*multiplier;
-        } 
-        else {
-	        layers[i].width = canvasX;
-	        layers[i].height = canvasY;
-        }
-        ctx.mozImageSmoothingEnabled = false;
-        ctx.webkitImageSmoothingEnabled = false;
-        ctx.msImageSmoothingEnabled = false;
-        ctx.imageSmoothingEnabled = false;
-    }
-
-    // Set up canvas background
-    drawDefaultBackground();
-
-    // Disable palette
-    disablePalette();
-
 }
