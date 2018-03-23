@@ -3,7 +3,7 @@
         background-color: #CBF2FF;
         /*position: fixed;*/
         width: 100%; 
-        min-width: 352px;
+        min-width: 384px;
         /*width: 384px;*/
         display: flex;
         justify-content: center; /* Centers items on the line (the x-axis by default)*/
@@ -87,6 +87,8 @@
         /*overflow-x: hidden;*/
     }
     .palette-sidebar {
+        margin-top: 4px;
+        margin-bottom: 4px;
         background-color: white;
         display: flex;
         flex-direction: column;
@@ -253,6 +255,7 @@
         align-items: center;
         background-color: #FF6F3F;
         outline-style: none;
+        -webkit-appearance: none;
     }
     .d-pad__btn:active {
         border: 2px solid #FF3F46;
@@ -260,7 +263,7 @@
     }
     .move-tools {
         position: absolute;
-        width: 144px;
+        width: 200px;
         top: 344px;
         left: 4px;
         /*left: 20px;*/
@@ -277,6 +280,7 @@
         font-size: 10px;
         color: white;
         border: 2px solid #FFAF3F;
+        /*border: 2px solid white;*/
         background-color: #FFAF3F;
         height: 42px;
         width: 42px;
@@ -287,28 +291,23 @@
         border-radius: 8px;
         margin: 2px;
         outline-style: none;
+        -webkit-appearance: none;
+        padding: 4px; /* For iOS */
     }
     .move-tools__btn:active {
         color: white;
         background-color: #FF6F3F;
         border: 2px solid #FF6F3F;
     }
-    .move-tools__btn--unselected {
-        background-color: #FFAF3F;
-        color: white;
-    }
-    .move-tools__btn--unselected:active {
-        background-color: #FF6F3F;
-        color: white;
-    }
     .move-tools__btn--selected {
-        background-color: #FF6F3F;
         color: white;
+        background-color: #FF6F3F;
+        border: 2px solid #FF6F3F;
     }
     .move-tools__btn--selected:active {
-        background-color: #FF3F46;
-        border-color: #FF3F46;
         color: white;
+        background-color: #FF6F3F;
+        border: 2px solid #FF6F3F;
     }
     .main-tools {
         display: flex;
@@ -332,18 +331,11 @@
         /*border-radius: 50%;*/
         margin: 2px;
         outline-style: none;
+        -webkit-appearance: none;
     }
     .main-tools__btn:active {
         color: white;
         background-color: #FFAF3F;
-    }
-    .main-tools__btn--unselected {
-        background-color: #FFAF3F;
-        color: white;
-    }
-    .main-tools__btn--unselected:active {
-        background-color: #FFAF3F;
-        color: white;
     }
     .main-tools__btn--selected {
         background-color: white;
@@ -371,8 +363,6 @@
         background-color: white;
         height: 36px;
         width: 48px;
-        /*height: 52px;*/
-        /*width: 52px;*/
         display: flex;
         justify-content: center;
         align-items: center;
@@ -381,7 +371,8 @@
         /*border-radius: 50%;*/
         margin-bottom: 2px;
         outline-style: none;
-
+        -webkit-appearance: none;
+        padding: 4px; /* For iOS */
     }
     .export-tools__btn:active {
         color: white;
@@ -428,26 +419,62 @@
         font-family: "Aleo Regular", arial, sans-serif;
         font-weight: normal;
         font-style: normal;
+        font-size: 4px;
+        padding: 0;
+        padding-top: 20px;
+        /*color: transparent;  Not sure if this works for all browsers */
         color: #FFAF3F;
         border: 2px solid #FFAF3F;
         background-color: white;
         height: 32px;
         width: 32px;
-        /*margin-top: 2px;
-        margin-bottom: 2px;
-        margin-left: 4px;
-        margin-right: 4px;*/
         border-radius: 8px;
         outline-style: none;
         margin: -2px;
+        -webkit-appearance: none;
+        image-rendering: optimizeSpeed;
+        image-rendering: -moz-crisp-edges;
+        image-rendering: -webkit-optimize-contrast;
+        image-rendering: optimize-contrast;
+        image-rendering: pixelated;
+        -ms-interpolation-mode: nearest-neighbor;
+        background-position: -2px -2px;
     }
-    .layers__btn--unselected {
-        background-color: white;
-        color: #FFAF3F;
-    }
-    .layers__btn--unselected:active {
+    .layers__btn:active {
         background-color: #FFAF3F;
-        color: white;
+    }
+    .layers__btn--face {
+        background-image: url('thumbnails/face-thumbnail.png');
+    }
+    .layers__btn--hair {
+        background-image: url('thumbnails/hair-thumbnail.png');
+    }
+    .layers__btn--eyebrows {
+        background-image: url('thumbnails/eyebrows-thumbnail.png');
+    }
+    .layers__btn--eyes {
+        background-image: url('thumbnails/eyes-thumbnail.png');
+    }
+    .layers__btn--nose {
+        background-image: url('thumbnails/nose-thumbnail.png');
+    }    
+    .layers__btn--mouth {
+        background-image: url('thumbnails/mouth-thumbnail.png');
+    }
+    .layers__btn--facial-hair {
+        background-image: url('thumbnails/facial-hair-thumbnail.png');
+    }
+    .layers__btn--accessory-1 {
+        background-image: url('thumbnails/accessory-1-thumbnail.png');
+    }
+    .layers__btn--accessory-2 {
+        background-image: url('thumbnails/accessory-1-thumbnail.png');
+    }
+    .layers__btn--accessory-3 {
+        background-image: url('thumbnails/accessory-1-thumbnail.png');
+    }
+    .layers__btn--background {
+        background-image: url('thumbnails/background-thumbnail.png');
     }
     .layers__btn--selected {
         background-color: #FFAF3F;
@@ -512,10 +539,6 @@
         cursor: default;
         border-radius: 12px;
     }
-    .layer-thumbnails__row__cell--unselected:active {
-        color: #528CA5;
-        background-color: #FFEF3F;
-    }
     .layer-thumbnails__row__cell--selected {
         color: #528CA5;
         background-color: #FFEF3F;
@@ -557,6 +580,7 @@
         justify-content: center;
         background-color: #FFAF3F;
         outline-style: none;
+        -webkit-appearance: none;
     }
     .layer-thumbnails-nav__btn:active {
         background-color: #FF3F46;
@@ -575,6 +599,10 @@
         flex: 2;
     }
     .layer-thumbnails-nav-page-num {
+        font-family: "Aleo Bold", sans-serif;
+        font-weight: normal;
+        font-style: normal;
+        color: #528CA5;
         flex: 2;
     }
     .layer-thumbnails-nav-layer {
@@ -645,6 +673,7 @@
         justify-content: center;
         background-color: #FFAF3F;
         outline-style: none;
+        -webkit-appearance: none;
     }
     .help-nav__btn:active {
         background-color: #FF3F46;
@@ -696,6 +725,7 @@
         width: 120px;
         outline-style: none;
         margin-bottom: 8px;
+        -webkit-appearance: none;
     }
     .intro__btn:active {
         background-color: white;
@@ -825,6 +855,7 @@
         border-radius: 8px;
         margin: 4px;
         outline-style: none;
+        -webkit-appearance: none;
     }
     .export-options__btn:active {
         border: 2px solid #FF3F46;

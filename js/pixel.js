@@ -1,10 +1,9 @@
 var loginStatus;
 var buttons_menu_top;
 var layerSelected;
-var lastClicked = null;
-var totalLayerThumbnails = {'face': 4, 'hair': 2, 'eyebrows': 1, 'eyes': 10, 'nose': 2, 'mouth': 2, 'facial-hair': 0, 'accessory-1': 2, 'accessory-2': 2, 'accessory-3': 2, 'background': 12};
+var totalLayerThumbnails = {'face': 4, 'hair': 2, 'eyebrows': 1, 'eyes': 10, 'nose': 2, 'mouth': 1, 'facial-hair': 0, 'accessory-1': 2, 'accessory-2': 2, 'accessory-3': 2, 'background': 12};
 var selectedIndex = {'face': -1, 'hair': -1, 'eyebrows': -1, 'eyes': -1, 'nose': -1, 'mouth': -1, 'facial-hair': -1, 'accessory-1': -1, 'accessory-2': -1, 'accessory-3': -1, 'background': -1}; // Indices start at 0, -1 == nothing selected
-var layerColor = {'face': 'default', 'hair': 'default', 'eyebrows': 'fixed', 'eyes': 'fixed', 'nose': 'fixed', 'mouth': 'fixed', 'facial-hair': 'default', 'accessory-1': 'default', 'accessory-2': 'default', 'accessory-3': 'default', 'background': 'rgb(255, 175, 63)'};
+var layerColor = {'face': 'rgb(255, 255, 255)', 'hair': 'rgb(255, 255, 255)', 'eyebrows': 'fixed', 'eyes': 'fixed', 'nose': 'fixed', 'mouth': 'fixed', 'facial-hair': 'rgb(255, 255, 255)', 'accessory-1': 'rgb(0, 0, 0)', 'accessory-2': 'rgb(0, 0, 0)', 'accessory-3': 'rgb(0, 0, 0)', 'background': 'rgb(255, 175, 63)'};
 var layerFlipped = {'hair': 1, 'eyebrows': 1, 'nose': 1, 'mouth': 1, 'facial-hair': 1, 'accessory-1': 1, 'accessory-2': 1, 'accessory-3': 1};
 var layerWidth = {'eyebrows': 0, 'eyes': 0}
 multiplier = 16;
@@ -28,7 +27,12 @@ window.onload = function setup() {
     	eraseLayer();
         if (layerSelected != 'background') {
             if (layerColor[layerSelected] != 'fixed') {
-                layerColor[layerSelected] = 'default';
+        		if (layerSelected.includes('accessory')) {
+        			color = '#000000';
+        		}
+        		else {
+        			color = '#FFFFFF';
+        		}
             }
         }
         else {
@@ -37,16 +41,14 @@ window.onload = function setup() {
         }
         disablePalette();
         disableDPad();
-        disableWidenNarrow();
-        disableFlip();
+        disableMoveTools(0,3);
     }
     var eraseAllBtn = document.querySelector('.main-tools__btn--erase-all');
     eraseAllBtn.onclick = function() {
         eraseAll();
         disablePalette();
         disableDPad();
-        disableWidenNarrow();
-        disableFlip();
+        disableMoveTools(0,3);
 
     }
     var paletteColors = document.querySelectorAll('.palette__color');
@@ -56,7 +58,7 @@ window.onload = function setup() {
             if (layerSelected == 'background') {
                 drawBackground(colorSelected); // Replaces prev color
             } else {
-                changeColor(colorSelected); // rgb(#,#,#)
+                drawImg(colorSelected); // rgb(#,#,#)
             }
         }
     }
@@ -72,34 +74,16 @@ window.onload = function setup() {
     flipBtn.onclick = function() {
         flip();
     }
-    var dPadUpBtn = document.querySelector('.d-pad__btn--up');
-    var dPadDownBtn = document.querySelector('.d-pad__btn--down');
-    var dPadLeftBtn = document.querySelector('.d-pad__btn--left');
-    var dPadRightBtn = document.querySelector('.d-pad__btn--right');
-    dPadUpBtn.onclick = function() {
-        translateLayer(0,-1);
-    }
-    dPadDownBtn.onclick = function() {
-        translateLayer(0,1);
-    }
-    dPadLeftBtn.onclick = function() {
-        translateLayer(-1,0);
-    }
-    dPadRightBtn.onclick = function() {
-        translateLayer(1,0);
-    }
-    disableDPad();
-    disableWidenNarrow();
-    disableFlip();
     var resetPositionBtn = document.querySelector('.main-tools__btn--reset-position');
     resetPositionBtn.onclick = function() {
         resetPosition();
     }
-    var saveBtn = document.querySelector('.export-tools__btn--save');
-    saveBtn.onclick = function() {
-        saveImg();
+    var resetAllBtn = document.querySelector('.main-tools__btn--reset-all');
+    resetAllBtn.onclick = function() {
+		translateAll(0, moveableLayers, 0, 0, true);
+        layerWidth['eyebrows'] = 0;
+        layerWidth['eyes'] = 0;
     }
-
     // Set up layer buttons
     var layersBtns = document.querySelectorAll('.layers__btn');
     for (i = 0; i < layersBtns.length; i++) {
@@ -110,6 +94,7 @@ window.onload = function setup() {
 
     // Set up canvases
     var layers = document.querySelectorAll('.layer');
+    var moveableLayers = new Array();
     for (i = 0; i < layers.length; i++) {
         var ctx = layers[i].getContext('2d');
         if (i == 0 || i == layers.length - 1) { // Background + Save layer full size
@@ -119,11 +104,64 @@ window.onload = function setup() {
         else {
 	        layers[i].width = canvasX;
 	        layers[i].height = canvasY;
+	        moveableLayers.push(layers[i]);
         }
         ctx.mozImageSmoothingEnabled = false;
         ctx.webkitImageSmoothingEnabled = false;
         ctx.msImageSmoothingEnabled = false;
         ctx.imageSmoothingEnabled = false;
+    }
+
+    var moveAllBtn = document.querySelector('.move-tools__btn--move-all');
+    var dPadUpBtn = document.querySelector('.d-pad__btn--up');
+    var dPadDownBtn = document.querySelector('.d-pad__btn--down');
+    var dPadLeftBtn = document.querySelector('.d-pad__btn--left');
+    var dPadRightBtn = document.querySelector('.d-pad__btn--right');
+	dPadUpBtn.onclick = function() {
+	    translateLayer(0,-1);
+	}
+	dPadDownBtn.onclick = function() {
+	    translateLayer(0,1);
+	}
+	dPadLeftBtn.onclick = function() {
+	    translateLayer(-1,0);
+	}
+	dPadRightBtn.onclick = function() {
+	    translateLayer(1,0);
+	}
+    disableDPad();
+    disableMoveTools(0,3);
+    moveAllBtn.onclick = function() {
+    	if (moveAllBtn.classList.contains('move-tools__btn--selected')) {
+		    dPadUpBtn.onclick = function() {
+		        translateLayer(0,-1);
+		    }
+		    dPadDownBtn.onclick = function() {
+		        translateLayer(0,1);
+		    }
+		    dPadLeftBtn.onclick = function() {
+		        translateLayer(-1,0);
+		    }
+		    dPadRightBtn.onclick = function() {
+		        translateLayer(1,0);
+		    }
+    		moveAllBtn.classList.remove('move-tools__btn--selected');
+    	}
+    	else {
+		    dPadUpBtn.onclick = function() {
+    			translateAll(0, moveableLayers, 0, -1, false);
+		    }
+		    dPadDownBtn.onclick = function() {
+    			translateAll(0, moveableLayers, 0, 1, false);
+		    }
+		    dPadLeftBtn.onclick = function() {
+    			translateAll(0, moveableLayers, -1, 0, false);
+		    }
+		    dPadRightBtn.onclick = function() {
+    			translateAll(0, moveableLayers, 1, 0, false);
+		    }
+    		moveAllBtn.classList.add('move-tools__btn--selected');
+    	}
     }
 
     // Set up canvas background
@@ -178,8 +216,19 @@ window.onload = function setup() {
   		photoTextContainer.style.display = 'inline';
   		timelineTextContainer.style.display = 'none';
   	}
+    var saveBtn = document.querySelector('.export-tools__btn--save');
+    saveBtn.onclick = function() {
+		var campfire = new Image();
+		campfire.onload = function() {
+        	saveImg();
+		}
+		campfire.src = 'svg/background/campfire-white.svg';
+	}
     var shareSubmit = document.querySelector('.export-options__btn--yes');
     shareSubmit.onclick = function() {
+    	// Preload
+		var campfire = new Image();
+		campfire.src = 'svg/background/campfire-white.svg';
     	shareImg();
     }
     var shareCancel = document.querySelector('.export-options__btn--no');
@@ -230,15 +279,14 @@ function loadLayerThumbnails(pageNum, totalThumbnails) {
 		layerSelectedText = layerSelectedText.replace('-',' ');
 	    navLayer.innerHTML = layerSelectedText;
 	}
-	else {
+	// else {
 	    var pageNumDisplay = document.querySelector('.layer-thumbnails-nav-page-num');
 	    pageNumDisplay.innerHTML = 'Page ' + pageNum;
-	}
+	// }
 
     // Clear cells
     var layerThumbnails = document.querySelectorAll('.layer-thumbnails__row__cell');
     for (i = 0; i < totalThumbnails; i++) {
-        layerThumbnails[i].classList.remove('layer-thumbnails__row__cell--unselected');
         // TEMPORARY
         layerThumbnails[i].textContent = '';
         // layerThumbnailsImgs[i].src = '';
@@ -248,7 +296,6 @@ function loadLayerThumbnails(pageNum, totalThumbnails) {
     if (layerSelected == 'background') {
     }
     for (i = 0; i < end; i++) (function(i){
-        layerThumbnails[i].classList.add('layer-thumbnails__row__cell--unselected');
         if (layerSelected == 'background') {
 	    	switch ((pageNum-1)*totalThumbnails+i) {
 	    		case 0: layerThumbnails[i].innerText = 'Solid Color'; break;
@@ -321,10 +368,12 @@ function chooseLayer(button) {
     var thumbnailContainer = document.querySelector('.layer-thumbnails-container');
     var thumbnailNavContainer = document.querySelector('.layer-thumbnails-nav-container');
     var helpMessageContainer = document.querySelector('.help-container');
-    var helpMessage = document.querySelector('.help-container');
+    var helpContainer = document.querySelector('.help-message-container');
+	var lastClicked = document.querySelector('.layers__btn--selected');
 
 	if (lastClicked != button) { // New
         if (lastClicked == null) {
+	        helpContainer.style.display = 'none';
 	        helpMessageContainer.style.display = 'none';
             lastClicked = button;
         }
@@ -335,33 +384,29 @@ function chooseLayer(button) {
         	loadLayerThumbnails(parseInt(selectedIndex[layerSelected]/28) + 1, 28);
 		}
         lastClicked.classList.remove('layers__btn--selected');
-        lastClicked.classList.add('layers__btn--unselected');
-        button.classList.remove('layers__btn--unselected');
         button.classList.add('layers__btn--selected');
         thumbnailContainer.style.display = 'flex'; //TODO
         thumbnailNavContainer.style.display = 'flex'; //TODO
-        lastClicked = button;
+    	disablePalette();
 	    if (selectedIndex[layerSelected] != -1) {
 	    	if (layerSelected != 'background') {
 	    		enableDPad();
-	    		enableFlip();
+	    		enableMoveTools(2,3);
 	    	}
 	    	else {
 	    		disableDPad();
-        		disableFlip();
+        		disableMoveTools(2,3);
 	    	}
 	    	if (layerSelected == 'eyes' || layerSelected == 'eyebrows') {
-	    		enableWidenNarrow();
+	    		enableMoveTools(0,2);
 	    	}
 	    	if (layerColor[layerSelected] != 'fixed') {
 	    		enablePalette();
 	    	}
 	    }
 	    else {
-	    	disablePalette();
 	    	disableDPad();
-	    	disableWidenNarrow();
-        	disableFlip();
+	    	disableMoveTools(0,3);
 	    }
     }
 
@@ -397,12 +442,16 @@ function setIndexAndDraw(currentSelected, index) {
 	        if (layerSelected != 'background') {
 	        	disablePalette();
 	        	disableDPad();
-	        	disableWidenNarrow();
-       			disableFlip();
+	        	disableMoveTools(0,3);
 	            eraseLayer();
 	            // Double clicking removes color (functions same as erase layer button)
 	            if (layerColor[layerSelected] != 'fixed') {
-	                layerColor[layerSelected] = 'default';
+	        		if (layerSelected.includes('accessory')) {
+	        			color = '#000000';
+	        		}
+	        		else {
+	        			color = '#FFFFFF';
+	        		}
 	            }
 	        } else {
 	        	drawBackground(layerColor['background']);
@@ -417,19 +466,16 @@ function setIndexAndDraw(currentSelected, index) {
         selectedIndex[layerSelected] = index;
         if (layerSelected != 'background') {
         	enableDPad();
-        	enableFlip();
+        	enableMoveTools(2,3);
         }
         if (layerSelected == 'eyes' || layerSelected == 'eyebrows') {
-        	enableWidenNarrow();
+        	enableMoveTools(0,2);
         }
         if (layerSelected == 'background') {
             drawBackground(layerColor['background']);
         }
-        else if (layerColor[layerSelected] != 'fixed' && layerColor[layerSelected] != 'default') {
-        	changeColor(layerColor[layerSelected]);
-        }
         else {
-        	drawDefaultImg();
+        	drawImg(layerColor[layerSelected]);
         }
     }
 
@@ -463,7 +509,7 @@ function enablePalette() {
 	        if (layerSelected == 'background') {
 	            drawBackground(colorSelected); // Replaces prev color
 	        } else {
-	            changeColor(colorSelected); // rgb(#,#,#)
+	            drawImg(colorSelected); // rgb(#,#,#)
 	        }
 		}
     }
@@ -474,6 +520,7 @@ function disableDPad() {
     for(i = 0; i < dPadBtns.length; i++) {
         dPadBtns[i].classList.add('d-pad__btn--disabled');
     }
+    disableMoveTools(3,4);
 }
 
 function enableDPad() {
@@ -481,19 +528,20 @@ function enableDPad() {
     for(i = 0; i < dPadBtns.length; i++) {
         dPadBtns[i].classList.remove('d-pad__btn--disabled');
     }
+    enableMoveTools(3,4);
 }
 
-function disableWidenNarrow() {
+function disableMoveTools(start, end) {
     var moveBtns = document.querySelectorAll('.move-tools__btn');
-    for(i = 0; i < 2; i++) {
-        moveBtns[i].classList.add('move-tools__btn--disabled');
+    for(i = start; i < end; i++) {
+    	moveBtns[i].classList.add('move-tools__btn--disabled');
     }
 }
 
-function enableWidenNarrow() {
+function enableMoveTools(start, end) {
     var moveBtns = document.querySelectorAll('.move-tools__btn');
-    for(i = 0; i < 2; i++) {
-        moveBtns[i].classList.remove('move-tools__btn--disabled');
+    for(i = 0; i < 4; i++) {
+    	moveBtns[i].classList.remove('move-tools__btn--disabled');
     }
 }
 
@@ -507,55 +555,7 @@ function enableFlip() {
     flipBtn.classList.remove('move-tools__btn--disabled');
 }
 
-function changeColor(colorSelected) {
-    // TODO: Make unique for background?...
-    if (selectedIndex[layerSelected] != -1 && layerSelected != null) {
-        if (layerColor[layerSelected] != 'fixed') {
-            var layer = document.querySelector('.layer--' + layerSelected);
-            var ctx = layer.getContext('2d');
-            ctx.globalCompositeOperation = 'source-over'; // I don't know why this works
-            ctx.clearRect(0, 0, canvasX, canvasY);
-            var imgColor = new Image();
-            imgColor.onload = function() {
-                var imgOutline = new Image();
-                ctx.drawImage(imgColor, 0, 0);
-                ctx.globalCompositeOperation = 'source-atop';
-                ctx.fillStyle = colorSelected;
-                ctx.fillRect(0, 0, canvasX, canvasY);
-                imgOutline.onload = function() {
-                    ctx.drawImage(imgOutline, 0, 0);
-                }
-                imgOutline.onerror = function() {
-                    changeColor(colorSelected);
-                }
-                // Change file name for accessories
-                if (layerSelected.includes('accessory')) {
-                    imgOutline.src = 'png/accessory/accessory-outline-' + selectedIndex[layerSelected] + '.png';
-                } else {
-                    imgOutline.src = 'png/' + layerSelected + '/' + layerSelected + '-outline-' + selectedIndex[layerSelected] + '.png';
-                }
-            }
-            imgColor.onerror = function() {
-                changeColor(colorSelected);
-            }
-            // Change file name for accessories
-            if (layerSelected.includes('accessory')) {
-                imgColor.src = 'png/accessory/accessory-color-' + selectedIndex[layerSelected] + '.png';
-            } else {
-                imgColor.src = 'png/' + layerSelected + '/' + layerSelected + '-color-' + selectedIndex[layerSelected] + '.png';
-            }
-            layerColor[layerSelected] = colorSelected;
-
-            // FOR TUTORIAL HMPH!
-			var helpMessageContainer = document.querySelector('.help-message-container');
-			if (helpMessageContainer.style.display == 'flex') {
-				openGettingStarted(4);
-			}
-        }
-    }
-}
-
-function drawDefaultImg() {
+function drawImg(color) {
     // TODO: Disable for background and some layers
     if (selectedIndex[layerSelected] != -1 && layerSelected != null) {
         var layer = document.querySelector('.layer--' + layerSelected);
@@ -563,16 +563,18 @@ function drawDefaultImg() {
         ctx.clearRect(0, 0, canvasX, canvasY);
         ctx.globalCompositeOperation = 'source-over'; // I don't know why this works
         if (layerColor[layerSelected] != 'fixed') {
-            // Draw default color
             var imgColor = new Image();
             imgColor.onload = function() {
                 ctx.drawImage(imgColor, 0, 0);
+                ctx.globalCompositeOperation = 'source-atop';
+                ctx.fillStyle = color;
+                ctx.fillRect(0, 0, canvasX, canvasY);
                 var imgOutline = new Image();
                 imgOutline.onload = function() {
                     ctx.drawImage(imgOutline, 0, 0);
                 }
                 imgOutline.onerror = function() {
-                    drawDefaultImg();
+                    drawImg(color);
                 }
                 if (layerSelected.includes('accessory')) {
                     imgOutline.src = 'png/accessory/accessory-outline-' + selectedIndex[layerSelected] + '.png';
@@ -581,7 +583,7 @@ function drawDefaultImg() {
                 }
             }
             imgColor.onerror = function() {
-                drawDefaultImg();
+                drawImg(color);
             }
             // Change file name for accessories
             if (layerSelected.includes('accessory')) {
@@ -589,7 +591,14 @@ function drawDefaultImg() {
             } else {
                 imgColor.src = 'png/' + layerSelected + '/' + layerSelected + '-color-' + selectedIndex[layerSelected] + '.png';
             }
-            layerColor[layerSelected] = 'default';
+            layerColor[layerSelected] = color;
+
+		    // FOR TUTORIAL
+			var helpMessageContainer = document.querySelector('.help-message-container');
+        	if (helpMessageContainer.style.display == 'flex') {
+				openGettingStarted(4);
+			}
+
         } else {
             var img = new Image();
             img.onload = function() {
@@ -602,12 +611,13 @@ function drawDefaultImg() {
                 }
             }
             img.onerror = function() {
-                drawDefaultImg();
+                drawImg(color);
             }
             img.src = 'png/' + layerSelected + '/' + layerSelected + '-' + selectedIndex[layerSelected] + '.png';
         }
     }
 }
+
 
 function drawBackground(colorSelected) {
     if (selectedIndex != -1) {
@@ -717,7 +727,6 @@ function drawSpriteBackground(sprite, spriteNum, randomSize, rotation) {
 }
 
 function drawSpriteBomb(row, col) {
-	console.log(row, col);
     var backgroundLayer = document.querySelector('.layer--background');
 	var ctx = backgroundLayer.getContext('2d');
 	if (row >= 0) {
@@ -804,10 +813,10 @@ function resetPosition() {
             var ctx = layer.getContext('2d');
             ctx.setTransform(1, 0, 0, 1, 0, 0);
             ctx.clearRect(0, 0, canvasX, canvasY);
-            if (layerColor[layerSelected] == 'default' || layerColor[layerSelected] == 'fixed') {
-                drawDefaultImg();
-            } else {
-                changeColor(layerColor[layerSelected]);
+            drawImg(layerColor[layerSelected]);
+
+            if (layerSelected == 'eyebrows' || layerSelected == 'eyes') {
+                layerWidth[layerSelected] = 0;
             }
         }
     }
@@ -821,12 +830,81 @@ function translateLayer(x,y) {
         // Erase + copy to current layer
         ctx.clearRect(0, 0, canvasX, canvasY);
         ctx.translate(x,y);
-        if (layerColor[layerSelected] == 'default' || layerColor[layerSelected] == 'fixed') {
-            drawDefaultImg();
-        } else {
-            changeColor(layerColor[layerSelected]);
-        }
+        drawImg(layerColor[layerSelected]);
     }
+}
+
+function translateAll(layer, moveableLayers, x, y, reset) {
+	if (layer < moveableLayers.length) {
+        var ctx = moveableLayers[layer].getContext('2d');
+        // Erase + copy to current layer
+        ctx.clearRect(0, 0, canvasX, canvasY);
+        ctx.translate(x,y);
+        if (reset) {
+            ctx.setTransform(1, 0, 0, 1, 0, 0);
+        }
+        var currentLayer = moveableLayers[layer].className;
+        currentLayer = currentLayer.replace('layer ','');
+        currentLayer = currentLayer.replace(' layer--exportable','');
+        currentLayer = currentLayer.replace('layer--','');
+        currentLayer = currentLayer.replace('--','-');
+        if (selectedIndex[currentLayer] != -1) {
+	        // DRAWIMG FUNCTION:
+	        ctx.clearRect(0, 0, canvasX, canvasY);
+	        ctx.globalCompositeOperation = 'source-over';
+	        if (layerColor[currentLayer] != 'fixed') {
+	            var imgColor = new Image();
+	            imgColor.onload = function() {
+	                ctx.drawImage(imgColor, 0, 0);
+	                ctx.globalCompositeOperation = 'source-atop';
+	                ctx.fillStyle = layerColor[currentLayer];
+	                ctx.fillRect(0, 0, canvasX, canvasY);
+	                var imgOutline = new Image();
+	                imgOutline.onload = function() {
+	                    ctx.drawImage(imgOutline, 0, 0);
+	                    translateAll(layer + 1, moveableLayers, x, y, reset); // TRANSLATE
+	                }
+	                imgOutline.onerror = function() {
+	                    drawImg(color);
+	                }
+	                if (currentLayer.includes('accessory')) {
+	                    imgOutline.src = 'png/accessory/accessory-outline-' + selectedIndex[currentLayer] + '.png';
+	                } else {
+	                    imgOutline.src = 'png/' + currentLayer + '/' + currentLayer + '-outline-' + selectedIndex[currentLayer] + '.png';
+	                }
+	            }
+	            imgColor.onerror = function() {
+                    translateAll(layer, moveableLayers, x, y, reset); // TRANSLATE
+	            }
+	            // Change file name for accessories
+	            if (currentLayer.includes('accessory')) {
+	                imgColor.src = 'png/accessory/accessory-color-' + selectedIndex[currentLayer] + '.png';
+	            } else {
+	                imgColor.src = 'png/' + currentLayer + '/' + currentLayer + '-color-' + selectedIndex[currentLayer] + '.png';
+	            }
+	        } else {
+	            var img = new Image();
+	            img.onload = function() {
+	                if (currentLayer == 'eyebrows' || currentLayer == 'eyes') {
+	                    ctx.drawImage(img, 0 + layerWidth[currentLayer], 0, canvasX/2, canvasY, 0, 0, canvasX/2, canvasY); // Right eye
+	                    ctx.drawImage(img, canvasX/2 - layerWidth[currentLayer], 0, canvasX/2, canvasY, canvasX/2, 0, canvasX/2, canvasY); // Left eye
+	                    translateAll(layer + 1, moveableLayers, x, y, reset); // TRANSLATE
+	                }
+	                else {
+	                    ctx.drawImage(img, 0, 0);
+	                    translateAll(layer + 1, moveableLayers, x, y, reset); // TRANSLATE
+	                }
+	            }
+	            img.onerror = function() {
+                    translateAll(layer, moveableLayers, x, y, reset); // TRANSLATE
+	            }
+	            img.src = 'png/' + currentLayer + '/' + currentLayer + '-' + selectedIndex[currentLayer] + '.png';
+	        }
+        }
+        else {
+            translateAll(layer + 1, moveableLayers, x, y, reset); // TRANSLATE
+        }
+	}
 }
 
 function changeWidth(x) {
@@ -836,7 +914,7 @@ function changeWidth(x) {
 	        if (layerWidth[layerSelected] + x >= -2 && layerWidth[layerSelected] + x <= 2) {
 	            layerWidth[layerSelected] = layerWidth[layerSelected] + x;
 	        }
-        	drawDefaultImg();
+        	drawImg();
     	}
     }
 }
@@ -896,27 +974,29 @@ function eraseAll() {
         prevSelected.classList.remove('layer-thumbnails__row__cell--selected');
     }
     selectedIndex = {'face': -1, 'hair': -1, 'eyebrows': -1, 'eyes': -1, 'nose': -1, 'mouth': -1, 'facial-hair': -1, 'accessory-1': -1, 'accessory-2': -1, 'accessory-3': -1, 'background': -1}; // Indices start at 0, -1 == nothing selected
-    layerColor = {'face': 'default', 'hair': 'default', 'eyebrows': 'fixed', 'eyes': 'fixed', 'nose': 'fixed', 'mouth': 'fixed', 'facial-hair': 'default', 'accessory-1': 'default', 'accessory-2': 'default', 'accessory-3': 'default', 'background': 'rgb(255, 175, 63)'};
+    layerColor = {'face': 'rgb(255, 255, 255)', 'hair': 'rgb(255, 255, 255)', 'eyebrows': 'fixed', 'eyes': 'fixed', 'nose': 'fixed', 'mouth': 'fixed', 'facial-hair': 'rgb(255, 255, 255)', 'accessory-1': 'rgb(0, 0, 0)', 'accessory-2': 'rgb(0, 0, 0)', 'accessory-3': 'rgb(0, 0, 0)', 'background': 'rgb(255, 175, 63)'};
 }
 
 function openHelp() {
 	var thumbnailContainer = document.querySelector('.layer-thumbnails-container');
 	var thumbnailNavContainer = document.querySelector('.layer-thumbnails-nav-container');
-	var helpMessageContainer = document.querySelector('.help-container');
-	if (helpMessageContainer.style.display != 'none') { //TODO
+	var helpContainer = document.querySelector('.help-container');
+	var helpMessageContainer = document.querySelector('.help-message-container');
+	if (helpMessageContainer.style.display != 'inline' && helpContainer.style.display != 'inline') { //TODO
     	thumbnailContainer.style.display = 'none';
     	thumbnailNavContainer.style.display = 'none';
+		helpContainer.style.display = 'inline';
 		helpMessageContainer.style.display = 'inline';
 
+		var lastClicked = document.querySelector('.layers__btn--selected');
 		if (lastClicked != null) {
-			lastClicked.classList.add('layers__btn--unselected');
 			lastClicked.classList.remove('layers__btn--selected');
-			lastClicked = null;
 		}
+
 		layerSelected = null;
 		disablePalette();
 		disableDPad();
-        disableFlip();
+        disableMoveTools(2,3);
 
 	}
 }
@@ -932,9 +1012,8 @@ function openGettingStarted(stepNum) {
 	var paletteContainer = document.querySelector('.palette-container');
     var paletteColors = document.querySelectorAll('.palette__color');
 
-	if (helpMessageContainer.style.display != 'flex') {
-		helpMessageContainer.style.display = 'flex';
-	}
+	helpMessageContainer.style.display = 'flex';
+	helpMessage.style.display = 'inline';
 	switch (stepNum) {
 		case 1: {
 		    for (i = 0; i < layersBtns.length; i++) {
@@ -995,6 +1074,13 @@ function openGettingStarted(stepNum) {
 			helpMessage.textContent = 'Great job! You have successfully added a ' + layerSelectedText +' to your sprite!';
     		var helpNavContainer = document.querySelector('.help-nav-container');
     		helpNavContainer.style.display = 'flex';
+
+    		var helpNavNext = document.querySelector('.help-nav__btn--next');
+    		var lastClicked = document.querySelector('.layers__btn--selected');
+    		helpNavNext.style.display = 'flex';
+    		helpNavNext.onclick = function() {
+    		}
+    		break;
 		}
 	}
 }
@@ -1003,22 +1089,32 @@ function saveImg() {
 	var exportedImg = imgToDataURI();
     restoreSaveLayer();
     var a = document.createElement('a');
+    a.style.display = 'none';
     a.download = 'sprite.png';
     a.href = exportedImg;
+	document.body.appendChild(a);
     a.click();
+	document.body.removeChild(a);
 }
 
 function imgToDataURI() {
 	var layers = document.querySelectorAll('.layer--exportable');
 	var saveLayer = document.querySelector('.layer--save');
 	var ctx = saveLayer.getContext('2d');
-	ctx.save();
 	ctx.drawImage(layers[0], 0, 0); //Background does not need rescale
 	ctx.scale(multiplier, multiplier);
 	for (i = 1; i < layers.length; i++)
 	{
 	    ctx.drawImage(layers[i],0,0);
 	}
+	// Draw Bitcamp logo
+	ctx.setTransform(1, 0, 0, 1, 0, 0);
+	ctx.font='20px Aleo Bold';
+	ctx.fillStyle = 'white';
+	ctx.fillText('bitcamp 2018',384,504);
+	var campfire = new Image();
+	campfire.src = 'svg/background/campfire-white.svg';
+	ctx.drawImage(campfire, 348,478,32,32);
     return saveLayer.toDataURL('image/png').replace('image/png', 'image/octet-stream'); //Convert image to 'octet-stream' (Just a download, really)
 }
 
@@ -1036,25 +1132,23 @@ function restoreSaveLayer() {
 	var saveLayer = document.querySelector('.layer--save');
 	var ctx = saveLayer.getContext('2d');
     ctx.clearRect(0, 0, 512, 512);
-    ctx.restore();
 }
 
-function disableToolBtn(text) {
-    var toolBtn = document.querySelector(text);
-    toolBtn.classList.add('export-options__btn--selected');
-    toolBtn.onclick = function() {
+function disableShareBtn() {
+    var shareBtn = document.querySelector('.export-tools__btn--share');
+    shareBtn.classList.add('export-tools__btn--selected');
+    shareBtn.onclick = function() {
 		return false;
     }
 }
 
-function enableToolBtn(text, toolFunction) {
-    var toolBtn = document.querySelector(text);
-    toolBtn.classList.remove('export-options__btn--selected');
-    toolBtn.onclick = toolFunction;
+function enableShareBtn(toolFunction) {
+    var shareCancel = document.querySelector('.export-options__btn--no');
+    shareCancel.click();
 }
 
 function shareImg() {
-	disableToolBtn('.export-options__btn--yes');
+	disableShareBtn();
     if (loginStatus != 'connected') {
         FB.login(function(loginResponse) {
         	if (loginResponse.authResponse) {
@@ -1070,12 +1164,12 @@ function shareImg() {
         	}
         	else {
         		unauthResponse();
+        		// shareStatus('User cancelled login.');
         	}
         }, {scope: 'publish_actions'});
     }
     else {
 		FB.api('/me/permissions', function(permissionsResponse) {
-			disableToolBtn('.export-options__btn--yes');
 			var permission = checkPublishPermissions(permissionsResponse.data);
             if (permission) {
                 shareImgAuth();
@@ -1148,14 +1242,19 @@ function shareImgAuth() {
 	    else {
 	    	console.log(xhr.responseText);
 	    }
-    	enableToolBtn('.export-options__btn--yes', function() {shareImg()});
+    	enableShareBtn();
 	};
 	xhr.send(fd);
 }
 
+function shareStatus(text) {
+	var title = document.querySelector('.export-options__title');
+	title.innerHTML = text;
+}
+
 function unauthResponse() {
     alert('User cancelled login or did not fully authorize.');
-    enableToolBtn('.export-options__btn--yes', function() {shareImg()});
+	enableShareBtn();
 }
 
 function checkPublishPermissions(responseData) {
