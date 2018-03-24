@@ -675,6 +675,9 @@
         font-size: 12px;
         color: #528CA5;
     }
+    .export-img-container {
+        display: none;
+    }
     .export-options-login {
         position: absolute;
         background-color: white;
