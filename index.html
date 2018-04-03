@@ -9,8 +9,12 @@ and open the template in the editor.
         <title>Camper Creator</title>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <!-- <script src='js/zepto.min.js'></script> -->
         <script src='js/pixel.js'></script>
+        <!-- Used for Twitter API -->
+        <script src='js/oauth-signature.js'></script>
+        <script src="js/url.min.js"></script>
+        <script src="js/cryptojs/hmac-sha1.js"></script>
+        <script src="js/cryptojs/enc-base64-min.js"></script>
         <link rel="stylesheet" type="text/css" href="css/fonts.css">
         <link rel="stylesheet" type="text/css" href="css/desktop.css">
         <link rel="stylesheet" type="text/css" href="css/mobile.css">
@@ -36,9 +40,78 @@ and open the template in the editor.
                 <div class="export-img-container">
                     <div class="export-img"></div>
                     <a>Exported to PNG!</a>
-                    <a class="save-link" href="#">Click here to go back</a>
+                    <a class="save__link" href="#">Click here to go back</a>
                 </div>
-                <div class="export-options-login">
+                <div class="export-options-all export-options-all--login">
+                    <div class="export-options-all-container">
+                        <div>
+                            <img class="export-options-logo" src="png/social/social-1.png">
+                            <a class="export-options__link export-options__link--slack" href="#loginSlack">Share to Slack</a>
+                        </div>
+                        <div>
+                            <img class="export-options-logo" src="png/social/social-2.png">
+                            <a class="export-options__link export-options__link--twitter" href="#loginTwitter">Share to Twitter</a>
+                        </div>
+                        <div>
+                            <img class="export-options-logo" src="png/social/social-3.png">
+                            <a class="export-options__link export-options__link--facebook" href="#loginFacebook">Share to Facebook</a>
+                        </div>
+                        <div class="export-options-close">
+                            <a class="close-all__link close-all__link--login" href="#">Close</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="export-options-all export-options-all--logout">
+                    <div class="export-options-all-container">
+                        <div class="export-options-logout">
+                            <img class="export-options-logo" src="png/social/social-1.png">
+                            <a class="export-options__link logout__link--slack" href="#logOutSlack">Log out Slack</a>
+                        </div>
+                        <div class="export-options-logout">
+                            <img class="export-options-logo" src="png/social/social-2.png">
+                            <a class="export-options__link logout__link--twitter" href="#logOutTwitter">Log out Twitter</a>
+                        </div>
+                        <div class="export-options-logout">
+                            <img class="export-options-logo" src="png/social/social-3.png">
+                            <a class="export-options__link logout__link--facebook" href="#logOutFacebook">Log out Facebook</a>
+                        </div>
+                        <div class="export-options-close">
+                            <a class="close-all__link close-all__link--logout" href="#">Close</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="export-options-login export-options-login--slack">
+                    <div class="export-options__title">
+                        Login to Slack
+                    </div>
+                    <a class="disclaimer">
+                        This app requires permission to publish to Slack. A login prompt
+                         will display after accepting.
+                    </a>
+                    <!-- redirect_uri should be changed accordingly -->
+                    <div class="export-options-login-submit export-options-login-submit--slack">
+                        <a class="login--slack" href="https://slack.com/oauth/authorize?scope=users.profile:write&client_id=33353232930.335154144673&redirect_uri=http%3A%2F%2Flocalhost%3A8000%2Fauth.html&state=login" target="_blank">
+                            <img alt="Sign in with Slack" height="40" width="172" src="png/social/login-1.png" />
+                        </a>
+                        <br>
+                        <a class="close-login__link" href="#">Close</a>
+                    </div>
+                </div>
+                <div class="export-options-login export-options-login--twitter">
+                    <div class="export-options__title">
+                        Login to Twitter
+                    </div>
+                    <a class="disclaimer">
+                        This app requires permission to publish to Twitter. A login prompt
+                         will display after accepting.
+                    </a>
+                    <div class="export-options-login-submit">
+                        <a class="login--twitter" href="#loginTwitter" target="_blank"><img src="png/social/login-3.png"></a>
+                        <br>
+                        <a class="close-login__link" href="#">Close</a>
+                    </div>
+                </div>
+                <div class="export-options-login export-options-login--facebook">
                     <div class="export-options__title">
                         Login to Facebook
                     </div>
@@ -49,10 +122,43 @@ and open the template in the editor.
                     <div class="export-options-login-submit">
                         <div class="fb-login-button" data-max-rows="1" data-size="large" data-button-type="continue_with" data-show-faces="false" data-auto-logout-link="false" data-use-continue-as="false"></div>
                         <br>
-                        <a class="go-back-link" href="#">or go back<a>
+                        <a class="close-login__link" href="#">Close</a>
                     </div>
                 </div>
-                <div class="export-options">
+                <div class="export-options export-options--slack">
+                    <div class="export-options__title">
+                        Set as Slack profile photo?
+                    </div>
+                    <div class="export-options-submit">
+                        <input type="button" class="export-options__btn export-options__btn--yes--slack" value="Yes">
+                        <input type="button" class="export-options__btn export-options__btn--no--slack" value="No">
+                    </div>
+                </div>
+                <div class="export-options export-options--twitter">
+                    <div class="export-options__title">
+                        Share to Twitter?
+                    </div>
+                    <div class="export-options__body">
+                        <br>
+                        <a>Change your profile picture</a>
+                        <input type="radio" class="export-options--profile__btn" name="share" checked="checked">
+                        <br>
+                        <a>Tweet</a>
+                        <input type="radio" class="export-options--tweet__btn" name="share">
+                        <br>
+                        <br>
+                        <div class="export-options-container--tweet">
+                            <a>Compose a new Tweet:</a>
+                            <textarea class="export-options--tweet__text"></textarea>
+                            <br>
+                        </div>
+                    </div>
+                    <div class="export-options-submit">
+                        <input type="button" class="export-options__btn export-options__btn--yes--twitter" value="Yes">
+                        <input type="button" class="export-options__btn export-options__btn--no--twitter" value="No">
+                    </div>
+                </div>
+                <div class="export-options export-options--facebook">
                     <div class="export-options__title">
                         Share to Facebook?
                     </div>
@@ -78,8 +184,8 @@ and open the template in the editor.
                         <br>
                     </div>
                     <div class="export-options-submit">
-                        <input type="button" class="export-options__btn export-options__btn--yes" value="Yes">
-                        <input type="button" class="export-options__btn export-options__btn--no" value="No">
+                        <input type="button" class="export-options__btn export-options__btn--yes--facebook" value="Yes">
+                        <input type="button" class="export-options__btn export-options__btn--no--facebook" value="No">
                     </div>
                 </div>
                 <canvas class="layer layer--background layer--exportable"></canvas>
@@ -243,7 +349,7 @@ and open the template in the editor.
                 <div class="intro-message-container">
                     <img class="intro__img" src="svg/background/campfire.svg"/>
                     <div class="intro-message">
-                        Welcome to Camper Creator! Create your own Bitcamp-themed sprite here!
+                        Welcome to Camper Creator! Create your own Bitcamp-themed sprite!
                     </div>
                     <!-- <input type="button" class="intro__btn" value="OK"> -->
                 </div>
@@ -251,10 +357,10 @@ and open the template in the editor.
         </div>
         <div class="additional-info">
             <div class="additional-info-container">
-                <a class="additional-info__link about-link" href="info#about" target="_blank">About</a>
-                <a class="additional-info__link contact-link" href="info#contact" target="_blank">Contact</a>
-                <a class="additional-info__link privacy-link" href="info#privacy" target="_blank">Privacy Policy</a>
-                <a class="additional-info__link log-out-link" href="#loggedOut">Log Out</a>
+                <a class="additional-info__link about__link" href="info#about" target="_blank">About</a>
+                <a class="additional-info__link contact__link" href="info#contact" target="_blank">Contact</a>
+                <a class="additional-info__link privacy__link" href="info#privacy" target="_blank">Privacy Policy</a>
+                <a class="additional-info__link logout__link" href="#loggedOut">Log Out</a>
             </div>
         </div>
     </body>

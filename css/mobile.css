@@ -747,7 +747,7 @@
     .additional-info__link {
         /*display: flex;*/
         /*justify-content: center;*/
-        color: #1A2E33;
+        color: #528CA5;
         font-size: 12px;
         margin-right: 8px;
         text-decoration: none;
@@ -758,7 +758,10 @@
        -ms-user-select: none;
         user-select: none;
     }
-    .log-out-link {
+    .additional-info__link:active {
+        color: #1A2E33;
+    }
+    .logout__link {
         display: none;
     }
     .disclaimer {
@@ -788,7 +791,7 @@
         font-size: 20px;
         color: #FFAF3F;
     }
-    .save-link {
+    .save__link {
         font-family: "Avenir Light";
         font-weight: normal;
         font-style: normal;
@@ -801,8 +804,10 @@
        -ms-user-select: none;
        user-select: none;
     }
-    .save-link:active {
+    .save__link:active {
         color: #1A2E33;
+    }
+    .export-options-all {
     }
     .export-options-login {
         position: absolute;
@@ -818,6 +823,10 @@
         z-index: 12;
         display: none;
     }
+    .export-options-logo {
+        height: 32px;
+        widows: 32px;
+    }
     .export-options-login-submit {
         height: 120px;
         display: flex;
@@ -832,7 +841,7 @@
         font-style: normal;
         font-size: 12px;
     }
-    .go-back-link {
+    .go-back__link {
         text-decoration: none;
        -moz-user-select: -moz-none;
        -khtml-user-select: none;
@@ -840,7 +849,7 @@
        -ms-user-select: none;
        user-select: none;
     }
-    .go-back-link:active {
+    .go-back__link:active {
         color: #1A2E33;
     }
     .export-options {

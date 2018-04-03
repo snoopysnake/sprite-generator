@@ -11,6 +11,22 @@ a:active {
 	color: #FF6F3F;
 }
 
+h3 {
+	font-family: "Aleo Bold", arial, sans-serif;
+	font-weight: normal;
+	font-style: normal;
+	color: #528CA5;
+}
+
+.info-body__title {
+    /*height: 36px;*/
+    font-family: "Aleo Bold", sans-serif;
+    font-weight: normal;
+    font-style: normal;
+    /*font-size: 28px;*/
+    color: #FFAF3F;
+}
+
 .icon {
 	height: 32px;
 	width: 32px;
@@ -44,16 +60,6 @@ a:active {
 	    color: #528CA5;
 	    margin-bottom: 8px;
 	}
-
-	.info-body__title {
-	    /*height: 36px;*/
-	    font-family: "Aleo Regular", sans-serif;
-	    font-weight: normal;
-	    font-style: normal;
-	    /*font-size: 28px;*/
-	    color: #FFAF3F;
-	}
-
 }
 @media screen and (min-width: 500px) {
 	.info-container {
@@ -68,14 +74,5 @@ a:active {
 	    font-size: 16px;
 	    color: #528CA5;
 	    margin-bottom: 8px;
-	}
-
-	.info-body__title {
-	    /*height: 36px;*/
-	    font-family: "Aleo Regular", sans-serif;
-	    font-weight: normal;
-	    font-style: normal;
-	    /*font-size: 28px;*/
-	    color: #FFAF3F;
 	}
 }

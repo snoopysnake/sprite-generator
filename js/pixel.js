@@ -1,6 +1,11 @@
 var buttons_menu_top;
 var layerSelected;
-var totalLayerThumbnails = {'face': 4, 'hair': 2, 'eyebrows': 1, 'eyes': 10, 'nose': 2, 'mouth': 1, 'facial-hair': 0, 'accessory-1': 2, 'accessory-2': 2, 'accessory-3': 2, 'background': 12};
+var slackAccessToken;
+var slackCode;
+var twitterRequestToken;
+var twitterAccessToken;
+var twitterSecretToken;
+var totalLayerThumbnails = {'face': 5, 'hair': 2, 'eyebrows': 1, 'eyes': 10, 'nose': 2, 'mouth': 1, 'facial-hair': 0, 'accessory-1': 2, 'accessory-2': 2, 'accessory-3': 2, 'background': 12};
 var selectedIndex = {'face': -1, 'hair': -1, 'eyebrows': -1, 'eyes': -1, 'nose': -1, 'mouth': -1, 'facial-hair': -1, 'accessory-1': -1, 'accessory-2': -1, 'accessory-3': -1, 'background': -1}; // Indices start at 0, -1 == nothing selected
 var layerColor = {'face': 'rgb(255, 255, 255)', 'hair': 'rgb(255, 255, 255)', 'eyebrows': 'fixed', 'eyes': 'fixed', 'nose': 'fixed', 'mouth': 'fixed', 'facial-hair': 'rgb(255, 255, 255)', 'accessory-1': 'rgb(0, 0, 0)', 'accessory-2': 'rgb(0, 0, 0)', 'accessory-3': 'rgb(0, 0, 0)', 'background': 'rgb(255, 175, 63)'};
 var layerFlipped = {'face': 1, 'hair': 1, 'eyebrows': 1, 'eyes': 1, 'nose': 1, 'mouth': 1, 'facial-hair': 1, 'accessory-1': 1, 'accessory-2': 1, 'accessory-3': 1};
@@ -13,7 +18,7 @@ window.onload = function setup() {
 	// Set up help
     var helpLink = document.querySelector('.help__link');
     helpLink.onclick =  function() {
-        FB.AppEvents.logEvent('Needed Help');
+        // FB.AppEvents.logEvent('Needed Help');
     	openHelp();
     }
     var gettingStartedLink = document.querySelector('.help__link--getting-started');
@@ -69,7 +74,8 @@ window.onload = function setup() {
             var colorSelected = String(getComputedStyle(this).backgroundColor);
             if (layerSelected == 'background') {
                 drawBackground(colorSelected); // Replaces prev color
-            } else {
+            }
+            else {
                 drawImg(colorSelected); // rgb(#,#,#)
             }
         }
@@ -132,10 +138,10 @@ window.onload = function setup() {
 	    translateLayer(0,1);
 	}
 	dPadLeftBtn.onclick = function() {
-	    translateLayer(-1,0);
+	    translateLayer(-1*layerFlipped[layerSelected],0);
 	}
 	dPadRightBtn.onclick = function() {
-	    translateLayer(1,0);
+	    translateLayer(1*layerFlipped[layerSelected],0);
 	}
     disableDPad();
     disableMoveTools(0,3);
@@ -149,10 +155,10 @@ window.onload = function setup() {
     		        translateLayer(0,1);
     		    }
     		    dPadLeftBtn.onclick = function() {
-    		        translateLayer(-1,0);
+    		        translateLayer(-1*layerFlipped[layerSelected],0);
     		    }
     		    dPadRightBtn.onclick = function() {
-    		        translateLayer(1,0);
+    		        translateLayer(1*layerFlipped[layerSelected],0);
     		    }
         		moveAllBtn.classList.remove('move-tools__btn--selected');
         	}
@@ -185,6 +191,12 @@ window.onload = function setup() {
             dPadDownBtn.onclick = function() {
                 translateLayer(0,1);
             }
+            dPadLeftBtn.onclick = function() {
+                translateLayer(-1*layerFlipped[layerSelected],0);
+            }
+            dPadRightBtn.onclick = function() {
+                translateLayer(1*layerFlipped[layerSelected],0);
+            }
             flip();
         }
     }
@@ -195,7 +207,12 @@ window.onload = function setup() {
     // Disable palette
     disablePalette();
 
+    // Set up Twitter app
+    setupTwitter();
+
     // Set up Facebook app
+    // App ID: 182304785885707
+    // Test App ID: 170083730455354
     window.fbAsyncInit = function() {
         FB.init({
             appId      : '182304785885707',
@@ -210,6 +227,30 @@ window.onload = function setup() {
                 logOutDisplay('inline');
             }
 	    });
+
+        var shareToFacebook = document.querySelector('.export-options__link--facebook');
+        var facebookLoginContainer = document.querySelector('.export-options-login--facebook');
+        // var facebookExportOptions = document.querySelector('.export-options--facebook');
+        shareToFacebook.onclick = function() {
+            shareAllLoginContainer.style.display = 'none';
+            FB.getLoginStatus(function(response) {
+                shareBtn.classList.add('export-tools__btn--selected');
+                if (response.status == 'connected') {
+                    FB.api('/me/permissions', function(permissionsResponse) {
+                        var permissions = permissionsResponse.data;
+                        if (permissions[0].permission == 'publish_actions' && permissions[0].status == 'granted') {
+                            openFacebookOptions();
+                        }
+                        else {
+                            facebookLoginContainer.style.display = 'flex';
+                        }
+                    });
+                }
+                else {
+                    facebookLoginContainer.style.display = 'flex';
+                }
+            });
+        }
     };
 
     (function(d, s, id) {
@@ -223,19 +264,33 @@ window.onload = function setup() {
     } (document, 'script', 'facebook-jssdk'));
 
     var shareBtn = document.querySelector('.export-tools__btn--share');
-    enableShareBtn();
+    var closeLoginLink = document.querySelectorAll('.close-login__link');
+    var loginContainer = document.querySelectorAll('.export-options-login');
+    for (i = 0; i < 3; i++) (function(i) {
+        closeLoginLink[i].onclick = function() {
+            shareBtn.classList.remove('export-tools__btn--selected');
+            loginContainer[i].style.display = 'none';
+        };
+    })(i);
 
-    var loginBtn = document.querySelector('.fb-login-button');
-    loginBtn.setAttribute('data-scope','publish_actions');
-    loginBtn.setAttribute('onlogin','shareImg();');
+    // Facebook Login
+    var facebookLoginBtn = document.querySelector('.fb-login-button');
+    facebookLoginBtn.setAttribute('data-scope','publish_actions');
+    facebookLoginBtn.setAttribute('onlogin','shareFacebookImg();');
 
-    var goBackLink = document.querySelector('.go-back-link');
-    var loginContainer = document.querySelector('.export-options-login');
-    goBackLink.onclick = function() {
-        shareBtn.classList.remove('export-tools__btn--selected');
-        loginContainer.style.display = 'none';
+    // Twitter export options
+    var addToProfileBtn = document.querySelector('.export-options--profile__btn');
+    var tweetBtn = document.querySelector('.export-options--tweet__btn');
+    var tweetTextContainer = document.querySelector('.export-options-container--tweet');
+    var tweetTextArea = document.querySelector('.export-options--tweet__text');
+    addToProfileBtn.onclick = function() {
+        tweetTextContainer.style.display = 'none';
+    }
+    tweetBtn.onclick = function() {
+        tweetTextContainer.style.display = 'inline';
     }
 
+    // Facebook export options
   	var addToPhotosBtn = document.querySelector('.export-options--photo__btn');
   	var addToTimelineBtn = document.querySelector('.export-options--timeline__btn');
 	var photoTextContainer = document.querySelector('.export-options-container--photo');
@@ -251,7 +306,7 @@ window.onload = function setup() {
   	}
     var saveBtn = document.querySelector('.export-tools__btn--save');
     saveBtn.onclick = function() {
-        FB.AppEvents.logEvent('Saved Sprite');
+        // FB.AppEvents.logEvent('Saved Sprite');
         // Preload
 		var campfire = new Image();
 		campfire.onload = function() {
@@ -260,43 +315,376 @@ window.onload = function setup() {
 		campfire.src = 'svg/background/campfire-white.svg';
 	}
     if (window.matchMedia('(max-width: 500px)').matches) {
-        var saveLink = document.querySelector('.save-link');
+        var saveLink = document.querySelector('.save__link');
         var exportImgContainer = document.querySelector('.export-img-container');
         saveLink.onclick = function() {
             exportImgContainer.style.display = 'none';
         }
     }
-    var shareSubmit = document.querySelector('.export-options__btn--yes');
-    shareSubmit.onclick = function() {
-        FB.AppEvents.logEvent('Shared Sprite');
+
+    var shareFacebookSubmit = document.querySelector('.export-options__btn--yes--facebook');
+    shareFacebookSubmit.onclick = function() {
+        // FB.AppEvents.logEvent('Shared Sprite');
     	// Preload
         var campfire = new Image();
         campfire.onload = function() {
-            shareImgAuth();
+            shareFacebookImgAuth();
         }
         campfire.src = 'svg/background/campfire-white.svg';
     }
-    var shareCancel = document.querySelector('.export-options__btn--no');
-    var shareOptions = document.querySelector('.export-options');
-    shareCancel.onclick = function() {
-    	addToPhotosBtn.click();
-    	photoTextArea.value = '';
-    	timelineTextArea.value = '';
-		shareBtn.classList.remove('export-tools__btn--selected');
-		shareOptions.style.display = 'none';
+
+    var shareOptions = document.querySelectorAll('.export-options');
+    var shareSlackCancel = document.querySelector('.export-options__btn--no--slack');
+    shareSlackCancel.onclick = function() {
+        shareBtn.classList.remove('export-tools__btn--selected');
+        shareOptions[0].style.display = 'none';
     }
-    var logOutLink = document.querySelector('.log-out-link');
+    var shareTwitterCancel = document.querySelector('.export-options__btn--no--twitter');
+    shareTwitterCancel.onclick = function() {
+        addToProfileBtn.click();
+        tweetTextArea.value = '';
+        shareBtn.classList.remove('export-tools__btn--selected');
+        shareOptions[1].style.display = 'none';
+    }
+    var shareFacebookCancel = document.querySelector('.export-options__btn--no--facebook');
+    shareFacebookCancel.onclick = function() {
+        addToPhotosBtn.click();
+        photoTextArea.value = '';
+        timelineTextArea.value = '';
+        shareBtn.classList.remove('export-tools__btn--selected');
+        shareOptions[2].style.display = 'none';
+    }
+
+    var logOutLink = document.querySelector('.logout__link');
+    var shareAllLogoutContainer = document.querySelector('.export-options-all--logout');
+    var logoutContainer = document.querySelectorAll('.export-options-logout');
+
+    var closeAllLogoutLink = document.querySelector('.close-all__link--logout');
+    var shareAllLoginContainer = document.querySelector('.export-options-all--login');
+    shareBtn.onclick = function() {
+        closeAllLogoutLink.click();
+        if (!shareBtn.classList.contains('export-tools__btn--selected')) {
+            shareBtn.classList.add('export-tools__btn--selected');
+            shareAllLoginContainer.style.display = 'flex';
+        }
+    }
+    var closeAllLoginLink = document.querySelector('.close-all__link--login');
+    closeAllLoginLink.onclick = function() {
+        shareBtn.classList.remove('export-tools__btn--selected');
+        shareAllLoginContainer.style.display = 'none';
+    }
+
+    closeAllLogoutLink.onclick = function() {
+        shareBtn.classList.remove('export-tools__btn--selected');
+        shareAllLogoutContainer.style.display = 'none';
+    }
     logOutLink.onclick = function() {
-         FB.api(
+        // Hide/close all open windows
+        shareSlackCancel.click();
+        shareFacebookCancel.click();
+        closeAllLoginLink.click();
+        for (i = 0; i < 3; i++) {
+            closeLoginLink[i].click();
+        }
+
+        shareAllLogoutContainer.style.display = 'flex';
+        if (slackAccessToken != null) {
+            logoutContainer[0].style.display = 'flex';
+        }
+        FB.getLoginStatus(function(response) {
+            if (response.status == 'connected') {
+                logoutContainer[2].style.display = 'flex';
+            }
+        });
+        if (logoutContainer[0].style.display == 'none' && logoutContainer[1].style.display == 'none' && logoutContainer[2].style.display == 'none') {
+            logOutLink.style.display = 'none';
+        }
+    }
+    var slackLogOutLink = document.querySelector('.logout__link--slack');
+    slackLogOutLink.onclick = function() {
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', 'https://slack.com/api/auth.revoke?token='+slackAccessToken);
+        xhr.onload = function() {
+            console.log(xhr.response);
+            if (xhr.status == 200) {
+                var response = JSON.parse(xhr.response);
+                if (response.ok == true) {
+                    alert('Successfully logged out of Slack!');
+                }
+            }
+        }
+        xhr.send();
+        slackAccessToken = null;
+        logoutContainer[0].style.display = 'none';
+        closeAllLogoutLink.click();
+        if (logoutContainer[0].style.display == 'none' && logoutContainer[1].style.display == 'none' && logoutContainer[2].style.display == 'none') {
+            logOutLink.style.display = 'none';
+        }
+    }
+    var twitterLogOutLink = document.querySelector('.logout__link--twitter');
+    var facebookLogOutLink = document.querySelector('.logout__link--facebook');
+    facebookLogOutLink.onclick = function() {
+        FB.api(
             '/me/permissions',
             'DELETE'
         );
         FB.logout(function(response) {
-            alert('Logged out successfully.');
+            alert('Successfully logged out of Facebook!');
             logOutLink.style.display = 'none';
         });
-        loginContainer.style.display = 'none';
-        shareCancel.click();
+        logoutContainer[2].style.display = 'none';
+        closeAllLogoutLink.click();
+        if (logoutContainer[0].style.display == 'none' && logoutContainer[1].style.display == 'none' && logoutContainer[2].style.display == 'none') {
+            logOutLink.style.display = 'none';
+        }
+    }
+
+    var shareToSlack = document.querySelector('.export-options__link--slack');
+    var slackLoginContainer = document.querySelector('.export-options-login--slack');
+    var slackExportOptions = document.querySelector('.export-options--slack');
+    var shareSlackSubmit = document.querySelector('.export-options__btn--yes--slack');
+    shareToSlack.onclick = function() {
+        shareAllLoginContainer.style.display = 'none';
+        // Check if logged in
+        if (slackAccessToken == null) {
+            slackLoginContainer.style.display = 'flex';
+        }
+        else {
+            slackExportOptions.style.display = 'flex';
+        }
+    }
+    shareSlackSubmit.onclick = function() {
+        slackLoginAndShare();
+    }
+
+    var shareToTwitter = document.querySelector('.export-options__link--twitter');
+    var twitterLoginContainer = document.querySelector('.export-options-login--twitter');
+    var twitterExportOptions = document.querySelector('.export-options--twitter');
+    shareToTwitter.onclick = function() {
+        shareAllLoginContainer.style.display = 'none';
+        // Check if logged in
+        if (twitterAccessToken == null) {
+            twitterLoginContainer.style.display = 'flex';
+        }
+        else {
+            twitterExportOptions.style.display = 'flex';
+        }
+    }
+    var shareTwitterSubmit = document.querySelector('.export-options__btn--yes--twitter');
+    shareTwitterSubmit.onclick = function() {
+        shareTwitterImg();
+    }
+}
+
+function setupTwitter() {
+    // Need the following command to bypass CORS (on Windows + Chrome):
+    // start chrome --args --disable-web-security --user-data-dir
+    var consumerKey = '';
+    var consumerSecret = '';
+    var nonce = Math.floor(Math.random() * 1e9).toString();
+    var timestamp = Math.floor((new Date).getTime() / 1e3);
+    var parameters = {'oauth_consumer_key' : consumerKey, 'oauth_nonce': nonce, 'oauth_timestamp' : timestamp, 'oauth_signature_method': 'HMAC-SHA1', 'oauth_version' : '1.0'};
+    var signature = oauthSignature.generate('GET', 'https://api.twitter.com/oauth/request_token', parameters, consumerSecret, null, null);
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', 'https://api.twitter.com/oauth/request_token?oauth_consumer_key='+consumerKey+'&oauth_nonce='+nonce+'&oauth_signature_method=HMAC-SHA1&oauth_timestamp='+timestamp+'&oauth_version=1.0&oauth_signature='+signature);
+    xhr.onload = function() {
+        if (xhr.status === 200) {
+            twitterRequestToken = xhr.response.split('&')[0].replace('oauth_token=','');
+            console.log(twitterRequestToken);
+            var twitterLogin = document.querySelector('.login--twitter');
+            twitterLogin.setAttribute('href','https://api.twitter.com/oauth/authenticate?oauth_token='+twitterRequestToken);
+        }
+    }
+    xhr.send();
+}
+
+function noAuth() {
+    var slackLoginContainer = document.querySelector('.export-options-login--slack');
+    var twitterLoginContainer = document.querySelector('.export-options-login--twitter');
+    slackLoginContainer.style.display = 'none';
+    twitterLoginContainer.style.display = 'none';
+    unauthResponse();
+}
+
+function noAuthTwitter() {
+    noAuth();
+    setupTwitter();
+}
+
+function authSlack(code,state) {
+    console.log('Code: '+code); // Slack code
+    console.log('State: '+state); // Slack state
+    if (state == 'add') {
+    }
+    if (state == 'login') {
+        var slackExportOptions = document.querySelector('.export-options--slack');
+        var slackLoginContainer = document.querySelector('.export-options-login--slack');
+        slackCode = code;
+        slackLoginContainer.style.display = 'none';
+        slackExportOptions.style.display = 'flex';
+    }
+}
+
+function slackLoginAndShare() {
+    var shareCancel = document.querySelector('.export-options__btn--no--slack');
+    var shareSlackSubmit = document.querySelector('.export-options__btn--yes--slack');
+    shareSlackSubmit.onclick = function() {
+        return false;
+    }
+    var clientID = '';
+    var clientSecret = '';
+    if (slackAccessToken == null) {
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', 'https://slack.com/api/oauth.access?client_id='+clientID+'&client_secret='+clientSecret+'&code='+slackCode);
+        xhr.onload = function() {
+            if (xhr.status === 200) {
+                var response = JSON.parse(xhr.response);
+                console.log(response);
+                if (response.ok == true) {
+                    var accessToken = response.access_token;
+                    slackAccessToken = accessToken;
+                    logOutDisplay('inline');
+                    shareSlackImg();
+                }
+            }
+        }
+        xhr.send();
+    }
+    else {
+        shareSlackImg();
+    }
+    shareSlackSubmit.onclick = function() {
+        slackLoginAndShare();
+    }
+    shareCancel.click();
+}
+
+function shareSlackImg() {
+    var exportedImg = imgToDataURI();
+    restoreSaveLayer();
+    var imgBlob = dataURIToBlob(exportedImg);
+    var fd2 = new FormData();
+    fd2.append('token', slackAccessToken);
+    fd2.append('image', imgBlob);
+    var xhr2 = new XMLHttpRequest();
+    xhr2.open('POST', 'https://slack.com/api/users.setPhoto');
+    xhr2.onload = function() {
+        console.log(xhr2.response);
+        if (xhr2.status == 200) {
+            var response2 = JSON.parse(xhr2.response);
+            if (response2.ok == true) {
+                alert('Successfully uploaded to Slack!');
+            }
+        }
+    }
+    xhr2.send(fd2);
+}
+
+function shareTwitterImg() {
+    var shareTwitterSubmit = document.querySelector('.export-options__btn--yes--twitter');
+    shareTwitterSubmit.onclick = function() {
+        return false;
+    }
+    var addToProfileBtn = document.querySelector('.export-options--profile__btn');
+    var shareCancel = document.querySelector('.export-options__btn--no--twitter');
+    var consumerKey = '';
+    var consumerSecret = '';
+    var nonce = Math.floor(Math.random() * 1e9).toString();
+    var timestamp = Math.floor((new Date).getTime() / 1e3);
+    var parameters = {'oauth_token': twitterAccessToken,'oauth_consumer_key' : consumerKey, 'oauth_nonce': nonce, 'oauth_timestamp' : timestamp, 'oauth_signature_method': 'HMAC-SHA1', 'oauth_version' : '1.0'};
+
+    if (addToProfileBtn.checked) {
+        var exportedImg = imgToDataURI();
+        restoreSaveLayer();
+        var imgBlob = dataURIToBlob(exportedImg);
+        var fd = new FormData();
+        fd.append('image', imgBlob);
+        var signature = oauthSignature.generate('POST', 'https://api.twitter.com/1.1/account/update_profile_image.json', parameters, consumerSecret, twitterSecretToken, null);
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', 'https://api.twitter.com/1.1/account/update_profile_image.json?oauth_consumer_key='+consumerKey+'&oauth_nonce='+nonce+'&oauth_signature_method=HMAC-SHA1&oauth_timestamp='+timestamp+'&oauth_version=1.0&oauth_signature='+signature+'&oauth_token='+twitterAccessToken);
+        xhr.onload = function() {
+            console.log(xhr.response);  
+            if (xhr.status == 200) {
+                alert('Successfully uploaded to Twitter!');
+                shareCancel.click();
+            }
+        }
+        xhr.send(fd);
+    }
+    else {
+        var exportedImg = imgToDataURI();
+        restoreSaveLayer();
+        var imgBlob = dataURIToBlob(exportedImg);
+        var fd = new FormData();
+        fd.append('media', imgBlob);
+        var signature = oauthSignature.generate('POST', 'https://upload.twitter.com/1.1/media/upload.json', parameters, consumerSecret, twitterSecretToken, null);
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', 'https://upload.twitter.com/1.1/media/upload.json?oauth_consumer_key='+consumerKey+'&oauth_nonce='+nonce+'&oauth_signature_method=HMAC-SHA1&oauth_timestamp='+timestamp+'&oauth_version=1.0&oauth_signature='+signature+'&oauth_token='+twitterAccessToken);
+        xhr.onload = function() {
+            console.log(xhr.response);  
+            if (xhr.status == 200) {
+                alert('Successfully uploaded to Twitter!');
+                var mediaID = JSON.parse(xhr.response).media_id_string;
+                console.log(mediaID);
+                var tweetTextArea = document.querySelector('.export-options--tweet__text');
+                var tweet = tweetTextArea.value;
+                if (tweet.length > 140) {
+                    tweet = tweet.substring(0,140);
+                }
+                else if (tweet.length == 0) {
+                    alert('Character field empty.');
+                }
+                var fd2 = new FormData();
+                // fd2.append('media_ids', mediaID);
+                fd2.append('status', tweet);
+                var nonce2 = Math.floor(Math.random() * 1e9).toString();
+                var timestamp2 = Math.floor((new Date).getTime() / 1e3);
+                var parameters2 = {'media_ids':mediaID,'oauth_token': twitterAccessToken,'oauth_consumer_key' : consumerKey, 'oauth_nonce': nonce2, 'oauth_timestamp' : timestamp2, 'oauth_signature_method': 'HMAC-SHA1', 'oauth_version' : '1.0'};
+                var signature2 = oauthSignature.generate('POST', 'https://api.twitter.com/1.1/statuses/update.json', parameters2, consumerSecret, twitterSecretToken, null);
+                var xhr2 = new XMLHttpRequest();
+                xhr2.open('POST', 'https://api.twitter.com/1.1/statuses/update.json?media_ids='+mediaID+'&oauth_consumer_key='+consumerKey+'&oauth_nonce='+nonce2+'&oauth_signature_method=HMAC-SHA1&oauth_timestamp='+timestamp2+'&oauth_version=1.0&oauth_signature='+signature2+'&oauth_token='+twitterAccessToken);
+                xhr2.onload = function() {
+                    // console.log(xhr2.response);  
+                    if (xhr2.status == 200) {
+                        alert('Successfully tweeted!');
+                        shareCancel.click();
+                    }
+                }
+                xhr2.send(fd2);
+            }
+        }
+        xhr.send(fd);
+    }
+    shareTwitterSubmit.onclick = function() {
+        shareTwitterImg();
+    }
+}
+
+function authTwitter(requestToken, verifier) {
+    console.log('Request Token: '+requestToken);
+    console.log('Verifier: '+verifier);
+    if (twitterRequestToken == requestToken) {
+        var fd = new FormData();
+        fd.append('oauth_verifier', verifier);
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', 'https://api.twitter.com/oauth/access_token?oauth_token='+twitterRequestToken);
+        xhr.onload = function() {
+            if (xhr.status === 200) {
+                console.log(xhr.response);
+                twitterAccessToken = xhr.response.split('oauth_token=').pop().split('&')[0];
+                twitterSecretToken = xhr.response.split('oauth_token_secret=').pop().split('&')[0];
+                var twitterLoginContainer = document.querySelector('.export-options-login--twitter');
+                var twitterExportOptions = document.querySelector('.export-options--twitter');
+                var addToProfileBtn = document.querySelector('.export-options--profile__btn');
+                twitterLoginContainer.style.display = 'none';
+                twitterExportOptions.style.display = 'flex';
+                addToProfileBtn.click();
+            }
+        }
+        xhr.send(fd);
+    }
+    else {
+        noAuthTwitter();
     }
 }
 
@@ -312,7 +700,8 @@ function loadLayerThumbnails(pageNum, totalThumbnails) {
     if (start == 0) {
         prevBtn.style.display = 'none'; //TODO
         prevBtn.onclick = '';
-    } else {
+    }
+    else {
         prevBtn.style.display = 'inline';
         prevBtn.onclick = function() {
             loadLayerThumbnails(pageNum - 1, totalThumbnails);
@@ -323,7 +712,8 @@ function loadLayerThumbnails(pageNum, totalThumbnails) {
         end = total - start;
         nextBtn.style.display = 'none'; //TODO
         nextBtn.onclick = '';
-    } else {
+    }
+    else {
         end = totalThumbnails;
         nextBtn.style.display = 'inline';
         nextBtn.onclick = function() {
@@ -354,7 +744,7 @@ function loadLayerThumbnails(pageNum, totalThumbnails) {
     // Populate cells
     if (layerSelected == 'background') {
     }
-    for (i = 0; i < end; i++) (function(i){
+    for (i = 0; i < end; i++) (function(i) {
         if (layerSelected == 'background') {
 	    	switch ((pageNum-1)*totalThumbnails+i) {
 	    		case 0: layerThumbnails[i].innerText = 'Solid Color'; break;
@@ -445,7 +835,8 @@ function chooseLayer(button) {
     layerSelected = button.value.toLowerCase().replace(' ','-');
     if (window.matchMedia('(max-width: 500px)').matches) {
     	loadLayerThumbnails(parseInt(selectedIndex[layerSelected]/4) + 1, 4);  // Page of selected layer thumbnail + total thumbnails
-	} else {
+	}
+    else {
     	loadLayerThumbnails(parseInt(selectedIndex[layerSelected]/28) + 1, 28);
 	}
     lastClicked.classList.remove('layers__btn--selected');
@@ -517,7 +908,8 @@ function setIndexAndDraw(currentSelected, index) {
 	        			color = '#FFFFFF';
 	        		}
 	            }
-	        } else {
+	        }
+            else {
 	        	drawBackground(layerColor['background']);
 	        }
 		}
@@ -573,7 +965,8 @@ function enablePalette() {
 	        var colorSelected = String(getComputedStyle(this).backgroundColor);
 	        if (layerSelected == 'background') {
 	            drawBackground(colorSelected); // Replaces prev color
-	        } else {
+	        }
+            else {
 	            drawImg(colorSelected); // rgb(#,#,#)
 	        }
 		}
@@ -644,7 +1037,8 @@ function drawImg(color) {
                 // Change file name for accessories
                 if (layerSelected.includes('accessory')) {
                     imgOutline.src = 'png/accessory/accessory-outline-' + selectedIndex[layerSelected] + '.png';
-                } else {
+                }
+                else {
                     imgOutline.src = 'png/' + layerSelected + '/' + layerSelected + '-outline-' + selectedIndex[layerSelected] + '.png';
                 }
             }
@@ -654,7 +1048,8 @@ function drawImg(color) {
             // Change file name for accessories
             if (layerSelected.includes('accessory')) {
                 imgColor.src = 'png/accessory/accessory-color-' + selectedIndex[layerSelected] + '.png';
-            } else {
+            }
+            else {
                 imgColor.src = 'png/' + layerSelected + '/' + layerSelected + '-color-' + selectedIndex[layerSelected] + '.png';
             }
             layerColor[layerSelected] = color;
@@ -864,7 +1259,8 @@ function changePosition(button) {
         button.classList.add('layers__btn--unselected');
         dPad.style.display = 'none'; //TODO
         dPad.style.borderRight = '0px'; //TODO
-    } else {
+    }
+    else {
         button.classList.remove('layers__btn--unselected');
         button.classList.add('layers__btn--selected');
         dPad.style.display = 'flex'; //TODO
@@ -941,7 +1337,8 @@ function translateAll(layer, moveableLayers, x, y, reset) {
                     // Change file name for accessories
 	                if (currentLayer.includes('accessory')) {
 	                    imgOutline.src = 'png/accessory/accessory-outline-' + selectedIndex[currentLayer] + '.png';
-	                } else {
+	                }
+                    else {
 	                    imgOutline.src = 'png/' + currentLayer + '/' + currentLayer + '-outline-' + selectedIndex[currentLayer] + '.png';
 	                }
 	            }
@@ -951,10 +1348,12 @@ function translateAll(layer, moveableLayers, x, y, reset) {
 	            // Change file name for accessories
 	            if (currentLayer.includes('accessory')) {
 	                imgColor.src = 'png/accessory/accessory-color-' + selectedIndex[currentLayer] + '.png';
-	            } else {
+	            }
+                else {
 	                imgColor.src = 'png/' + currentLayer + '/' + currentLayer + '-color-' + selectedIndex[currentLayer] + '.png';
 	            }
-	        } else {
+	        }
+            else {
 	            var img = new Image();
 	            img.onload = function() {
 	                if (currentLayer == 'eyebrows' || currentLayer == 'eyes') {
@@ -1001,12 +1400,12 @@ function flip() {
 	    var dPadLeftBtn = document.querySelector('.d-pad__btn--left');
 	    var dPadRightBtn = document.querySelector('.d-pad__btn--right');
 	    layerFlipped[layerSelected]*=-1;
-	    dPadLeftBtn.onclick = function() {
-	        translateLayer(-1*layerFlipped[layerSelected],0);
-	    }
-	    dPadRightBtn.onclick = function() {
-	        translateLayer(1*layerFlipped[layerSelected],0);
-	    }
+	    // dPadLeftBtn.onclick = function() {
+	    //     translateLayer(-1*layerFlipped[layerSelected],0);
+	    // }
+	    // dPadRightBtn.onclick = function() {
+	    //     translateLayer(1*layerFlipped[layerSelected],0);
+	    // }
 	}
 }
 
@@ -1393,70 +1792,45 @@ function disableShareBtn() {
     }
 }
 
-function enableShareBtn() {
-    var loginContainer = document.querySelector('.export-options-login');
-    var shareCancel = document.querySelector('.export-options__btn--no');
-    var shareBtn = document.querySelector('.export-tools__btn--share');
-    var shareOptions = document.querySelector('.export-options');
-    shareBtn.onclick = function() {
-        if (!shareBtn.classList.contains('export-tools__btn--selected')) {
-            FB.getLoginStatus(function(response) {
-                shareBtn.classList.add('export-tools__btn--selected');
-                if (response.status == 'connected') {
-                    FB.api('/me/permissions', function(permissionsResponse) {
-                        var permissions = permissionsResponse.data;
-                        if (permissions[0].permission == 'publish_actions' && permissions[0].status == 'granted') {
-                            openShareOptions();
-                        } else {
-                            loginContainer.style.display = 'flex';
-                        }
-                    });
-                }
-                else {
-                    loginContainer.style.display = 'flex';
-                }
-            });
-        }
-    }
-    shareCancel.click();
+function openFacebookOptions() {
+    var facebookLoginContainer = document.querySelector('.export-options-login--facebook');
+    var facebookExportOptions = document.querySelector('.export-options--facebook');
+    facebookExportOptions.style.display = 'flex';
+    facebookLoginContainer.style.display = 'none';
 }
 
-function openShareOptions() {
-    var loginContainer = document.querySelector('.export-options-login');
-    var shareOptions = document.querySelector('.export-options');
-    shareOptions.style.display = 'flex';
-    loginContainer.style.display = 'none';
-}
-
-function shareImg() {
-    var loginContainer = document.querySelector('.export-options-login');
+function shareFacebookImg() {
+    var facebookLoginContainer = document.querySelector('.export-options-login--facebook');
     FB.getLoginStatus(function(response) {
         if (response.status === 'connected') {
             logOutDisplay('inline');
             FB.api('/me/permissions', function(permissionsResponse) {
                 var permissions = permissionsResponse.data;
                 if (permissions[0].permission == 'publish_actions' && permissions[0].status == 'granted') {
-                    openShareOptions();
-                } else {
+                    openFacebookOptions();
+                }
+                else {
                     unauthResponse();
-                    loginContainer.style.display = 'none';
+                    facebookLoginContainer.style.display = 'none';
                 }
             });
-        } else {
+        }
+        else {
             unauthResponse();
-            loginContainer.style.display = 'none';
+            facebookLoginContainer.style.display = 'none';
         }
     });
 }
 
 function logOutDisplay(display) {
-    var logOutLink = document.querySelector('.log-out-link');
+    var logOutLink = document.querySelector('.logout__link');
     logOutLink.style.display = display;
 }
 
-function shareImgAuth() {
-    var shareSubmit = document.querySelector('.export-options__btn--yes');
-    shareSubmit.onclick = function() {
+function shareFacebookImgAuth() {
+    var shareCancel = document.querySelector('.export-options__btn--no--facebook');
+    var shareFacebookSubmit = document.querySelector('.export-options__btn--yes--facebook');
+    shareFacebookSubmit.onclick = function() {
         return false;
     }
     var exportedImg = imgToDataURI();
@@ -1509,6 +1883,7 @@ function shareImgAuth() {
 				    function (response) {
 						if (response && !response.error) {
 							alert('Successfully shared to Timeline!');
+                            shareCancel.click();
 						}
 						else {
 							console.log(response.error);
@@ -1516,17 +1891,16 @@ function shareImgAuth() {
 				    }
 				);
 			}
-            shareSubmit.onclick = function() {
-                FB.AppEvents.logEvent('Shared Sprite');
-                shareImgAuth();
-            }
 	    }
 	    else {
 	    	console.log(xhr.responseText);
 	    }
-    	enableShareBtn();
 	};
 	xhr.send(fd);
+    shareFacebookSubmit.onclick = function() {
+        // FB.AppEvents.logEvent('Shared Sprite');
+        shareFacebookImgAuth();
+    }
 }
 
 function shareStatus(text) {
@@ -1536,7 +1910,8 @@ function shareStatus(text) {
 
 function unauthResponse() {
     alert('User cancelled login or did not fully authorize.');
-	enableShareBtn();
+    var shareBtn = document.querySelector('.export-tools__btn--share');
+    shareBtn.classList.remove('export-tools__btn--selected');
 }
 
 function disableLeftTools() {
@@ -1586,11 +1961,10 @@ function enableLeftTools() {
         disableMoveTools(0,3);
 
     }
-    var shareBtn = document.querySelector('.export-tools__btn--share');
-    enableShareBtn();
+    // enableShareBtn();
     var saveBtn = document.querySelector('.export-tools__btn--save');
     saveBtn.onclick = function() {
-        FB.AppEvents.logEvent('Saved Sprite');
+        // FB.AppEvents.logEvent('Saved Sprite');
         // Preload
         var campfire = new Image();
         campfire.onload = function() {

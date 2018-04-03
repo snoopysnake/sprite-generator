@@ -18,8 +18,18 @@
         image-rendering: optimize-contrast;
         image-rendering: pixelated;
         -ms-interpolation-mode: nearest-neighbor;
+        /*border-radius: 16px;*/
         width: 512px;
         height: 512px;
+    }
+    a {
+        text-decoration: none;
+       -moz-user-select: -moz-none;
+       -khtml-user-select: none;
+       -webkit-user-select: none;
+       -ms-user-select: none;
+       user-select: none;
+
     }
     .title {
         height: 40px;
@@ -61,7 +71,7 @@
         color: #528CA5;
         position: absolute;
         right: 4px;
-        top: -20px;
+        top: -22px;
         text-decoration: none;
         flex-flow: column wrap;
        -moz-user-select: -moz-none;
@@ -223,7 +233,7 @@
         justify-content: center;
     }
     .d-pad__btn {
-        font-family: "Aleo Regular", sans-serif;
+        font-family: "Avenir", sans-serif;
         font-weight: normal;
         font-style: normal;
         font-size: 12px;
@@ -245,8 +255,8 @@
     }
     .d-pad__btn--disabled {
         opacity: 0.6;
-        border: 2px solid #FF3F46;
-        background-color: #FF3F46;
+        border: 2px solid #FF6F3F;
+        background-color: #FF6F3F;
     }
     .tools-sidebar {
         border: 16px solid white;
@@ -254,6 +264,7 @@
         display: flex;
         flex-direction: column;
         align-items: center;
+        justify-content: space-between;
     }
     .move-tools {
         margin-top: 8px; /* shifts down*/
@@ -265,7 +276,7 @@
         align-items: center;
     }
     .move-tools__btn {
-        font-family: "Aleo Regular", sans-serif;
+        font-family: "Avenir", sans-serif;
         font-weight: normal;
         font-style: normal;
         font-size: 12px;
@@ -306,20 +317,21 @@
         background-color: #FF6F3F;
     }
     .main-tools__btn {
-        font-family: "Aleo Regular", sans-serif;
+        font-family: "Avenir", sans-serif;
         font-weight: normal;
         font-style: normal;
+        font-size: 14px;
         color: white;
         border: 2px solid #FFAF3F;
         background-color: #FFAF3F;
-        height: 60px;
-        width: 60px;
+        height: 64px;
+        width: 64px;
         display: flex;
         justify-content: center;
         align-items: center;
         white-space: normal;
         border-radius: 50%;
-        margin: 2px;
+        margin: 4px;
         outline-style: none;
         -webkit-appearance: none;
     }
@@ -341,23 +353,24 @@
         margin-top: 8px;
     }
     .export-tools__btn {
-        font-family: "Aleo Bold", sans-serif;
+        font-family: "Avenir", sans-serif;
         font-weight: normal;
         font-style: normal;
         font-size: 16px;
         color: white;
         border: 2px solid #FFAF3F;
         background-color: #FFAF3F;
-        height: 60px;
-        width: 60px;
+        height: 48px;
+        width: 72px;
         display: flex;
         justify-content: center;
         align-items: center;
         white-space: normal;
-        border-radius: 50%;
+        border-radius: 8px;
         margin-bottom: 2px;
         outline-style: none;
         -webkit-appearance: none;
+        margin-top: 4px;
     }
     .export-tools__btn:active {
         color: white;
@@ -391,7 +404,7 @@
         margin-left: auto;
     }
     .layers__btn {
-        font-family: "Aleo Regular", sans-serif;
+        font-family: "Avenir", sans-serif;
         font-weight: normal;
         font-style: normal;
         color: #FFAF3F;
@@ -527,7 +540,7 @@
         justify-content: center;
     }
     .help-nav__btn {
-        font-family: "Aleo Regular", sans-serif;
+        font-family: "Avenir", sans-serif;
         font-weight: normal;
         font-style: normal;
         font-size: 12px;
@@ -580,7 +593,7 @@
         text-align: center;
     }
     .intro__btn {
-        font-family: "Aleo Regular", sans-serif;
+        font-family: "Avenir", sans-serif;
         font-weight: normal;
         font-style: normal;
         color: white;
@@ -606,7 +619,7 @@
         text-align: center;
     }
     .layer-thumbnails-nav__btn {
-        font-family: "Aleo Regular", sans-serif;
+        font-family: "Avenir", sans-serif;
         font-weight: normal;
         font-style: normal;
         font-size: 12px;
@@ -665,7 +678,13 @@
        -ms-user-select: none;
        user-select: none;
     }
-    .log-out-link {
+    .additional-info__link:active {
+        color: #1A2E33;
+    }
+    .logout__link {
+        display: none;
+    }
+    .export-options-logout {
         display: none;
     }
     .disclaimer {
@@ -675,8 +694,59 @@
         font-size: 12px;
         color: #528CA5;
     }
+    .export-img {
+        display: none;
+    }
     .export-img-container {
         display: none;
+    }
+    .export-img-container > a {
+        display: none;
+    }
+    .export-options-all {
+        position: absolute;
+        background-color: white;
+        top: 52px;
+        left: 52px;
+        width: 400px;
+        border-radius: 16px;
+        border: solid 4px #FFAF3F;
+        text-align: center;
+        flex-direction: column;
+        align-items: center;
+        justify-content: space-between;
+        z-index: 12;
+        display: none;
+    }
+    .export-options-all-container {
+        padding: 8px;
+        text-align: left;
+    }
+    .export-options-all-container > div {
+        padding: 4px;
+        /*text-align: left;*/
+    }
+    .export-options-close {
+        margin-top: 8px;
+        text-align: center;
+    }
+    .close-all__link {
+        text-align: center;
+        font-family: "Avenir Light";
+        font-weight: normal;
+        font-style: normal;
+        color: #528CA5;
+    }
+    .close-all__link:active {
+        color: #1A2E33;
+    }
+    .export-options__link {
+        height: 36px;
+        font-family: "Aleo Regular", sans-serif;
+        font-weight: normal;
+        font-style: normal;
+        font-size: 28px;
+        color: #FF6F3F;
     }
     .export-options-login {
         position: absolute;
@@ -684,19 +754,23 @@
         top: 52px;
         left: 52px;
         width: 400px;
-        /*height: 354px;*/
         border-radius: 16px;
         border: solid 4px #FFAF3F;
         text-align: center;
-        /*display: none;*/
         flex-direction: column;
         align-items: center;
         justify-content: space-between;
         z-index: 12;
         display: none;
     }
+    .export-options-logo {
+        margin-right: 4px;
+        height: 32px;
+        widows: 32px;
+        vertical-align: bottom;
+    }
     .export-options-login-submit {
-        height: 120px;
+        height: 100px;
         display: flex;
         flex-direction: column;
         justify-content: center;
@@ -710,15 +784,9 @@
         font-style: normal;
         font-size: 12px;
     }
-    .go-back-link {
-        text-decoration: none;
-       -moz-user-select: -moz-none;
-       -khtml-user-select: none;
-       -webkit-user-select: none;
-       -ms-user-select: none;
-       user-select: none;
+    .close-login__link {
     }
-    .go-back-link:active {
+    .close-login__link:active {
         color: #1A2E33;
     }
     .export-options {
@@ -750,6 +818,15 @@
         color: #FFAF3F;
         margin-top: 8px;
     }
+    .export-options__title > a {
+        height: 36px;
+        font-family: "Aleo Regular", sans-serif;
+        font-weight: normal;
+        font-style: normal;
+        font-size: 28px;
+        color: #FFAF3F;
+        margin-top: 8px;
+    }
     .export-options__body {
         /*height: 216px;*/
         width: 324px;
@@ -761,6 +838,24 @@
         font-size: 16px;
         color: #FFAF3F;
         transition: width 1s ease-in-out;
+    }
+    .export-options-container--tweet {
+        display: none;
+    }
+    .export-options--tweet__text {
+        font-family: "Avenir Light", sans-serif;
+        font-weight: normal;
+        font-style: normal;
+        color: #528CA5;
+        border: 2px solid #528CA5;
+        background-color: #CBF2FF;
+        height: 60px;
+        width: 320px;
+        display: inline;
+        resize: none;
+    }
+    .export-options--tweet__text:focus {
+        outline: 0;
     }
     .export-options--photo__text {
         font-family: "Avenir Light", sans-serif;
@@ -799,10 +894,10 @@
         height: 40px;
         display: flex;
         flex-direction: row;
-        margin-top: 8px;
+        /*margin-top: 8px;*/
     }
     .export-options__btn {
-        font-family: "Aleo Regular", sans-serif;
+        font-family: "Avenir", sans-serif;
         font-weight: normal;
         font-style: normal;
         color: white;
