@@ -29,7 +29,6 @@
        -webkit-user-select: none;
        -ms-user-select: none;
        user-select: none;
-
     }
     .title {
         height: 40px;
@@ -466,6 +465,7 @@
         /*white-space: normal;*/
         /*justify-content: center;*/
         text-align: center;
+        justify-content: center;
         /*align-self: flex-end;*/
         align-items: center;
         align-content: center;

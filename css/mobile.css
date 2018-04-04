@@ -22,6 +22,14 @@
         width: 352px;
         height: 352px;
     }
+    a {
+        text-decoration: none;
+       -moz-user-select: -moz-none;
+       -khtml-user-select: none;
+       -webkit-user-select: none;
+       -ms-user-select: none;
+       user-select: none;
+    }
     .title {
         height: 24px;
         font-family: "Aleo Bold", sans-serif;
@@ -56,21 +64,20 @@
        cursor: default;
     }
     .help__link {
-        font-family: "Aleo Regular", sans-serif;
+        font-family: "Avenir", sans-serif;
         font-weight: normal;
         font-style: normal;
         color: #528CA5;
         position: absolute;
-        right: 4px;
-        top: -26px;
-        text-decoration: none;
+        right: 0px;
+        top: -36px;
         flex-flow: column wrap;
        -moz-user-select: -moz-none;
        -khtml-user-select: none;
        -webkit-user-select: none;
        -ms-user-select: none;
        user-select: none;
-       display: none;
+       display: flex;
     }
     .help__link:active {
         color: #1A2E33;
@@ -241,7 +248,7 @@
         justify-content: center;
     }
     .d-pad__btn {
-        font-family: "Aleo Regular", arial, sans-serif;
+        font-family: "Avenir", arial, sans-serif;
         font-weight: normal;
         font-style: normal;
         font-size: 0px;
@@ -274,7 +281,7 @@
         z-index: 98;
     }
     .move-tools__btn {
-        font-family: "Aleo Regular", arial, sans-serif;
+        font-family: "Avenir", arial, sans-serif;
         font-weight: normal;
         font-style: normal;
         font-size: 10px;
@@ -314,7 +321,7 @@
         flex-direction: row;
     }
     .main-tools__btn {
-        font-family: "Aleo Regular", arial, sans-serif;
+        font-family: "Avenir", arial, sans-serif;
         font-weight: normal;
         font-style: normal;
         font-size: 10px;
@@ -346,14 +353,14 @@
         color: white;
     }
     .export-tools {
-        margin-left: 8px;
+        margin-left: 2px;
         width: 100px;
         display: flex;
         flex-direction: row;
         justify-content: space-between;
     }
     .export-tools__btn {
-        font-family: "Aleo Bold", sans-serif;
+        font-family: "Avenir", sans-serif;
         font-weight: normal;
         font-style: normal;
         font-size: 14px;
@@ -416,7 +423,7 @@
         /*height: 512px;*/
     }
     .layers__btn {
-        font-family: "Aleo Regular", arial, sans-serif;
+        font-family: "Avenir", arial, sans-serif;
         font-weight: normal;
         font-style: normal;
         font-size: 4px;
@@ -485,7 +492,7 @@
     .right-sidebar {
         /*border: 16px solid white;*/
         /*border-left: 0px;*/
-        height: 160px;
+        height: 136px;
         width: 384px;
         background-color: #CBF2FF;
         display: inline;
@@ -566,7 +573,7 @@
         text-align: center;
     }
     .layer-thumbnails-nav__btn {
-        font-family: "Aleo Regular", arial, sans-serif;
+        font-family: "Avenir", arial, sans-serif;
         font-weight: normal;
         font-style: normal;
         font-size: 12px;
@@ -616,39 +623,41 @@
         flex: 2;
         text-align: center;
         justify-content: center;
+        display: none;
     }
     .help-container {
-    height: 512px;
-    width: 352px;
-    font-family: "Avenir Light";
-    color: #528CA5;
-    align-items: center;
-    /*justify-content: space-between;*/
-    display: none;
-    flex-direction: column;
+        height: 136px;
+        width: 352px;
+        font-family: "Avenir Light";
+        color: #528CA5;
+        align-items: center;
+        /*justify-content: space-between;*/
+        display: none;
+        flex-direction: column;
     }
     .help-contents {
-        height: 512px;
-        width: 352px;
+        height: 136px;
+        width: 344px;
         font-family: "Aleo Regular", sans-serif;
         font-weight: normal;
         font-style: normal;
-        font-size: 24px;
+        font-size: 22px;
         /*justify-content: space-between;*/
         display: flex;
         flex-direction: column;
         margin-top: 4px;
+        padding-left: 20px;
     }
     .help-topic {
         color: #FFAF3F;
-        margin: 12px;
-        text-decoration: none;
+        margin: 4px;
         flex-flow: column wrap;
        -moz-user-select: -moz-none;
        -khtml-user-select: none;
        -webkit-user-select: none;
        -ms-user-select: none;
        user-select: none;
+       text-align: left;
     }
     .help-nav-container {
         height: 64px;
@@ -659,7 +668,7 @@
         justify-content: center;
     }
     .help-nav__btn {
-        font-family: "Aleo Regular", sans-serif;
+        font-family: "Avenir", sans-serif;
         font-weight: normal;
         font-style: normal;
         font-size: 12px;
@@ -679,7 +688,7 @@
         background-color: #FF3F46;
     }
     .help-message-container {
-        height: 512px;
+        height: 136px;
         width: 352px;
         display: none;
         flex-direction: column;
@@ -689,7 +698,8 @@
         align-items: center; /* Center or top?*/
         justify-content: center;
         /*margin: 8px;*/
-        padding: 8px;
+        padding: 16px;
+        display: none;
     }
     .intro__img {
         height: 64px;
@@ -714,7 +724,7 @@
         text-align: center;
     }
     .intro__btn {
-        font-family: "Aleo Regular", sans-serif;
+        font-family: "Avenir", sans-serif;
         font-weight: normal;
         font-style: normal;
         color: white;
@@ -734,7 +744,7 @@
     }
     .additional-info {
         display: flex;
-        font-family: "Aleo Regular", sans-serif;
+        font-family: "Avenir", sans-serif;
         font-weight: normal;
         font-style: normal;
         height: 36px;
@@ -750,13 +760,7 @@
         color: #528CA5;
         font-size: 12px;
         margin-right: 8px;
-        text-decoration: none;
         flex-flow: column wrap;
-       -moz-user-select: -moz-none;
-       -khtml-user-select: none;
-       -webkit-user-select: none;
-       -ms-user-select: none;
-        user-select: none;
     }
     .additional-info__link:active {
         color: #1A2E33;
@@ -797,7 +801,6 @@
         font-style: normal;
         font-size: 12px;
         color: #528CA5;
-        text-decoration: none;
        -moz-user-select: -moz-none;
        -khtml-user-select: none;
        -webkit-user-select: none;
@@ -808,6 +811,48 @@
         color: #1A2E33;
     }
     .export-options-all {
+        position: absolute;
+        background-color: white;
+        width: 344px;
+        top: 100px;
+        border-radius: 16px;
+        border: solid 4px #FFAF3F;
+        text-align: center;
+        flex-direction: column;
+        align-items: center;
+        justify-content: space-between;
+        z-index: 12;
+        display: none;
+    }
+    .export-options-all-container {
+        padding: 8px;
+        text-align: left;
+    }
+    .export-options-all-container > div {
+        padding: 4px;
+        /*text-align: left;*/
+    }
+    .export-options-close {
+        margin-top: 8px;
+        text-align: center;
+    }
+    .close-all__link {
+        text-align: center;
+        font-family: "Avenir Light";
+        font-weight: normal;
+        font-style: normal;
+        color: #528CA5;
+    }
+    .close-all__link:active {
+        color: #1A2E33;
+    }
+    .export-options__link {
+        height: 36px;
+        font-family: "Aleo Regular", sans-serif;
+        font-weight: normal;
+        font-style: normal;
+        font-size: 28px;
+        color: #FF6F3F;
     }
     .export-options-login {
         position: absolute;
@@ -824,8 +869,10 @@
         display: none;
     }
     .export-options-logo {
+        margin-right: 4px;
         height: 32px;
         widows: 32px;
+        vertical-align: bottom;
     }
     .export-options-login-submit {
         height: 120px;
@@ -841,22 +888,16 @@
         font-style: normal;
         font-size: 12px;
     }
-    .go-back__link {
-        text-decoration: none;
-       -moz-user-select: -moz-none;
-       -khtml-user-select: none;
-       -webkit-user-select: none;
-       -ms-user-select: none;
-       user-select: none;
+    .close-login__link {
     }
-    .go-back__link:active {
+    .close-login__link:active {
         color: #1A2E33;
     }
     .export-options {
         position: absolute;
         background-color: white;
         width: 344px;
-        height: 344px;
+        /*height: 344px;*/
         border-radius: 16px;
         border: solid 4px #FFAF3F;
         text-align: center;
@@ -865,6 +906,15 @@
         align-items: center;
         justify-content: space-between;
         z-index: 99;
+    }
+    .export-options--slack {
+        top: 122px;
+    }
+    .export-options--twitter {
+        top: 80px;
+    }
+    .export-options--facebook {
+        top: 48px;
     }
     .fb-logo {
         position: absolute;
@@ -890,6 +940,24 @@
         font-size: 16px;
         color: #FFAF3F;
         transition: width 1s ease-in-out;
+    }
+    .export-options-container--tweet {
+        display: none;
+    }
+    .export-options--tweet__text {
+        font-family: "Avenir Light", sans-serif;
+        font-weight: normal;
+        font-style: normal;
+        color: #528CA5;
+        border: 2px solid #528CA5;
+        background-color: #CBF2FF;
+        height: 60px;
+        width: 320px;
+        display: inline;
+        resize: none;
+    }
+    .export-options--tweet__text:focus {
+        outline: 0;
     }
     .export-options--photo__text {
         font-family: "Avenir Light", sans-serif;
@@ -931,7 +999,7 @@
         margin-top: 8px;
     }
     .export-options__btn {
-        font-family: "Aleo Regular", sans-serif;
+        font-family: "Avenir", sans-serif;
         font-weight: normal;
         font-style: normal;
         color: white;

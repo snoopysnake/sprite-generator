@@ -1,4 +1,9 @@
 window.onload = function() {
+	var closeBtn = document.querySelector('.close-all__link');
+	closeBtn.onclick = function() {
+		window.close();
+	}
+
 	// Center the key
 	var title = document.querySelector('.info-body__title');
 	if (window.opener != null) {
