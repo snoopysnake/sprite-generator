@@ -5,9 +5,9 @@ var slackCode;
 var twitterRequestToken;
 var twitterAccessToken;
 var twitterSecretToken;
-var totalLayerThumbnails = {'face': 5, 'hair': 2, 'eyebrows': 10, 'eyes': 10, 'nose': 2, 'mouth': 28, 'facial-hair': 4, 'accessory-1': 2, 'accessory-2': 2, 'accessory-3': 2, 'background': 28};
+var totalLayerThumbnails = {'face': 8, 'hair': 28, 'eyebrows': 10, 'eyes': 28, 'nose': 9, 'mouth': 28, 'facial-hair': 20, 'accessory-1': 2, 'accessory-2': 2, 'accessory-3': 2, 'background': 28};
 var selectedIndex = {'face': -1, 'hair': -1, 'eyebrows': -1, 'eyes': -1, 'nose': -1, 'mouth': -1, 'facial-hair': -1, 'accessory-1': -1, 'accessory-2': -1, 'accessory-3': -1, 'background': -1}; // Indices start at 0, -1 == nothing selected
-var layerColor = {'face': 'rgb(255, 255, 255)', 'hair': 'rgb(255, 255, 255)', 'eyebrows': 'fixed', 'eyes': 'fixed', 'nose': 'fixed', 'mouth': 'fixed', 'facial-hair': 'rgb(255, 255, 255)', 'accessory-1': 'rgb(255, 255, 255)', 'accessory-2': 'rgb(0, 0, 0)', 'accessory-3': 'rgb(0, 0, 0)', 'background': 'rgb(255, 175, 63)'};
+var layerColor = {'face': 'rgb(255, 255, 255)', 'hair': 'rgb(255, 255, 255)', 'eyebrows': 'rgb(12,12,12)', 'eyes': 'fixed', 'nose': 'fixed', 'mouth': 'fixed', 'facial-hair': 'rgb(255, 255, 255)', 'accessory-1': 'rgb(255, 111, 63)', 'accessory-2': 'rgb(255, 239, 63)', 'accessory-3': 'rgb(26, 46, 51)', 'background': 'rgb(255, 175, 63)'};
 var layerFlipped = {'face': 1, 'hair': 1, 'eyebrows': 1, 'eyes': 1, 'nose': 1, 'mouth': 1, 'facial-hair': 1, 'accessory-1': 1, 'accessory-2': 1, 'accessory-3': 1};
 var layerWidth = {'eyebrows': 0, 'eyes': 0}
 multiplier = 16;
@@ -779,7 +779,7 @@ function loadLayerThumbnails(pageNum, totalThumbnails) {
         }
         else {
             // layerThumbnails[i].textContent = layerSelected + ' ' + (i + start + 1); // TEMPORARY
-            if (layerColor[layerSelected] != 'fixed' && layerSelected != 'facial-hair') {
+            if (layerColor[layerSelected] != 'fixed' && !(layerSelected == 'facial-hair' && i <= 7) ) {
 	            var imgColor = document.createElement('img');
                 if (layerSelected.includes('accessory')) {
 	            	imgColor.setAttribute('src', 'png/accessory/accessory-color-' + (i + start) + '.png');
@@ -908,6 +908,12 @@ function setIndexAndDraw(currentSelected, index) {
     	enablePalette();
     }
 
+    if (layerSelected == 'facial-hair' && selectedIndex['facial-hair'] >= 0 && selectedIndex['facial-hair'] <= 7) {
+        if (selectedIndex['face'] != -1) {
+            eraseShadow();
+        }
+    }
+
     if (selectedIndex[layerSelected] == index) {
 		if (helpMessageContainer.style.display != 'flex') { // FOR TUTORIAL (if a layer is already drawn)
 	        if (layerSelected != 'background') {
@@ -955,7 +961,7 @@ function setIndexAndDraw(currentSelected, index) {
     var helpMessage = document.querySelector('.help-message');
 	if (helpMessage.innerHTML == 'Next, select any option in the list above.') {
 		if (layerColor[layerSelected] != 'fixed') {
-            if (layerSelected == 'facial-hair' && (selectedIndex['facial-hair'] >= 0 && selectedIndex['facial-hair'] <= 3)) {
+            if (layerSelected == 'facial-hair' && (selectedIndex['facial-hair'] >= 0 && selectedIndex['facial-hair'] <= 7)) {
                 gettingStarted(4);
             }
 			else {
@@ -1042,26 +1048,36 @@ function drawImg(color) {
         ctx.clearRect(0, 0, canvasX, canvasY);
         ctx.globalCompositeOperation = 'source-over'; // I don't know why this works
         if (layerColor[layerSelected] != 'fixed') {
-            if (layerSelected == 'facial-hair') {
+            if (layerSelected == 'facial-hair' && (selectedIndex['facial-hair'] >= 0 && selectedIndex['facial-hair'] <= 7)) {
                 if (selectedIndex['face'] != -1) {
                     drawShadow();
                 }
             }
-            else if (layerSelected == 'face' && (selectedIndex['facial-hair'] >= 0 && selectedIndex['facial-hair'] <= 3)) {
+            else if (layerSelected == 'face' && (selectedIndex['facial-hair'] >= 0 && selectedIndex['facial-hair'] <= 7)) {
                 layerColor['face'] = color; // If face is layer selected, recolor face
                 drawShadow();
             }
             else {
                 var imgColor = new Image();
                 imgColor.onload = function() {
-                    ctx.drawImage(imgColor, 0, 0);
+                    if (layerSelected == 'eyebrows') {
+                        drawImgHalves(imgColor, ctx);
+                    }
+                    else {
+                        ctx.drawImage(imgColor, 0, 0);
+                    }
                     ctx.globalCompositeOperation = 'source-atop';
                     ctx.fillStyle = color;
                     ctx.fillRect(0, 0, canvasX, canvasY);
 
                     var imgOutline = new Image();
                     imgOutline.onload = function() {
-                        ctx.drawImage(imgOutline, 0, 0);
+                        if (layerSelected == 'eyebrows') {
+                            drawImgHalves(imgOutline, ctx);
+                        }
+                        else {
+                            ctx.drawImage(imgOutline, 0, 0);
+                        }
                     }
                     imgOutline.onerror = function() {
                         drawImg(color);
@@ -1096,15 +1112,8 @@ function drawImg(color) {
         else {
             var img = new Image();
             img.onload = function() {
-                if (layerSelected == 'eyebrows' || layerSelected == 'eyes') {
-                    if (layerWidth[layerSelected] <= 0) {
-                        ctx.drawImage(img, 0 + layerWidth[layerSelected], 0, canvasX/2, canvasY, 0, 0, canvasX/2, canvasY); // Right eye
-                        ctx.drawImage(img, canvasX/2 - layerWidth[layerSelected], 0, canvasX/2, canvasY, canvasX/2, 0, canvasX/2, canvasY); // Left eye
-                    }
-                    else {
-                        ctx.drawImage(img, 0 + layerWidth[layerSelected], 0, canvasX/2 - layerWidth[layerSelected], canvasY, 0, 0, canvasX/2 - layerWidth[layerSelected], canvasY); // Right eye
-                        ctx.drawImage(img, canvasX/2, 0, canvasX/2, canvasY, canvasX/2 + layerWidth[layerSelected], 0, canvasX/2, canvasY); // Left eye
-                    }
+                if (layerSelected == 'eyes') {
+                    drawImgHalves(img, ctx);
                 }
                 else {
                     ctx.drawImage(img, 0, 0);
@@ -1115,6 +1124,28 @@ function drawImg(color) {
             }
             img.src = 'png/' + layerSelected + '/' + layerSelected + '-' + selectedIndex[layerSelected] + '.png';
         }
+    }
+}
+
+function drawImgHalves(img, ctx) {
+    if (layerWidth[layerSelected] <= 0) {
+        ctx.drawImage(img, 0 + layerWidth[layerSelected], 0, canvasX/2, canvasY, 0, 0, canvasX/2, canvasY); // Right eye
+        ctx.drawImage(img, canvasX/2 - layerWidth[layerSelected], 0, canvasX/2, canvasY, canvasX/2, 0, canvasX/2, canvasY); // Left eye
+    }
+    else {
+        ctx.drawImage(img, 0 + layerWidth[layerSelected], 0, canvasX/2 - layerWidth[layerSelected], canvasY, 0, 0, canvasX/2 - layerWidth[layerSelected], canvasY); // Right eye
+        ctx.drawImage(img, canvasX/2, 0, canvasX/2, canvasY, canvasX/2 + layerWidth[layerSelected], 0, canvasX/2, canvasY); // Left eye
+    }
+}
+
+function drawImgHalvesTranslateAll(currentLayer, img, ctx) {
+    if (layerWidth[currentLayer] <= 0) {
+        ctx.drawImage(img, 0 + layerWidth[currentLayer], 0, canvasX/2, canvasY, 0, 0, canvasX/2, canvasY); // Right eye
+        ctx.drawImage(img, canvasX/2 - layerWidth[currentLayer], 0, canvasX/2, canvasY, canvasX/2, 0, canvasX/2, canvasY); // Left eye
+    }
+    else {
+        ctx.drawImage(img, 0 + layerWidth[currentLayer], 0, canvasX/2 - layerWidth[currentLayer], canvasY, 0, 0, canvasX/2 - layerWidth[currentLayer], canvasY); // Right eye
+        ctx.drawImage(img, canvasX/2, 0, canvasX/2, canvasY, canvasX/2 + layerWidth[currentLayer], 0, canvasX/2, canvasY); // Left eye
     }
 }
 
@@ -1194,7 +1225,7 @@ function drawBackground(colorSelected) {
 	    	case 6: drawSpriteBackground('campfire', 240, false, true); break;
 	    	case 7: drawSpriteBackground('campfire', 300, true, true); break;
             case 8: drawSpriteBackground('15', 0, false, false); break;
-            case 9: drawSpriteBackground('15', 300, true, false); break;
+            case 9: drawSpriteBackground('15', 500, true, false); break;
             case 10: drawSpriteBackground('15', 240, false, true); break;
             case 11: drawSpriteBackground('15', 300, true, true); break;
             case 12: drawSpriteBackground('13', 0, false, false); break;
@@ -1430,7 +1461,7 @@ function translateAll(layer, moveableLayers, x, y, reset) {
 	        ctx.clearRect(0, 0, canvasX, canvasY);
 	        ctx.globalCompositeOperation = 'source-over';
 	        if (layerColor[currentLayer] != 'fixed') {
-                if (currentLayer == 'facial-hair' && selectedIndex['facial-hair'] >= 0 && selectedIndex['facial-hair'] <= 3) {
+                if (currentLayer == 'facial-hair' && selectedIndex['facial-hair'] >= 0 && selectedIndex['facial-hair'] <= 7) {
                     if (selectedIndex['face'] != -1) {
                         drawShadow();
                     }
@@ -1438,14 +1469,25 @@ function translateAll(layer, moveableLayers, x, y, reset) {
                 else {
     	            var imgColor = new Image();
     	            imgColor.onload = function() {
-    	                ctx.drawImage(imgColor, 0, 0);
+                        if (currentLayer == 'eyebrows') {
+                            drawImgHalvesTranslateAll(currentLayer, imgColor, ctx);
+                        }
+                        else {
+                            ctx.drawImage(imgColor, 0, 0);
+                        }
     	                ctx.globalCompositeOperation = 'source-atop';
     	                ctx.fillStyle = layerColor[currentLayer];
     	                ctx.fillRect(0, 0, canvasX, canvasY);
     	                var imgOutline = new Image();
     	                imgOutline.onload = function() {
-    	                    ctx.drawImage(imgOutline, 0, 0);
-    	                    translateAll(layer + 1, moveableLayers, x, y, reset); // TRANSLATE
+                            if (currentLayer == 'eyebrows') {
+                                drawImgHalvesTranslateAll(currentLayer, imgOutline, ctx);
+                                translateAll(layer + 1, moveableLayers, x, y, reset); // TRANSLATE
+                            }
+                            else {
+                                ctx.drawImage(imgOutline, 0, 0);
+                                translateAll(layer + 1, moveableLayers, x, y, reset); // TRANSLATE
+                            }
     	                }
     	                imgOutline.onerror = function() {
     	                    drawImg(color);
@@ -1473,15 +1515,14 @@ function translateAll(layer, moveableLayers, x, y, reset) {
             else {
 	            var img = new Image();
 	            img.onload = function() {
-	                if (currentLayer == 'eyebrows' || currentLayer == 'eyes') {
-	                    ctx.drawImage(img, 0 + layerWidth[currentLayer], 0, canvasX/2, canvasY, 0, 0, canvasX/2, canvasY); // Right eye
-	                    ctx.drawImage(img, canvasX/2 - layerWidth[currentLayer], 0, canvasX/2, canvasY, canvasX/2, 0, canvasX/2, canvasY); // Left eye
-	                    translateAll(layer + 1, moveableLayers, x, y, reset); // TRANSLATE
-	                }
-	                else {
-	                    ctx.drawImage(img, 0, 0);
-	                    translateAll(layer + 1, moveableLayers, x, y, reset); // TRANSLATE
-	                }
+                    if (currentLayer == 'eyes') {
+                        drawImgHalvesTranslateAll(currentLayer, img, ctx);
+                        translateAll(layer + 1, moveableLayers, x, y, reset); // TRANSLATE
+                    }
+                    else {
+                        ctx.drawImage(img, 0, 0);
+                        translateAll(layer + 1, moveableLayers, x, y, reset); // TRANSLATE
+                    }
 	            }
 	            img.onerror = function() {
                     translateAll(layer, moveableLayers, x, y, reset); // TRANSLATE
@@ -1537,11 +1578,6 @@ function eraseLayer() {
             if (layerSelected == 'eyebrows' || layerSelected == 'eyes') {
                 layerWidth[layerSelected] = 0;
             }
-            if (layerSelected == 'facial-hair' && selectedIndex['facial-hair'] >= 0 && selectedIndex['facial-hair'] <= 3) {
-                if (selectedIndex['face'] != -1) {
-                    eraseShadow();
-                }
-            }
         }
         // Remove previously selected layer thumbnail if present
         var prevSelected = document.querySelector('.layer-thumbnails__row__cell--selected');
@@ -1567,7 +1603,7 @@ function eraseAll() {
         prevSelected.classList.remove('layer-thumbnails__row__cell--selected');
     }
     selectedIndex = {'face': -1, 'hair': -1, 'eyebrows': -1, 'eyes': -1, 'nose': -1, 'mouth': -1, 'facial-hair': -1, 'accessory-1': -1, 'accessory-2': -1, 'accessory-3': -1, 'background': -1}; // Indices start at 0, -1 == nothing selected
-    layerColor = {'face': 'rgb(255, 255, 255)', 'hair': 'rgb(255, 255, 255)', 'eyebrows': 'fixed', 'eyes': 'fixed', 'nose': 'fixed', 'mouth': 'fixed', 'facial-hair': 'rgb(255, 255, 255)', 'accessory-1': 'rgb(0, 0, 0)', 'accessory-2': 'rgb(0, 0, 0)', 'accessory-3': 'rgb(0, 0, 0)', 'background': 'rgb(255, 175, 63)'};
+    layerColor = {'face': 'rgb(255, 255, 255)', 'hair': 'rgb(255, 255, 255)', 'eyebrows': 'rgb(12,12,12)', 'eyes': 'fixed', 'nose': 'fixed', 'mouth': 'fixed', 'facial-hair': 'rgb(255, 255, 255)', 'accessory-1': 'rgb(255, 111, 63)', 'accessory-2': 'rgb(255, 239, 63)', 'accessory-3': 'rgb(26, 46, 51)', 'background': 'rgb(255, 175, 63)'};
 }
 
 function openHelp() {
