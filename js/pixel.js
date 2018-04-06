@@ -5,9 +5,9 @@ var slackCode;
 var twitterRequestToken;
 var twitterAccessToken;
 var twitterSecretToken;
-var totalLayerThumbnails = {'face': 8, 'hair': 28, 'eyebrows': 10, 'eyes': 28, 'nose': 9, 'mouth': 28, 'facial-hair': 20, 'accessory-1': 2, 'accessory-2': 2, 'accessory-3': 2, 'background': 28};
+var totalLayerThumbnails = {'face': 8, 'hair': 28, 'eyebrows': 10, 'eyes': 28, 'nose': 9, 'mouth': 28, 'facial-hair': 20, 'accessory-1': 20, 'accessory-2': 20, 'accessory-3': 20, 'background': 28};
 var selectedIndex = {'face': -1, 'hair': -1, 'eyebrows': -1, 'eyes': -1, 'nose': -1, 'mouth': -1, 'facial-hair': -1, 'accessory-1': -1, 'accessory-2': -1, 'accessory-3': -1, 'background': -1}; // Indices start at 0, -1 == nothing selected
-var layerColor = {'face': 'rgb(255, 255, 255)', 'hair': 'rgb(255, 255, 255)', 'eyebrows': 'rgb(12,12,12)', 'eyes': 'fixed', 'nose': 'fixed', 'mouth': 'fixed', 'facial-hair': 'rgb(255, 255, 255)', 'accessory-1': 'rgb(255, 111, 63)', 'accessory-2': 'rgb(255, 239, 63)', 'accessory-3': 'rgb(26, 46, 51)', 'background': 'rgb(255, 175, 63)'};
+var layerColor = {'face': 'rgb(255, 255, 255)', 'hair': 'rgb(255, 255, 255)', 'eyebrows': 'rgb(12,12,12)', 'eyes': 'fixed', 'nose': 'fixed', 'mouth': 'fixed', 'facial-hair': 'rgb(12, 12, 12)', 'accessory-1': 'rgb(255, 111, 63)', 'accessory-2': 'rgb(255, 239, 63)', 'accessory-3': 'rgb(26, 46, 51)', 'background': 'rgb(255, 175, 63)'};
 var layerFlipped = {'face': 1, 'hair': 1, 'eyebrows': 1, 'eyes': 1, 'nose': 1, 'mouth': 1, 'facial-hair': 1, 'accessory-1': 1, 'accessory-2': 1, 'accessory-3': 1};
 var layerWidth = {'eyebrows': 0, 'eyes': 0}
 multiplier = 16;
@@ -44,12 +44,12 @@ window.onload = function setup() {
     	eraseLayer();
         if (layerSelected != 'background') {
             if (layerColor[layerSelected] != 'fixed') {
-        		if (layerSelected.includes('accessory')) {
-        			color = '#000000';
-        		}
-        		else {
-        			color = '#FFFFFF';
-        		}
+        		// if (layerSelected.includes('accessory')) {
+        		// 	layerColor[layerSelected] = '#000000';
+        		// }
+        		// else {
+        		// 	layerColor[layerSelected] = '#FFFFFF';
+        		// }
             }
         }
         else {
@@ -779,7 +779,7 @@ function loadLayerThumbnails(pageNum, totalThumbnails) {
         }
         else {
             // layerThumbnails[i].textContent = layerSelected + ' ' + (i + start + 1); // TEMPORARY
-            if (layerColor[layerSelected] != 'fixed' && !(layerSelected == 'facial-hair' && i <= 7) ) {
+            if (layerColor[layerSelected] != 'fixed') {
 	            var imgColor = document.createElement('img');
                 if (layerSelected.includes('accessory')) {
 	            	imgColor.setAttribute('src', 'png/accessory/accessory-color-' + (i + start) + '.png');
@@ -908,12 +908,6 @@ function setIndexAndDraw(currentSelected, index) {
     	enablePalette();
     }
 
-    if (layerSelected == 'facial-hair' && selectedIndex['facial-hair'] >= 0 && selectedIndex['facial-hair'] <= 7) {
-        if (selectedIndex['face'] != -1) {
-            eraseShadow();
-        }
-    }
-
     if (selectedIndex[layerSelected] == index) {
 		if (helpMessageContainer.style.display != 'flex') { // FOR TUTORIAL (if a layer is already drawn)
 	        if (layerSelected != 'background') {
@@ -921,15 +915,6 @@ function setIndexAndDraw(currentSelected, index) {
 	        	disableDPad();
 	        	disableMoveTools(0,3);
 	            eraseLayer();
-	            // Double clicking removes color (functions same as erase layer button)
-	            if (layerColor[layerSelected] != 'fixed') {
-	        		if (layerSelected.includes('accessory')) {
-	        			color = '#000000';
-	        		}
-	        		else {
-	        			color = '#FFFFFF';
-	        		}
-	            }
 	        }
             else {
 	        	drawBackground(layerColor['background']);
@@ -953,7 +938,11 @@ function setIndexAndDraw(currentSelected, index) {
             drawBackground(layerColor['background']);
         }
         else {
+            // Redraw facial hair if face is added/changed
         	drawImg(layerColor[layerSelected]);
+            if (layerSelected == 'face' && selectedIndex['facial-hair'] != -1) {
+                drawFacialHair(layerColor['facial-hair']);
+            }
         }
     }
 
@@ -961,12 +950,7 @@ function setIndexAndDraw(currentSelected, index) {
     var helpMessage = document.querySelector('.help-message');
 	if (helpMessage.innerHTML == 'Next, select any option in the list above.') {
 		if (layerColor[layerSelected] != 'fixed') {
-            if (layerSelected == 'facial-hair' && (selectedIndex['facial-hair'] >= 0 && selectedIndex['facial-hair'] <= 7)) {
-                gettingStarted(4);
-            }
-			else {
-                gettingStarted(3);
-            }
+            gettingStarted(3);
 		}
 		else {
 			gettingStarted(4);
@@ -1048,14 +1032,8 @@ function drawImg(color) {
         ctx.clearRect(0, 0, canvasX, canvasY);
         ctx.globalCompositeOperation = 'source-over'; // I don't know why this works
         if (layerColor[layerSelected] != 'fixed') {
-            if (layerSelected == 'facial-hair' && (selectedIndex['facial-hair'] >= 0 && selectedIndex['facial-hair'] <= 7)) {
-                if (selectedIndex['face'] != -1) {
-                    drawShadow();
-                }
-            }
-            else if (layerSelected == 'face' && (selectedIndex['facial-hair'] >= 0 && selectedIndex['facial-hair'] <= 7)) {
-                layerColor['face'] = color; // If face is layer selected, recolor face
-                drawShadow();
+            if (layerSelected == 'facial-hair') {
+                drawFacialHair(color);
             }
             else {
                 var imgColor = new Image();
@@ -1100,13 +1078,13 @@ function drawImg(color) {
                 else {
                     imgColor.src = 'png/' + layerSelected + '/' + layerSelected + '-color-' + selectedIndex[layerSelected] + '.png';
                 }
-                layerColor[layerSelected] = color;
+            }
+            layerColor[layerSelected] = color;
 
-                // FOR TUTORIAL
-                var helpMessage = document.querySelector('.help-message');
-                if (helpMessage.innerHTML == 'Now, choose a color in the palette!') {
-                    gettingStarted(4);
-                }
+            // FOR TUTORIAL
+            var helpMessage = document.querySelector('.help-message');
+            if (helpMessage.innerHTML == 'Now, choose a color in the palette!') {
+                gettingStarted(4);
             }
         } 
         else {
@@ -1149,36 +1127,56 @@ function drawImgHalvesTranslateAll(currentLayer, img, ctx) {
     }
 }
 
-function drawShadow() {
-    var faceLayer = document.querySelector('.layer--face');
-    var ctx = faceLayer.getContext('2d');
-    var imgColor = new Image();
-    imgColor.onload = function() {
-        ctx.drawImage(imgColor, 0, 0);
-        ctx.globalCompositeOperation = 'source-atop';
+function drawFacialHair(color) {
+    var facialHairLayer = document.querySelector('.layer--facial-hair');
+    var ctx = facialHairLayer.getContext('2d');
+    ctx.clearRect(0,0,32,32);
+    var selectedFace = selectedIndex['face'];
+    if (selectedFace == -1) {
+        selectedFace = 0;
+    }
+    var faceColor = new Image();
+    faceColor.onload = function() {
+        facialHairLayer.style.display = 'none';
+        ctx.drawImage(faceColor, 0, 0);
+        ctx.globalCompositeOperation = 'source-in';
         ctx.fillStyle = layerColor['face'];
-        ctx.fillRect(0, 0, canvasX, canvasY);
-        var facialHair = new Image();
-        facialHair.onload = function() {
-            ctx.drawImage(facialHair, 0, 0);
-            var imgOutline = new Image();
-            imgOutline.onload = function() {
-                ctx.drawImage(imgOutline, 0, 0);
+        ctx.fillRect(0, -1, canvasX, canvasY);
+        var facialHairColor = new Image();
+        facialHairColor.onload = function() {
+            facialHairLayer.style.display = 'inline';
+            ctx.drawImage(facialHairColor, 0, 0);
+            ctx.fillStyle = color;
+            ctx.fillRect(0, 0, canvasX, canvasY);
+            var facialHairOutline = new Image();
+            facialHairOutline.onload = function() {
+                ctx.globalCompositeOperation = 'source-atop';
+                ctx.drawImage(facialHairOutline, 0, 0);
+                var faceOutline = new Image();
+                faceOutline.onload = function() {
+                    ctx.globalCompositeOperation = 'destination-out';
+                    ctx.drawImage(faceOutline, 0, 0);
+                    ctx.globalCompositeOperation = 'source-over';
+                }
+                faceOutline.onerror = function() {
+                    drawFacialHair(color);
+                }
+                faceOutline.src = 'png/face/face-outline-'+selectedFace+'.png';
             }
-            imgOutline.onerror = function() {
-                drawShadow();
+            facialHairOutline.onerror = function() {
+                drawFacialHair(color);
             }
-            imgOutline.src = 'png/face/face-outline-' + selectedIndex['face'] + '.png';
+            facialHairOutline.src = 'png/facial-hair/facial-hair-outline-'+selectedIndex['facial-hair']+'.png';
         }
-        facialHair.onerror = function() {
-            drawShadow();
+        facialHairColor.onerror = function() {
+            drawFacialHair(color);
         }
-        facialHair.src = 'png/facial-hair/facial-hair-'+selectedIndex['facial-hair']+'.png';
+        facialHairColor.src = 'png/facial-hair/facial-hair-color-'+selectedIndex['facial-hair']+'.png';
     }
-    imgColor.onerror = function() {
-        drawShadow();
+    faceColor.onerror = function() {
+        drawFacialHair(color);
     }
-    imgColor.src = 'png/face/face-color-'+selectedIndex['face']+'.png';
+    faceColor.src = 'png/face/face-color-'+selectedFace+'.png';
 }
 
 function eraseShadow() {
@@ -1461,25 +1459,24 @@ function translateAll(layer, moveableLayers, x, y, reset) {
 	        ctx.clearRect(0, 0, canvasX, canvasY);
 	        ctx.globalCompositeOperation = 'source-over';
 	        if (layerColor[currentLayer] != 'fixed') {
-                if (currentLayer == 'facial-hair' && selectedIndex['facial-hair'] >= 0 && selectedIndex['facial-hair'] <= 7) {
-                    if (selectedIndex['face'] != -1) {
-                        drawShadow();
-                    }
+                if (currentLayer == 'facial-hair') {
+                    drawFacialHair(layerColor['facial-hair']);
+                    translateAll(layer + 1, moveableLayers, x, y, reset); // TRANSLATE
                 }
                 else {
-    	            var imgColor = new Image();
-    	            imgColor.onload = function() {
+                    var imgColor = new Image();
+                    imgColor.onload = function() {
                         if (currentLayer == 'eyebrows') {
                             drawImgHalvesTranslateAll(currentLayer, imgColor, ctx);
                         }
                         else {
                             ctx.drawImage(imgColor, 0, 0);
                         }
-    	                ctx.globalCompositeOperation = 'source-atop';
-    	                ctx.fillStyle = layerColor[currentLayer];
-    	                ctx.fillRect(0, 0, canvasX, canvasY);
-    	                var imgOutline = new Image();
-    	                imgOutline.onload = function() {
+                        ctx.globalCompositeOperation = 'source-atop';
+                        ctx.fillStyle = layerColor[currentLayer];
+                        ctx.fillRect(0, 0, canvasX, canvasY);
+                        var imgOutline = new Image();
+                        imgOutline.onload = function() {
                             if (currentLayer == 'eyebrows') {
                                 drawImgHalvesTranslateAll(currentLayer, imgOutline, ctx);
                                 translateAll(layer + 1, moveableLayers, x, y, reset); // TRANSLATE
@@ -1488,28 +1485,28 @@ function translateAll(layer, moveableLayers, x, y, reset) {
                                 ctx.drawImage(imgOutline, 0, 0);
                                 translateAll(layer + 1, moveableLayers, x, y, reset); // TRANSLATE
                             }
-    	                }
-    	                imgOutline.onerror = function() {
-    	                    drawImg(color);
-    	                }
+                        }
+                        imgOutline.onerror = function() {
+                            drawImg(color);
+                        }
                         // Change file name for accessories
-    	                if (currentLayer.includes('accessory')) {
-    	                    imgOutline.src = 'png/accessory/accessory-outline-' + selectedIndex[currentLayer] + '.png';
-    	                }
+                        if (currentLayer.includes('accessory')) {
+                            imgOutline.src = 'png/accessory/accessory-outline-' + selectedIndex[currentLayer] + '.png';
+                        }
                         else {
-    	                    imgOutline.src = 'png/' + currentLayer + '/' + currentLayer + '-outline-' + selectedIndex[currentLayer] + '.png';
-    	                }
-    	            }
-    	            imgColor.onerror = function() {
+                            imgOutline.src = 'png/' + currentLayer + '/' + currentLayer + '-outline-' + selectedIndex[currentLayer] + '.png';
+                        }
+                    }
+                    imgColor.onerror = function() {
                         translateAll(layer, moveableLayers, x, y, reset); // TRANSLATE
-    	            }
-    	            // Change file name for accessories
-    	            if (currentLayer.includes('accessory')) {
-    	                imgColor.src = 'png/accessory/accessory-color-' + selectedIndex[currentLayer] + '.png';
-    	            }
+                    }
+                    // Change file name for accessories
+                    if (currentLayer.includes('accessory')) {
+                        imgColor.src = 'png/accessory/accessory-color-' + selectedIndex[currentLayer] + '.png';
+                    }
                     else {
-    	                imgColor.src = 'png/' + currentLayer + '/' + currentLayer + '-color-' + selectedIndex[currentLayer] + '.png';
-    	            }
+                        imgColor.src = 'png/' + currentLayer + '/' + currentLayer + '-color-' + selectedIndex[currentLayer] + '.png';
+                    }
                 }
 	        }
             else {
@@ -2095,12 +2092,12 @@ function enableLeftTools() {
         eraseLayer();
         if (layerSelected != 'background') {
             if (layerColor[layerSelected] != 'fixed') {
-                if (layerSelected.includes('accessory')) {
-                    color = '#000000';
-                }
-                else {
-                    color = '#FFFFFF';
-                }
+                // if (layerSelected.includes('accessory')) {
+                //     layerColor[layerSelected] = '#000000';
+                // }
+                // else {
+                //     layerColor[layerSelected] = '#FFFFFF';
+                // }
             }
         }
         else {

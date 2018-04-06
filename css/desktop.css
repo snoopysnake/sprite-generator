@@ -929,22 +929,22 @@
         z-index: 2;
     }
     .layer--hair { 
-        z-index: 3;
+        z-index: 5;
     }
     .layer--eyebrows { 
         z-index: 4;
     }
     .layer--eyes { 
-        z-index: 5;
+        z-index: 3;
     }
     .layer--nose { 
-        z-index: 6;
+        z-index: 8;
     }
     .layer--mouth { 
         z-index: 7;
     }
     .layer--facial-hair { 
-        z-index: 8;
+        z-index: 6;
     }
     .layer--accessory-1 { 
         z-index: 9;
