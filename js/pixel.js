@@ -5,7 +5,7 @@ var slackCode;
 var twitterRequestToken;
 var twitterAccessToken;
 var twitterSecretToken;
-var totalLayerThumbnails = {'face': 8, 'hair': 28, 'eyebrows': 10, 'eyes': 28, 'nose': 9, 'mouth': 28, 'facial-hair': 20, 'accessory-1': 20, 'accessory-2': 20, 'accessory-3': 20, 'background': 28};
+var totalLayerThumbnails = {'face': 7, 'hair': 31, 'eyebrows': 9, 'eyes': 12, 'nose': 9, 'mouth': 26, 'facial-hair': 20, 'accessory-1': 16, 'accessory-2': 16, 'accessory-3': 16, 'background': 28};
 var selectedIndex = {'face': -1, 'hair': -1, 'eyebrows': -1, 'eyes': -1, 'nose': -1, 'mouth': -1, 'facial-hair': -1, 'accessory-1': -1, 'accessory-2': -1, 'accessory-3': -1, 'background': -1}; // Indices start at 0, -1 == nothing selected
 var layerColor = {'face': 'rgb(255, 255, 255)', 'hair': 'rgb(255, 255, 255)', 'eyebrows': 'rgb(12,12,12)', 'eyes': 'fixed', 'nose': 'fixed', 'mouth': 'fixed', 'facial-hair': 'rgb(12, 12, 12)', 'accessory-1': 'rgb(255, 111, 63)', 'accessory-2': 'rgb(255, 239, 63)', 'accessory-3': 'rgb(26, 46, 51)', 'background': 'rgb(255, 175, 63)'};
 var layerFlipped = {'face': 1, 'hair': 1, 'eyebrows': 1, 'eyes': 1, 'nose': 1, 'mouth': 1, 'facial-hair': 1, 'accessory-1': 1, 'accessory-2': 1, 'accessory-3': 1};
@@ -783,7 +783,7 @@ function loadLayerThumbnails(pageNum, totalThumbnails) {
 	            var imgColor = document.createElement('img');
                 if (layerSelected.includes('accessory')) {
 	            	imgColor.setAttribute('src', 'png/accessory/accessory-color-' + (i + start) + '.png');
-                } 
+                }
                 else {
 	            	imgColor.setAttribute('src', 'png/' + layerSelected + '/' + layerSelected + '-color-' + (i + start) + '.png');
 	        	}
@@ -794,6 +794,9 @@ function loadLayerThumbnails(pageNum, totalThumbnails) {
 	            var imgOutline = document.createElement('img');
                 if (layerSelected.includes('accessory')) {
 	            	imgOutline.setAttribute('src', 'png/accessory/accessory-outline-' + (i + start) + '.png');
+                    if ((pageNum-1)*totalThumbnails+i == 27) {
+                        layerThumbnails[i].textContent = 'Earrings';
+                    }
                 } 
                 else {
 	            	imgOutline.setAttribute('src', 'png/' + layerSelected + '/' + layerSelected + '-outline-' + (i + start) + '.png');
